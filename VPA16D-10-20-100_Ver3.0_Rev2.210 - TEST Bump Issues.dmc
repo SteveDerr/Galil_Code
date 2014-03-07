@@ -1220,11 +1220,27 @@ REM // New changes below//
 IF StCylB=3; 'This should be the normal case
   MLcurB=_TPB/CntsPMLB
   MLzeroB=MLcurB
-  CtlSpd=SPcurA
   JS#OpnBout
-  IF SloPXfr=1
+  IF (SloPXfr=1) & (Ramping=0)
     ASetPt=_ZRA
     i=0
+    LoopIt=1
+    DSetPt=8
+    IF AveSp < (.5*FRMax)
+      LoopIt=30
+      IF AveSp < (.3*FRMax)
+        DSetPt=6
+        IF AveSp < (.2*FRMax)
+          DSetPt=4
+            IF AveSp < (.15*FRMax)
+              DSetPt=2
+              LoopIt=40
+            IF AveSp < (.1*FRMax)
+              DSetPt=1
+          ENDIF
+        ENDIF
+      ENDIF
+    ENDIF
     JS#XferDeA
   ENDIF
   XdcrCur=2
@@ -1236,29 +1252,11 @@ ENDIF
 EN
 
 #XferDeA
-LoopIt=1
-DSetPt=8
-IF AveSp < (.5*FRMax)
-  DSetPt=8
-  LoopIt=30
-  IF AveSp < (.3*FRMax)
-    DSetPt=6
-    IF AveSp < (.2*FRMax)
-      DSetPt=4
-      IF AveSp < (.15*FRMax)
-        DSetPt=2
-        LoopIt=40
-        IF AveSp < (.1*FRMax)
-          DSetPt=1
-        ENDIF
-      ENDIF
-    ENDIF
-  ENDIF
 ENDIF
 ZR ASetPt - (DSetPt*(i+1))
 WT 100
 i=i+1
-JP#XferDeA,(i<LoopIt) & (.8*CtlSpd>SPcurB)
+JP#XferDeA,(i<LoopIt) & (Ramping=0)
 EN
 
 #Ex2RflA
@@ -1272,11 +1270,28 @@ EN
 IF StCylA=3; 'This should be the normal case
   MLcurA=_TPA/CntsPMLA
   MLzeroA=MLcurA
-  CtlSpd=SPcurB
   JS#OpnAout
-  IF SloPXfr=1
+  IF (SloPXfr=1) & (Ramping=0)
     BSetPt = _ZRB
     i=0
+    LoopIt=1
+    DSetPt=8
+    IF AveSp < (.5*FRMax)
+      LoopIt=30
+      IF AveSp < (.3*FRMax)
+        DSetPt=6
+        IF AveSp < (.2*FRMax)
+          DSetPt=4
+          IF AveSp < (.15*FRMax)
+            DSetPt=2
+            LoopIt=40
+            IF AveSp < (.1*FRMax)
+              DSetPt=1
+            ENDIF
+          ENDIF
+        ENDIF
+      ENDIF
+    ENDIF
     JS#XferDeB
   ENDIF
   XdcrCur=2
@@ -1288,29 +1303,10 @@ ENDIF
 EN
 
 #XferDeB
-LoopIt=1
-DSetPt=8
-IF AveSp < (.5*FRMax)
-  DSetPt=8
-  LoopIt=30
-  IF AveSp < (.3*FRMax)
-    DSetPt=6
-    IF AveSp < (.2*FRMax)
-      DSetPt=4
-      IF AveSp < (.15*FRMax)
-        DSetPt=2
-        LoopIt=40
-        IF AveSp < (.1*FRMax)
-          DSetPt=1
-        ENDIF
-      ENDIF
-    ENDIF
-  ENDIF
-ENDIF
 ZR ,BSetPt - (DSetPt*(i+1))
 WT 100
 i=i+1
-JP#XferDeB,(i<LoopIt) & (.8*CtlSpd>SPcurA)
+JP#XferDeB,(i<LoopIt) & (Ramping=0)
 EN
 
 #Ex2RflB
