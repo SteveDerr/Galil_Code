@@ -1225,6 +1225,29 @@ IF StCylB=3; 'This should be the normal case
 'Use slower, smoother transition if not ramping and SloPXfr set true.
     JS#SetDelV
     ASetPt=_ZRA
+<<<<<<< HEAD
+=======
+    i=0
+    LoopIt=1
+    DSetPt=8
+    CtlSpd=(AveSp*.8)
+    IF AveSp < (.5*FRMax)
+      LoopIt=30
+      IF AveSp < (.3*FRMax)
+        DSetPt=6
+        IF AveSp < (.2*FRMax)
+          DSetPt=4
+          IF AveSp < (.15*FRMax)
+            DSetPt=2
+            LoopIt=40
+            IF AveSp < (.1*FRMax)
+              DSetPt=1
+            ENDIF
+          ENDIF
+        ENDIF
+      ENDIF
+    ENDIF
+>>>>>>> fixes to test code
     JS#XferDeA
   ENDIF
   XdcrCur=2
@@ -1235,6 +1258,7 @@ ELSE
 ENDIF
 EN
 
+<<<<<<< HEAD
 #SetDelV 
 'Set delay variables for transition. 
 i=0
@@ -1260,10 +1284,13 @@ EN
 #XferDeA
 'Routine lowers pressure set point of controlling cylinder,
 'forcing idle cylinder to speed up.
+=======
+#XferDeA
+>>>>>>> fixes to test code
 ZR ASetPt - (DSetPt*(i+1))
 WT 100
 i=i+1
-JP#XferDeA,(i<LoopIt) & (Ramping=0)
+JP#XferDeA,(i<LoopIt) & (Ramping=0) & (SPcurB<CtlSpd)
 EN
 
 #Ex2RflA
@@ -1280,7 +1307,30 @@ IF StCylA=3; 'This should be the normal case
   JS#OpnAout
   IF (SloPXfr=1) & (Ramping=0)
     BSetPt = _ZRB
+<<<<<<< HEAD
     JS#SetDelV
+=======
+    i=0
+    LoopIt=1
+    DSetPt=8
+    CtlSpd=(AveSp*.8)
+    IF AveSp < (.5*FRMax)
+      LoopIt=30
+      IF AveSp < (.3*FRMax)
+        DSetPt=6
+        IF AveSp < (.2*FRMax)
+          DSetPt=4
+          IF AveSp < (.15*FRMax)
+            DSetPt=2
+            LoopIt=40
+            IF AveSp < (.1*FRMax)
+              DSetPt=1
+            ENDIF
+          ENDIF
+        ENDIF
+      ENDIF
+    ENDIF
+>>>>>>> fixes to test code
     JS#XferDeB
   ENDIF
   XdcrCur=2
@@ -1295,7 +1345,7 @@ EN
 ZR ,BSetPt - (DSetPt*(i+1))
 WT 100
 i=i+1
-JP#XferDeB,(i<LoopIt) & (Ramping=0)
+JP#XferDeB,(i<LoopIt) & (Ramping=0) & (SPcurA<CtlSpd)
 EN
 
 #Ex2RflB
