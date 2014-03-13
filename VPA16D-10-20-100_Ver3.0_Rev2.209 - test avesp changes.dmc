@@ -86,11 +86,10 @@ REM 2.206 - Set SPcntsA/B min from 150 to 50
 REM 2.207 - Changed each Dual Cylinder configs
 REM 2.208 - Added if statement to #Restart that resets valve config during Init for Cyl moving up
 REM 2.209 - Fixed missing parenthesis on in #SPEED
-REM 2.210 - Added XsferDeA and XsferDeb functions
 
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
-Rev=2.210;Version=3.0;CylNum=2;Frstim=0
+Rev=2.209;Version=3.0;CylNum=2;Frstim=0
 RampA=0;RampB=0;StT2A=0;StT2B=0;OvrPresA=0;OvrPresB=0;RstPosA=0;RstPosB=0
 MO;CE 2,2;CN -1;MT 1,1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0;ResetMLB=0
 KP 12,12;KD 30,30;KI 0,0;OverLim=0;ZC 0,0;CONTA=0;CONTB=0;FlowRB=0;FloVolB=0
@@ -101,16 +100,34 @@ PState=0;XdcrCur=1;jststrd=1;Fjststrd=1;Pready=0;ReqStp=0;StCylA=0;StCylB=0
 StReflA=0;StReflB=0;Paused=0;ta2b=0;tb2a=0;TlastA=TIME;TlastB=TIME;ErrMsg=0
 InitDone=0;CyclDone=0;Transit=0;PTempA=0;PTempB=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;FracLo=0;LowFlow=0;CompErr=0;Finding=0
-ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0;SloPXfr=0
+ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0;DM MLHistA[5];DM MLHistB[5]
 JS#STRTDAQ;JS#ZEROOF;EN
 '
-
 #SPEED
 IF (Aflow>0)&(Bflow>0)
    ' vAeSp=((0.8*AveSp) + (0.1*SPcurA) + (0.1*SPcurB));'DON'T CHANGE AveSP
 ELSE
-  IF Aflow>0;AveSp=((0.2*AveSp) + (0.8*SPcurA));ENDIF
-  IF Bflow>0;AveSp=((0.2*AveSp) + (0.8*SPcurB));ENDIF
+'//new code
+'Shift array elemets
+  MLHistA[4]=MLHistA[3]
+  MLHistA[3]=MLHistA[2]
+  MLHistA[2]=MLHistA[1]
+  MLHistA[1]=MLHistA[0]
+  MLHistA[0]=MLcurA
+
+  MLHistB[4]=MLHistB[3]
+  MLHistB[3]=MLHistB[2]
+  MLHistB[2]=MLHistB[1]
+  MLHistB[1]=MLHistB[0]
+  MLHistB[0]=MLcurB
+  IF Aflow>0
+    AveSp=((0.2*AveSp) + (0.8*SPcurA))
+    AveSp2=((MLHistA[4]-MLHistA[0])*60)
+  ENDIF
+  IF Bflow>0
+    AveSp=((0.2*AveSp) + (0.8*SPcurB))
+    AveSp2=((MLHistB[4]-MLHistB[0])*60)
+  ENDIF
   IF ((Aflow=0)&(Bflow=0));AveSp=0;ENDIF
 ENDIF
 EN
@@ -1215,94 +1232,37 @@ tb2a=0
 ZCB=0
 JG ,0;BGB
 EN
-REM // New changes below//
+'
 #TPrAtoB
 IF StCylB=3; 'This should be the normal case
-  MLcurB=_TPB/CntsPMLB
-  MLzeroB=MLcurB
-  JS#OpnBout
-  IF (SloPXfr=1) & (Ramping=0)
-'Use slower, smoother transition if not ramping and SloPXfr set true.
-    JS#SetDelV
-    ASetPt=_ZRA
-    JS#XferDeA
-  ENDIF
-  XdcrCur=2
-  JP#Ex2RflA 
+  MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;JS#OpnBout;XdcrCur=2
+  JP#Ex2RflA  
 ELSE
   NewErr=1;ErrMsg=15 
   JP#Ex2RflA
 ENDIF
 EN
 
-#SetDelV 
-'Set delay variables for transition. 
-i=0
-LoopIt=1
-DSetPt=8
-IF AveSp < (.5*FRMax)
-  LoopIt=30
-  IF AveSp < (.3*FRMax)
-    DSetPt=6
-    IF AveSp < (.2*FRMax)
-      DSetPt=4
-        IF AveSp < (.15*FRMax)
-          DSetPt=2
-          LoopIt=40
-        IF AveSp < (.1*FRMax)
-          DSetPt=1
-      ENDIF
-    ENDIF
-  ENDIF
-ENDIF
-EN
-
-#XferDeA
-'Routine lowers pressure set point of controlling cylinder,
-'forcing idle cylinder to speed up.
-ZR ASetPt - (DSetPt*(i+1))
-WT 100
-i=i+1
-JP#XferDeA,(i<LoopIt) & (Ramping=0)
-EN
-
 #Ex2RflA
 JS#ClsAout
 StCylA=1;JS#SETPST
 JP#REFILLA
-ZR SPcntsA
 EN
 
 #TPrBtoA
 IF StCylA=3; 'This should be the normal case
-  MLcurA=_TPA/CntsPMLA
-  MLzeroA=MLcurA
-  JS#OpnAout
-  IF (SloPXfr=1) & (Ramping=0)
-    BSetPt = _ZRB
-    JS#SetDelV
-    JS#XferDeB
-  ENDIF
-  XdcrCur=2
-  JP#Ex2RflB
+  MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;JS#OpnAout;XdcrCur=1
+  JP#Ex2RflB  
 ELSE
   NewErr=1;ErrMsg=16 
   JP#Ex2RflB
 ENDIF
 EN
 
-#XferDeB
-ZR ,BSetPt - (DSetPt*(i+1))
-WT 100
-i=i+1
-JP#XferDeB,(i<LoopIt) & (Ramping=0)
-EN
-
 #Ex2RflB
 JS#ClsBout
 StCylB=1;JS#SETPST
 JP#REFILLB
-ZR ,SPcntsB
 EN
 '
 #VCALCSA
