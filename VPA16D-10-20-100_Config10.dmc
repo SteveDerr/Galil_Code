@@ -1,0 +1,79 @@
+REM VAP16D-10-20-100 CONFIGURATION - REV 1-23-2013
+REM Config3 Added InVopn=0 to #FACTSET, Added CfgVer
+REM Config4 Added JgSpCal, RateCal
+REM Config8 added #INITCF,#FACTCAL
+REM Config9 Initiliazed PcurA,PcurB in #FACTSET
+REM Config10 Initalized SloPXfr in #FACTSET and XfrMlMin in #VESPRM
+
+#DEFSPD
+JgSpd=(InitRate*CntsPMLA)/60
+JgSpdMn=(ReflFmn*CntsPMLA)/60
+JgSpCal=(RateCal*CntsPMLA)/60
+EN
+#DEFZKD
+IF _AQ1=1
+  A2DFS=10;ZK 200,200;ZD 300,300;ZI1,1;ZF 0.95,0.95
+ENDIF
+IF _AQ1=3
+  A2DFS=5;ZK 100,100;ZD 150,150;ZI0.5,0.5;ZF 0.95,0.95
+ENDIF
+IF _AQ1=4
+  A2DFS=10;ZK 200,200;ZD 300,300;ZI1,1;ZF 0.95,0.95
+ENDIF
+EN
+#FACTSET
+SD 10000000,10000000
+TestMode=0;DontOpn=0;CfgVer=7
+PmpSpdA=0;PmpSpdB=0;MLzeroA=0;MLzeroB=0;MLaccum=0;Kgain=0
+Emax=100;Igain=0;Dgain=0;MLofstA=0;MLofstB=0
+MLtotA=0;MLtotB=0;TarVol=2000000000;lpDlay=5;MLDispA=0;MLDispB=0
+HiSpdA=0;HiSpdB=0;DSpdA=0;LoSpdA=0;LoSpdB=0;DSpdB=0;RevSpdA=0;RevSpdB=0
+MLlastA=0;MLlastB=0;Kx=1;MaxPerr=500;InVopn=0;SloPXfr=1
+MLcurA=0;MLcurB=0;MLtot=0;TrnsVol=0;PSetPt=0;SPlocal=0;ZTAave=0;ZTBave=0
+Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=250;tdla=4;KP 4,4;KD 30,30;KI 0,0
+Aflow=0;Bflow=0;PfiltA=0;PfiltB=0;PlastA=0;PlastB=0;RampRate=0;TarPres=0
+RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
+OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
+JS #VESPRM
+JS #MECHPRM
+JS #TESTCAL
+JS #INITCF,Frstim>0
+JS #FACTCAL,Frstim=0
+JS #SYSCFG
+EN
+#MECHPRM
+RodSize=2;Pxdcr=7;AQ 1,4;AQ 2,4;AQ 3,4
+BSLead = 5
+ECtsPR = 20000
+MotorRed = 20
+TotStke = 200
+Margin = 5
+EN
+#FACTCAL
+MLPmmA=MLPmmAf;MLPmmB=MLPmmBf;PfsVA=PfsVAf;PfsVB=PfsVBf;EN
+#BNFCAL
+MLPmmAf=MLPmmA;MLPmmBf=MLPmmB;PfsVAf=PfsVA;PfsVBf=PfsVB;BV
+EN
+#INITCF
+PfsVA=5.000;PfsVB=5.000;PfsVAf=5.000;PfsVBf=5.000
+MLPmmA=(3.14159*RodDia[RodSize]*RodDia[RodSize])/4000
+MLPmmB=(3.14159*RodDia[RodSize]*RodDia[RodSize])/4000
+MLPmmAf=MLPmmA;MLPmmBf=MLPmmB
+EN
+#SYSCFG
+CntsPmm=(ECtsPR*MotorRed)/BSLead
+JgSpdMx=1900000
+JS#SETSCAL
+JS #DEFSPD
+JS#DEFZKD
+JS #VSCALE
+BV;BN;EN
+
+#VESPRM
+StkeA=200;StkeB=200;VolA=19.5;VolB=19.5;StartMLA=18;StartMLB=18;PmpRate=-50
+Amin=1.5;Bmin=1.5;Amax=18.5;Bmax=18.5;FwdAlrmA=19.5;FwdAlrmB=19.5;PMax=10000
+RevAlrmA=2;RevAlrmB=2;Tdec=2;VolpCyl=18.5;CalStrtA=18;CalStrtB=18
+ReflPc=100;StrtTol=2;TranStps=500;DecVol=3;FRMax=100;ErrVol=.25*VolA
+InitRate=50;ReflFmn=10;PmpMode=1;PmpStart=18;RcvStart=2;RateCal=40
+RefillRA=100;RefillRB=100;XfrMlMin=.1
+EN

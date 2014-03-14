@@ -1216,33 +1216,38 @@ ZCB=0
 JG ,0;BGB
 EN
 
+'Set variables for XferDeA and XferDeB
+#StDlVar
+i=0
+LoopIt=1
+DSetPt=8
+CtlSpd=(AveSp*.8)
+IF AveSp < (.5*FRMax)
+  LoopIt=30
+  IF AveSp < (.3*FRMax)
+    DSetPt=6
+    IF AveSp < (.2*FRMax)
+      DSetPt=4
+      IF AveSp < (.15*FRMax)
+        DSetPt=2
+        LoopIt=40
+        IF AveSp < (.1*FRMax)
+          DSetPt=1
+        ENDIF
+      ENDIF
+    ENDIF
+  ENDIF
+ENDIF
+EN
+
 #TPrAtoB
 IF StCylB=3; 'This should be the normal case
   MLcurB=_TPB/CntsPMLB
   MLzeroB=MLcurB
   JS#OpnBout
-  IF (SloPXfr=1) & (Ramping=0)
+  IF (SloPXfr=1) & (Ramping=0) & (MLcurA>XfrMlMin)
     ASetPt=_ZRA
-    i=0
-    LoopIt=1
-    DSetPt=8
-    CtlSpd=(AveSp*.8)
-    IF AveSp < (.5*FRMax)
-      LoopIt=30
-      IF AveSp < (.3*FRMax)
-        DSetPt=6
-        IF AveSp < (.2*FRMax)
-          DSetPt=4
-          IF AveSp < (.15*FRMax)
-            DSetPt=2
-            LoopIt=40
-            IF AveSp < (.1*FRMax)
-              DSetPt=1
-            ENDIF
-          ENDIF
-        ENDIF
-      ENDIF
-    ENDIF
+    JS#StDlVar
     JS#XferDeA
   ENDIF
   XdcrCur=2
@@ -1253,11 +1258,12 @@ ELSE
 ENDIF
 EN
 
+'Delay loop to minimize psi drop between switch
 #XferDeA
 ZR ASetPt - (DSetPt*(i+1))
 WT 100
 i=i+1
-JP#XferDeA,(i<LoopIt) & (Ramping=0) & (SPcurB<CtlSpd)
+JP#XferDeA,(i<LoopIt) & (Ramping=0) & (SPcurB<CtlSpd) & (MLcurA>XfrMlMin)
 EN
 
 #Ex2RflA
@@ -1272,28 +1278,9 @@ IF StCylA=3; 'This should be the normal case
   MLcurA=_TPA/CntsPMLA
   MLzeroA=MLcurA
   JS#OpnAout
-  IF (SloPXfr=1) & (Ramping=0)
+  IF (SloPXfr=1) & (Ramping=0) & (MLcurB>XfrMlMin)
     BSetPt = _ZRB
-    i=0
-    LoopIt=1
-    DSetPt=8
-    CtlSpd=(AveSp*.8)
-    IF AveSp < (.5*FRMax)
-      LoopIt=30
-      IF AveSp < (.3*FRMax)
-        DSetPt=6
-        IF AveSp < (.2*FRMax)
-          DSetPt=4
-          IF AveSp < (.15*FRMax)
-            DSetPt=2
-            LoopIt=40
-            IF AveSp < (.1*FRMax)
-              DSetPt=1
-            ENDIF
-          ENDIF
-        ENDIF
-      ENDIF
-    ENDIF
+    JS#StDlVar
     JS#XferDeB
   ENDIF
   XdcrCur=2
@@ -1304,11 +1291,12 @@ ELSE
 ENDIF
 EN
 
+'Delay loop to minimize psi drop between switch
 #XferDeB
 ZR ,BSetPt - (DSetPt*(i+1))
 WT 100
 i=i+1
-JP#XferDeB,(i<LoopIt) & (Ramping=0) & (SPcurA<CtlSpd)
+JP#XferDeB,(i<LoopIt) & (Ramping=0) & (SPcurA<CtlSpd) & (MLcurB>XfrMlMin)
 EN
 
 #Ex2RflB
@@ -1412,3 +1400,5 @@ JS #ClsAout;JS #ClsAin;JS#ClsBin;JS#OpnBout;EN
 JS #ClsAin;JS #ClsBin;EN
 #ClsOut
 JS #ClsAout;JS #ClsBout;EN
+
+REM ********* CUSTOM CONFIGURATION FILES - INSERT BELOW
