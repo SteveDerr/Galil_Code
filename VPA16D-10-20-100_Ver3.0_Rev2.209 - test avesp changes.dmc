@@ -100,7 +100,7 @@ PState=0;XdcrCur=1;jststrd=1;Fjststrd=1;Pready=0;ReqStp=0;StCylA=0;StCylB=0
 StReflA=0;StReflB=0;Paused=0;ta2b=0;tb2a=0;TlastA=TIME;TlastB=TIME;ErrMsg=0
 InitDone=0;CyclDone=0;Transit=0;PTempA=0;PTempB=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;FracLo=0;LowFlow=0;CompErr=0;Finding=0
-ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0;DM MLHistA[5];DM MLHistB[5]
+ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0;DM AveSpAr[10];AveSpTm=TIME
 JS#STRTDAQ;JS#ZEROOF;EN
 '
 #SPEED
@@ -109,24 +109,39 @@ IF (Aflow>0)&(Bflow>0)
 ELSE
 '//new code
 'Shift array elemets
-  MLHistA[4]=MLHistA[3]
-  MLHistA[3]=MLHistA[2]
-  MLHistA[2]=MLHistA[1]
-  MLHistA[1]=MLHistA[0]
-  MLHistA[0]=MLcurA
 
-  MLHistB[4]=MLHistB[3]
-  MLHistB[3]=MLHistB[2]
-  MLHistB[2]=MLHistB[1]
-  MLHistB[1]=MLHistB[0]
-  MLHistB[0]=MLcurB
+  AveSpAr[9]=AveSpAr[8]
+  AveSpAr[8]=AveSpAr[7]
+  AveSpAr[7]=AveSpAr[6]
+  AveSpAr[6]=AveSpAr[5]
+  AveSpAr[5]=AveSpAr[4]
+  AveSpAr[4]=AveSpAr[3]
+  AveSpAr[3]=AveSpAr[2]
+  AveSpAr[2]=AveSpAr[1]
+  AveSpAr[1]=AveSpAr[0]
+ 
   IF Aflow>0
-    AveSp=((0.2*AveSp) + (0.8*SPcurA))
-    AveSp2=((MLHistA[4]-MLHistA[0])*60)
+    AveSp=((0.8*AveSp) + (0.2*SPcurA))
+    AveSpAr[0]=SPcurA
+    TempSpTo=(SPcurA+AveSpAr[1]+AveSpAr[2]+AveSpAr[3]+AveSpAr[4]+AveSpAr[5])
+    AveSp2=((TempSpTo+AveSpAr[6]+AveSpAr[7]+AveSpAr[8]+AveSpAr[9])/10)
+'test version 3
+    IF TIME - AveSpTm >=1024
+      AveSp3 = ((((OldCntsA - _TPA)/CntsPMLA)*((TIME-AveSpTm)/1024))*60)
+      OldCntsA = _TPA
+      AveSpTm=TIME
+    ENDIF
   ENDIF
   IF Bflow>0
-    AveSp=((0.2*AveSp) + (0.8*SPcurB))
-    AveSp2=((MLHistB[4]-MLHistB[0])*60)
+    AveSp=((0.8*AveSp) + (0.2*SPcurB))
+    AveSpAr[0]=SPcurB
+    TempSpTo=(SPcurB+AveSpAr[1]+AveSpAr[2]+AveSpAr[3]+AveSpAr[4]+AveSpAr[5])
+    AveSp2=((TempSpTo+AveSpAr[6]+AveSpAr[7]+AveSpAr[8]+AveSpAr[9])/10)
+    IF TIME - AveSpTm >=1024
+      AveSp3 = ((((OldCntsB - _TPB)/CntsPMLB)*((TIME-AveSpTm)/1024))*60)
+      OldCntsB = _TPB
+      AveSpTm=TIME
+    ENDIF
   ENDIF
   IF ((Aflow=0)&(Bflow=0));AveSp=0;ENDIF
 ENDIF
