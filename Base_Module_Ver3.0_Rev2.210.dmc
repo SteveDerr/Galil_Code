@@ -86,7 +86,7 @@ REM 2.206 - Set SPcntsA/B min from 150 to 50
 REM 2.207 - Changed each Dual Cylinder configs
 REM 2.208 - Added if statement to #Restart that resets valve config during Init for Cyl moving up
 REM 2.209 - Fixed missing parenthesis on in #SPEED
-REM 2.210 - Added XsferDeA and XsferDeb functions
+REM 2.210 - Added XsferDeA and XsferDeb functions, add Errline=_ED after NewErr=1
 
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
@@ -202,7 +202,7 @@ ENDIF
 Transit=0
 EN
 #CMDERR
-ZC 0,0;ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErr=1;ErrMsg=100+ErrCode;HX;EN
+ZC 0,0;ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErr=1;Errline=_ED;ErrMsg=100+ErrCode;HX;EN
 #CURPA
 AccumA=0;IncA=0;AccumB=0
 #REPEATA;AccumA=AccumA+_ZTA;AccumB=AccumB+_ZTB;IncA=IncA+1;WT tdla
@@ -219,7 +219,7 @@ IF PcurA>PMax;OvrPresA=OvrPresA+1
       'SP 0,0;'STA;'STB;'ZCA=0;'ZCB=0;'HX;'EN
       JS#ESTOP
     ENDIF
-    ErrMsg=12;NewErr=1
+    ErrMsg=12;NewErr=1;Errline=_ED
     IF PState>0
       ReStpP=1
     ELSE
@@ -237,7 +237,7 @@ IF PcurB>PMax;OvrPresB=OvrPresB+1
       'SP 0,0;'STA;'STB;'ZCA=0;'ZCB=0;'HX;'EN
       JS#ESTOP
     ENDIF
-    ErrMsg=13;NewErr=1
+    ErrMsg=13;NewErr=1;Errline=_ED
     IF PState>0
       ReStpP=1
     ELSE
@@ -418,12 +418,12 @@ SPlow=_SPB;SPhigh=SPlow+2;FracLo=(@ABS[PmpSpdB]-_SPB)*1000;FracHi=2000-FracLo
 EN
 #LSLOOP
 IF((_LFA+_LRA)<>2
-  ZCA=0;StCylA=0;NewErr=1;ErrMsg=17;HX2
+  ZCA=0;StCylA=0;NewErr=1;Errline=_ED;ErrMsg=17;HX2
   JS#ClsAout;JS#OpnAin;JS#SETPST
   IF StCylB=3;JS#OpnBout;ENDIF
 ENDIF
 IF((_LFB+_LRB)<>2
-  ZCB=0;StCylB=0;NewErr=1;ErrMsg=18;HX6
+  ZCB=0;StCylB=0;NewErr=1;Errline=_ED;ErrMsg=18;HX6
   JS#ClsBout;JS#OpnBin;JS#SETPST
   IF StCylA=3;JS#OpnAout;ENDIF
 ENDIF
@@ -544,7 +544,7 @@ XQ#SYNCA,2
 Pready=1
 EN
 #POSERR
-NewErr=1;ErrMsg=11;ST;AM;MO;SH;ZS;HX;RE
+NewErr=1;Errline=_ED;ErrMsg=11;ST;AM;MO;SH;ZS;HX;RE
 
 #REFILLA
 StReflA=1;StCylA=1
@@ -910,10 +910,10 @@ IF (MLcurA<0)|(MLcurA>VolA); 'Cylinder is out of limits-chng to Pos FB
   ZCA=0;CompErr=1
   IF MLcurA<0;ErrMsg=1;ENDIF
   IF MLcurA>VolA;ErrMsg=2;ENDIF
-  NewErr=1
+  NewErr=1;Errline=_ED
   RampA=0
 ENDIF
-IF MLcurA<MLlimA;ZCA=0;StCylA=0;ErrMsg=8;NewErr=1;CompErr=1;RampA=0;ENDIF 
+IF MLcurA<MLlimA;ZCA=0;StCylA=0;ErrMsg=8;NewErr=1;Errline=_ED;CompErr=1;RampA=0;ENDIF 
 ZR SPtmpA
 WT 5
 JP#RMPA,RampA=1
@@ -926,11 +926,11 @@ IF (MLcurA<0)|(MLcurA>VolA); 'Cylinder is out of limits-chng to Pos FB
     ZCA=0;StCylA=0;CompErr=1
     IF MLcurA<0;ErrMsg=1;ENDIF
     IF MLcurA>VolA;ErrMsg=2;ENDIF
-    NewErr=1;AtPA=1;'exit this loop
+    NewErr=1;Errline=_ED;AtPA=1;'exit this loop
   ENDIF
 ENDIF
 IF MLcurA<MLlimA;'Comp > 25% cyl vol or vol avail to Amin
-    IF _ZCA>0;ZCA=0;StCylA=0;ErrMsg=8;NewErr=1;ENDIF
+    IF _ZCA>0;ZCA=0;StCylA=0;ErrMsg=8;NewErr=1;Errline=_ED;ENDIF
     CompErr=1;AtPA=1;'exit this loop
 ENDIF
 IF (@ABS[SPtmpA-ZTAave]<500)
@@ -980,10 +980,10 @@ IF (MLcurB<0)|(MLcurB>VolB); 'Cylinder is out of limits-chng to Pos FB
   ZCB=0;StCylB=0;CompErr=1
   IF MLcurB<0;ErrMsg=3;ENDIF
   IF MLcurB>VolB;ErrMsg=4;ENDIF
-  NewErr=1
+  NewErr=1;Errline=_ED
   RampB=0
 ENDIF
-IF MLcurB<MLlimB;ZCB=0;StCylB=0;ErrMsg=9;NewErr=1;CompErr=1;RampB=0;ENDIF
+IF MLcurB<MLlimB;ZCB=0;StCylB=0;ErrMsg=9;NewErr=1;Errline=_ED;CompErr=1;RampB=0;ENDIF
 ZR ,SPtmpB
 WT 5
 JP#RMPB,RampB=1
@@ -994,11 +994,11 @@ IF (MLcurB<0)|(MLcurB>VolB); 'Cylinder is out of limits-chng to Pos FB
     ZCB=0;StCylB=0;CompErr=1
     IF MLcurB<0;ErrMsg=3;ENDIF
     IF MLcurB>VolB;ErrMsg=4;ENDIF
-    NewErr=1;AtPB=1;'exit this loop
+    NewErr=1;Errline=_ED;AtPB=1;'exit this loop
   ENDIF
 ENDIF
 IF MLcurB<MLlimB;'Comp > 25% cyl vol
-  IF _ZCB>0;ZCB=0;StCylB=0;ErrMsg=9;NewErr=1;CompErr=1;ENDIF
+  IF _ZCB>0;ZCB=0;StCylB=0;ErrMsg=9;NewErr=1;Errline=_ED;CompErr=1;ENDIF
   CompErr=1;AtPA=1;'exit this loop
 ENDIF
 IF (@ABS[SPtmpB-ZTBave]<500)
@@ -1137,7 +1137,7 @@ ENDIF
 ZR SPTRA
 WT 5
 IF MLcurA<MLlimA;'Comp > 25% cyl vol
-  ErrMsg=8;NewErr=1;TRampA=0
+  ErrMsg=8;NewErr=1;Errline=_ED;TRampA=0
 ENDIF
 JP#TRMPA,TRampA=1
 #LOOPA1
@@ -1147,11 +1147,11 @@ ZR SPTRA
 IF (MLcurA<0)|(MLcurA>VolA); 'Cylout of limits-chng to Pos FB
   IF MLcurA<0;ErrMsg=1;ENDIF
   IF MLcurA>VolA;ErrMsg=2;ENDIF
-  NewErr=1
+  NewErr=1;Errline=_ED
   ta2b=1
 ENDIF
 IF MLcurA<MLlimA;'Comp > 25% cyl vol
-  ErrMsg=8;NewErr=1
+  ErrMsg=8;NewErr=1;Errline=_ED
   ta2b=1
 ENDIF
 JP#LOOPA1,ta2b=0
@@ -1192,7 +1192,7 @@ ENDIF
 ZR ,SPTRB
 WT 5
 IF MLcurB<MLlimB;'Comp > 25% cyl vol
-  ErrMsg=9;NewErr=1;TRampB=0
+  ErrMsg=9;NewErr=1;Errline=_ED;TRampB=0
 ENDIF
 JP#TRMPB,TRampB=1
 #LOOPB1
@@ -1202,11 +1202,11 @@ ZR ,SPTRB
 IF (MLcurB<0)|(MLcurB>VolB); 'Cyl out of limits-chng to Pos FB
   IF MLcurB<0;ErrMsg=3;ENDIF
   IF MLcurB>VolB;ErrMsg=4;ENDIF
-  NewErr=1
+  NewErr=1;Errline=_ED
   tb2a=1
 ENDIF
 IF MLcurB<MLlimB;'Comp > 25% cyl vol
-  ErrMsg=9;NewErr=1
+  ErrMsg=9;NewErr=1;Errline=_ED
   tb2a=1
 ENDIF
 JP#LOOPB1,tb2a=0
@@ -1253,7 +1253,7 @@ IF StCylB=3; 'This should be the normal case
   XdcrCur=2
   JP#Ex2RflA 
 ELSE
-  NewErr=1;ErrMsg=15 
+  NewErr=1;Errline=_ED;ErrMsg=15 
   JP#Ex2RflA
 ENDIF
 EN
@@ -1286,7 +1286,7 @@ IF StCylA=3; 'This should be the normal case
   XdcrCur=2
   JP#Ex2RflB
 ELSE
-  NewErr=1;ErrMsg=16 
+  NewErr=1;Errline=_ED;ErrMsg=16 
   JP#Ex2RflB
 ENDIF
 EN
