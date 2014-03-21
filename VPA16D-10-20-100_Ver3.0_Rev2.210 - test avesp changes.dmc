@@ -103,18 +103,44 @@ StReflA=0;StReflB=0;Paused=0;ta2b=0;tb2a=0;TlastA=TIME;TlastB=TIME;ErrMsg=0
 InitDone=0;CyclDone=0;Transit=0;PTempA=0;PTempB=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;FracLo=0;LowFlow=0;CompErr=0;Finding=0
 ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0
+DM AveSpAr[10];AveSpTm=TIME;Speedi=0
 JS#STRTDAQ;JS#ZEROOF;EN
 '
-
 #SPEED
+'Shift array elemets
+
+  AveSpAr[9]=AveSpAr[8]
+  AveSpAr[8]=AveSpAr[7]
+  AveSpAr[7]=AveSpAr[6]
+  AveSpAr[6]=AveSpAr[5]
+  AveSpAr[5]=AveSpAr[4]
+  AveSpAr[4]=AveSpAr[3]
+  AveSpAr[3]=AveSpAr[2]
+  AveSpAr[2]=AveSpAr[1]
+  AveSpAr[1]=AveSpAr[0]
+
 IF (Aflow>0)&(Bflow>0)
    ' vAeSp=((0.8*AveSp) + (0.1*SPcurA) + (0.1*SPcurB));'DON'T CHANGE AveSP
 ELSE
-  IF Aflow>0;AveSp=((0.2*AveSp) + (0.8*SPcurA));ENDIF
-  IF Bflow>0;AveSp=((0.2*AveSp) + (0.8*SPcurB));ENDIF
+  IF Aflow>0
+'    AveSp=((0.2*AveSp) + (0.8*SPcurA))
+    AveSpAr[0]=SPcurA;Speedi=Speedi+1
+  ENDIF 
+  IF Bflow>0
+'    AveSp=((0.2*AveSp) + (0.8*SPcurB))
+    AveSpAr[0]=SPcurB;Speedi=Speedi+1
+  ENDIF
   IF ((Aflow=0)&(Bflow=0));AveSp=0;ENDIF
 ENDIF
+IF Speedi=4;JS#SPEED2;ENDIF
 EN
+
+#SPEED2
+Speedi=0
+TempSpTo=(AveSp[0]+AveSpAr[1]+AveSpAr[2]+AveSpAr[3]+AveSpAr[4]+AveSpAr[5])
+AveSp=((TempSpTo+AveSpAr[6]+AveSpAr[7]+AveSpAr[8]+AveSpAr[9])/10)
+EN
+
 #ADJSPA
 SP SPhigh
 WT FracLo
