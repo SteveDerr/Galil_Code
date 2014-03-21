@@ -87,7 +87,7 @@ REM 2.207 - Changed each Dual Cylinder configs
 REM 2.208 - Added if statement to #Restart that resets valve config during Init for Cyl moving up
 REM 2.209 - Fixed missing parenthesis on in #SPEED
 REM 2.210 - Added XsferDeA and XsferDeb functions, add Errline=_ED after NewErr=1
-REM 2.210 cont - added variables ASpdFac, BSpdFac, LstCntsA, LstCntsB
+REM 2.210 cont - added variables SpdFacA, SpdFacB, LstCntsA, LstCntsB
 
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
@@ -477,7 +477,7 @@ EN
 #CALCNTA
 StkML=TotStke*MLPmmA
 CntsPMLA=CntsPmm/MLPmmA
-ASpdFac=CntsPLMA/61440
+SpdFacA=CntsPLMA/61440
 CntMarg = Margin*CntsPmm
 IF Burn>0;Burn=0;BV;ENDIF;EN
 #MLSCALB
@@ -485,7 +485,7 @@ IF Burn>0;Burn=0;BV;ENDIF;EN
 #CALCNTB
 StkML=TotStke*MLPmmB
 CntsPMLB=CntsPmm/MLPmmB
-BSpdFac=CntsPMLB/61440
+SpdFacB=CntsPMLB/61440
 CntMarg = Margin*CntsPmm
 IF Burn>0;Burn=0;BV;ENDIF;EN
 
