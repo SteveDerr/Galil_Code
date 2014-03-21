@@ -280,7 +280,9 @@ ENDIF
 EN
 #CURMLA
 MLcurA=_TPA/CntsPMLA;TcurA=TIME;CurCntsA=_TPA
-SPcurA=((LstCntsA-CurCntsA)/(TcurA-TlastA))/SpdFacA
+'In rare cases this loop runs with 0 time between.
+'Add if statement to avoid div by zero
+IF TcurA-TlastA<>0;SPcurA=((LstCntsA-CurCntsA)/(TcurA-TlastA))/SpdFacA;ENDIF
 ' DelTA=((TcurA-TlastA)/61440);'SPcurA=(MLlastA-MLcurA)/DelTA
 LstCntsA=CurCntsA;TlastA=TcurA;
 IF ((FState<>3)&(PState<>3))
@@ -295,7 +297,9 @@ ENDIF
 EN
 #CURMLB
 MLcurB=_TPB/CntsPMLB;TcurB=TIME;CurCntsB=_TPB
-SPcurB=((LstCntsB-CurCntsB)/(TcurB-TlastB))/SpdFacB
+'In rare cases this loop runs with 0 time between.
+'Add if statement to avoid div by zero
+IF TcurB-TlastB<>0;SPcurB=((LstCntsB-CurCntsB)/(TcurB-TlastB))/SpdFacB;ENDIF
 'DelTB=((TcurB-TlastB)/61440);'SPcurB=(MLlastB-MLcurB)/DelTB
 LstCntsB=CurCntsB;TlastB=TcurB
 IF ((FState<>6)&(PState<>6))
