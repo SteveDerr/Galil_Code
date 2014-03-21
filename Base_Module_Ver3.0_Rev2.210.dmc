@@ -477,7 +477,10 @@ EN
 #CALCNTA
 StkML=TotStke*MLPmmA
 CntsPMLA=CntsPmm/MLPmmA
-SpdFacA=CntsPLMA/61440
+'Dumbed down math for galil
+SpdFacA=(@RND[(CntsPMLA/10)]/6144)
+'Round to 2 decimal places
+SpdFacA=(@RND[(SpdFacA*100)]/100)
 CntMarg = Margin*CntsPmm
 IF Burn>0;Burn=0;BV;ENDIF;EN
 #MLSCALB
@@ -485,7 +488,10 @@ IF Burn>0;Burn=0;BV;ENDIF;EN
 #CALCNTB
 StkML=TotStke*MLPmmB
 CntsPMLB=CntsPmm/MLPmmB
-SpdFacB=CntsPMLB/61440
+'Dumbed down math for Galil
+SpdFacB=(@RND[(CntsPMLB/10)]/6144)
+'Round to 2 decimal places
+SpdFacB=(@RND[(SpdFacB*100)]/100)
 CntMarg = Margin*CntsPmm
 IF Burn>0;Burn=0;BV;ENDIF;EN
 
