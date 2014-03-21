@@ -4,7 +4,8 @@ REM Config4 Added JgSpCal, RateCal
 REM Config5 change start and volume parameters
 REM Config8 added #INITCF,#FACTCAL
 REM Config9 Initilized PcurA and PcurB in #FACTSET
-REM Config10 Initalize SloPXfr in #FACTSET and set XfrMlMin=? to generate error so we test.
+REM Config10 Initalize SloPXfr in #FACTSET and set XfrMlMin=? to generate error so we test
+REM -cont- Initalize LstCntsA&B
 
 #DEFSPD
 JgSpd=(InitRate*CntsPMLA)/60
@@ -35,6 +36,7 @@ Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=250;tdla=4;KP 12,12;KD 30,30;KI 0,0
 Aflow=0;Bflow=0;PfiltA=0;PfiltB=0;PlastA=0;PlastB=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
 OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
+LstCntsA=0;LstCntsB=0
 JS #VESPRM
 JS #MECHPRM
 JS #TESTCAL

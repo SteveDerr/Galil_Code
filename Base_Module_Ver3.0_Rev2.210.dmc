@@ -87,6 +87,7 @@ REM 2.207 - Changed each Dual Cylinder configs
 REM 2.208 - Added if statement to #Restart that resets valve config during Init for Cyl moving up
 REM 2.209 - Fixed missing parenthesis on in #SPEED
 REM 2.210 - Added XsferDeA and XsferDeb functions, add Errline=_ED after NewErr=1
+REM 2.210 cont - added variables ASpdFac, BSpdFac, LstCntsA, LstCntsB
 
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
@@ -202,7 +203,9 @@ ENDIF
 Transit=0
 EN
 #CMDERR
-ZC 0,0;ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErr=1;Errline=_ED;ErrMsg=100+ErrCode;HX;EN
+ZC 0,0;ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErr=1;ErrMsg=100+ErrCode;HX
+Errline=_ED
+EN
 #CURPA
 AccumA=0;IncA=0;AccumB=0
 #REPEATA;AccumA=AccumA+_ZTA;AccumB=AccumB+_ZTB;IncA=IncA+1;WT tdla
@@ -250,9 +253,10 @@ ELSE
 ENDIF
 EN
 #CURMLA
-MLcurA=_TPA/CntsPMLA;TcurA=TIME
-DelTA=((TcurA-TlastA)*0.976)/60000;SPcurA=(MLlastA-MLcurA)/DelTA
-MLlastA=MLcurA;TlastA=TcurA
+MLcurA=_TPA/CntsPMLA;TcurA=TIME;CurCntsA=_TPA
+SPcurA=((LstCntsA-CurCntsA)/(TcurA-TlastA))/SpdFacA
+' DelTA=((TcurA-TlastA)/61440);'SPcurA=(MLlastA-MLcurA)/DelTA
+LstCntsA=CurCntsA;TlastA=TcurA;
 IF ((FState<>3)&(PState<>3))
 IF Aflow= 1;MLDispA=MLzeroA-MLcurA;ENDIF
 MLtot=MLDispA+MLDispB+MLtotA+MLtotB-MLofstA-MLofstB
@@ -264,9 +268,10 @@ IF (Finding=0)&(Cycle=0)
 ENDIF
 EN
 #CURMLB
-MLcurB=_TPB/CntsPMLB;TcurB=TIME
-DelTB=((TcurB-TlastB)*0.976)/60000;SPcurB=(MLlastB-MLcurB)/DelTB
-MLlastB=MLcurB;TlastB=TcurB
+MLcurB=_TPB/CntsPMLB;TcurB=TIME;CurCntsB=_TPB
+SPcurB=((LstCntsB-CurCntsB)/(TcurB-TlastB))/SpdFacB
+'DelTB=((TcurB-TlastB)/61440);'SPcurB=(MLlastB-MLcurB)/DelTB
+LstCntsB=CurCntsB;TlastB=TcurB
 IF ((FState<>6)&(PState<>6))
 IF Bflow=1;MLDispB=MLzeroB-MLcurB;ENDIF
 MLtot=MLDispA+MLDispB+MLtotA+MLtotB-MLofstA-MLofstB
@@ -472,6 +477,7 @@ EN
 #CALCNTA
 StkML=TotStke*MLPmmA
 CntsPMLA=CntsPmm/MLPmmA
+ASpdFac=CntsPLMA/61440
 CntMarg = Margin*CntsPmm
 IF Burn>0;Burn=0;BV;ENDIF;EN
 #MLSCALB
@@ -479,6 +485,7 @@ IF Burn>0;Burn=0;BV;ENDIF;EN
 #CALCNTB
 StkML=TotStke*MLPmmB
 CntsPMLB=CntsPmm/MLPmmB
+BSpdFac=CntsPMLB/61440
 CntMarg = Margin*CntsPmm
 IF Burn>0;Burn=0;BV;ENDIF;EN
 
@@ -913,7 +920,9 @@ IF (MLcurA<0)|(MLcurA>VolA); 'Cylinder is out of limits-chng to Pos FB
   NewErr=1;Errline=_ED
   RampA=0
 ENDIF
-IF MLcurA<MLlimA;ZCA=0;StCylA=0;ErrMsg=8;NewErr=1;Errline=_ED;CompErr=1;RampA=0;ENDIF 
+IF MLcurA<MLlimA
+  ZCA=0;StCylA=0;ErrMsg=8;NewErr=1;Errline=_ED;CompErr=1;RampA=0
+ENDIF 
 ZR SPtmpA
 WT 5
 JP#RMPA,RampA=1
@@ -983,7 +992,9 @@ IF (MLcurB<0)|(MLcurB>VolB); 'Cylinder is out of limits-chng to Pos FB
   NewErr=1;Errline=_ED
   RampB=0
 ENDIF
-IF MLcurB<MLlimB;ZCB=0;StCylB=0;ErrMsg=9;NewErr=1;Errline=_ED;CompErr=1;RampB=0;ENDIF
+IF MLcurB<MLlimB
+  ZCB=0;StCylB=0;ErrMsg=9;NewErr=1;Errline=_ED;CompErr=1;RampB=0
+ENDIF
 ZR ,SPtmpB
 WT 5
 JP#RMPB,RampB=1
