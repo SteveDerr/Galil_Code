@@ -132,7 +132,7 @@ ELSE
   ENDIF
   IF ((Aflow=0)&(Bflow=0));AveSp=0;ENDIF
 ENDIF
-IF Speedi=4;JS#SPEED2;ENDIF
+IF Speedi>3;JS#SPEED2;ENDIF
 EN
 
 #SPEED2
