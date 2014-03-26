@@ -1159,7 +1159,9 @@ JS#ClsAout
 JS#ClsAin
 MLlimA=MLcurA-ErrVol
 'This is the new stuff- set to force feedback
-SPTRA=ZTAave+30;ZR SPTRA;ZCA=1;DelPcnt=ZTBave-ZTAave;TRampA=0;IncCntsA=0
+JP#TRKADON,(PcurB<20)
+#RTRKA
+SPTRA=ZTAave;ZR SPTRA;ZCA=1;DelPcnt=ZTBave-ZTAave;TRampA=0;IncCntsA=0
 IF DelPcnt>2500
   IncCntsA=200
   TRampA=1
@@ -1202,6 +1204,9 @@ IF MLcurA<MLlimA;'Comp > 25% cyl vol
   ta2b=1
 ENDIF
 JP#LOOPA1,ta2b=0
+#TRKADON
+JP#RTRKA,((PcurB>30)&(ta2b=0))
+JP#TRKADON,ta2b=0
 ta2b=0
 'Set Back to position feedback
 ZCA=0
@@ -1214,7 +1219,9 @@ JS#ClsBout
 JS#ClsBin
 MLlimB=MLcurB-ErrVol
 'This is the new stuff- set to force feedback
-SPTRB=ZTBave+30;ZR ,SPTRB;ZCB=1;DelPcnt=ZTAave-ZTBave;TRampB=0;IncCntsB=0
+JP#TRKBDON,(PcurA<20)
+#RTRKB
+SPTRB=ZTBave;ZR ,SPTRB;ZCB=1;DelPcnt=ZTAave-ZTBave;TRampB=0;IncCntsB=0
 IF DelPcnt>2500
   IncCntsB=200
   TRampB=1
@@ -1257,6 +1264,9 @@ IF MLcurB<MLlimB;'Comp > 25% cyl vol
   tb2a=1
 ENDIF
 JP#LOOPB1,tb2a=0
+#TRKBDON
+JP#RTRKB,((PcurA>30)&(tb2a=0))
+JP#TRKBDON,tb2a=0
 tb2a=0
 'Set Back to position feedback
 ZCB=0
