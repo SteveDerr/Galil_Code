@@ -437,60 +437,43 @@ PR ,CntMarg;BGB;AM B
 DP ,0;BStopd=0
 MLtotB=0;MLDispB=0;MLofstB=0;OEB=0;EN
 #LIMSWI
-REM @DEBUG
-LIMSWIi=LIMSWIi+1
-REM @DEBUG
-
-REM Finding limits, delay and return
-IF (Finding=1)
-  JP#ENLIMSW
-ENDIF
-
+REM Wait for motion to stop before doing anything
+WT100
+REM Finding limits, return.
+IF (Finding<>1)
 REM Case for A forward----------
 REM Check for cycle, and matching pressure in pump mode.
-IF (_LFA=0)
-  IF (Cycle=1)
-    JP#ENLIMSW
-  ELSE
-  IF (FState=4)|(FState=5)
-    NewErr=1;Errline=_ED;ErrMsg=19;JP#ENLIMSW
+  IF (_LFA=0)
+    IF (Cycle<>1)
+      IF (FState=4)|(FState=5)
+        NewErr=1;Errline=_ED;ErrMsg=19
+      ELSE
+        NewErr=1;Errline=_ED;ErrMsg=20
+      ENDIF
+    ENDIF
   ENDIF
-  NewErr=1;Errlin=_ED;ErrMsg=20;JP#ENLIMSW
-ENDIF
-
 REM Case for A reverse-----------
 REM Check for matching pressure in receive mode.
-IF (_LRA=0)
-  NewErr=1;Errline=_ED;ErrMsg=20;JP#ENLIMSW
-ENDIF
-
+  IF (_LRA=0)
+    NewErr=1;Errline=_ED;ErrMsg=20
+  ENDIF
 REM Case for B forward---------
 REM Check for cycle and matching pressure in pump mode.
-IF (_LFB=0)
-  IF (Cycle=1)
-    JP#ENLIMSW
-  ELSE
-  IF (FState=1)|(FState=2)
-    NewErr=1;Errlin=_ED;ErrMsg=19;JP#ENLIMSW
+  IF (_LFB=0)
+    IF (Cycle<>1)
+      IF (FState=1)|(FState=2)
+        NewErr=1;Errline=_ED;ErrMsg=19;JP#ENLIMSW
+      ELSE
+        NewErr=1;Errline=_ED;ErrMsg=20;JP#ENLIMSW
+      ENDIF
+    ENDIF
   ENDIF
-  NewErr=1;Errlin=_ED;ErrMsg=20;JP#ENLIMSW
-ENDIF
-
 REM Case for B reverse----------
 REM Check for matching pressure in receive mode.
-IF (_LRB=0)
-  NewErr=1;Errlin=_ED;ErrMsg=20;JP#ENLIMSW
+  IF (_LRB=0)
+    NewErr=1;Errline=_ED;ErrMsg=20;JP#ENLIMSW
+  ENDIF
 ENDIF
-
-
-REM @ToDo check if this code does anything
-IF (Finding=0) & (Cycle=0)
-  IF (_LFA=0)|(_LRA=0);DC 100000000;STA;AMA;DC 2048000;ENDIF
-  IF (_LFB=0)|(_LRB=0);DC ,100000000;STB;AMB;DC ,2048000;ENDIF
-ENDIF
-REM JP to here to exit Limit swith routine.
-#ENLIMSW
-WT50
 RE
 
 #LOSPPA
@@ -501,69 +484,53 @@ SPlow=_SPB;SPhigh=SPlow+2;FracLo=(@ABS[PmpSpdB]-_SPB)*1000;FracHi=2000-FracLo
 EN
 
 #LSLOOP
-REM @DEBUG 
-LSLOOPi=LSLOOPi+1
-REM @DEBUG
-
 REM Custom limit switch loop for pressure mode
-
 REM Case for A forward
 REM Check for matching pressure in pump mode.
 IF (_LFA=0)
   ZCA=0
-  IF (PmpMode=1)
-    IF (PState=4)|(PState=5)
-      NewErr=1;Errline=_ED;ErrMsg=19;EN
-    ENDIF
-  ENDIF
-  StCylA=0;NewErr=1;Errline=_ED;ErrMsg=20;HX2
-  JS#ClsAout;JS#OpnAin;JS#SETPST
-  IF StCylB=3;JS#OpnBout;ENDIF
+  IF (PmpMode=1)&((PState=4)|(PState=5))
+      NewErr=1;Errline=_ED;ErrMsg=19
+  ELSE
+    StCylA=0;NewErr=1;Errline=_ED;ErrMsg=20;HX2
+    JS#ClsAout;JS#OpnAin;JS#SETPST
+    IF StCylB=3;JS#OpnBout;ENDIF
   ENDIF
 ENDIF
-
 REM Case for A reverse
 REM Check for matching pressure in receive mode
 IF (_LRA=0)
   ZCA=0
-  IF (PmpMode=0)
-   IF  (PState=4)|(PState=5)
-     NewErr=1;Errlin=_ED;ErrMsg=19;EN
-    ENDIF
-  ENDIF
-  StCylA=0;NewErr=1;Errline=_ED;ErrMsg=20;HX2
-  JS#ClsAout;JS#OpnAin;JS#SETPST
-  IF StCylB=3;JS#OpnBout;ENDIF
+  IF (PmpMode=0)&((PState=4)|(PState=5))
+    NewErr=1;Errline=_ED;ErrMsg=19
+  ELSE
+    StCylA=0;NewErr=1;Errline=_ED;ErrMsg=20;HX2
+    JS#ClsAout;JS#OpnAin;JS#SETPST
+    IF StCylB=3;JS#OpnBout;ENDIF
   ENDIF
 ENDIF
-
 REM Case for B forward
 REM Check for matching pressure in pump mode.
 IF(_LFB=0)
   ZCB=0
-  IF (PmpMode=1)
-    IF (PState=1)|(PState=2)
-      NewErr=1;Errlin=_ED;ErrMsg=19;EN
-    ENDIF
-  ENDIF
-  NewErr=1;Errline=_ED;ErrMsg=20;HX6
-  JS#ClsBout;JS#OpnBin;JS#SETPST
-  IF StCylA=3;JS#OpnAout;ENDIF
+  IF (PmpMode=1)&((PState=1)|(PState=2))
+      NewErr=1;Errline=_ED;ErrMsg=19
+  ELSE
+    NewErr=1;Errline=_ED;ErrMsg=20;HX6
+    JS#ClsBout;JS#OpnBin;JS#SETPST
+    IF StCylA=3;JS#OpnAout;ENDIF
   ENDIF
 ENDIF
-
 REM Case for B reverse
 REM Check for matching pressure in receive mode
 IF(_LRB=0)
   ZCB=0
-  IF (PmpMode=0)
-    IF (PState=1)|(PState=2) 
-      NewErr=1;Errlin=_ED;ErrMsg=19;EN
-    ENDIF
-  ENDIF
-  NewErr=1;Errline=_ED;ErrMsg=20;HX6
-  JS#ClsBout;JS#OpnBin;JS#SETPST
-  IF StCylA=3;JS#OpnAout;ENDIF
+  IF (PmpMode=0)&((PState=1)|(PState=2))
+    NewErr=1;Errline=_ED;ErrMsg=19
+  ELSE
+    NewErr=1;Errline=_ED;ErrMsg=20;HX6
+    JS#ClsBout;JS#OpnBin;JS#SETPST
+    IF StCylA=3;JS#OpnAout;ENDIF
   ENDIF
 ENDIF
 
