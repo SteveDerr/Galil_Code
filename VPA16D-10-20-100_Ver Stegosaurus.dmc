@@ -443,56 +443,56 @@ REM @DEBUG
 
 REM Finding limits, delay and return
 IF (Finding=1)
-  WT50
-  RE
-ELSE
+  JP#ENLIMSW
+ENDIF
 
 REM Case for A forward----------
 REM Check for cycle, and matching pressure in pump mode.
-  IF (_LFA=0)
-    IF (Cycle=1)
-      WT50
-      RE
-    ELSE
-    IF (FState=4)|(FState=5)
-      NewErr=1;Errline=_ED;ErrMsg=19;RE
-    ENDIF
-    NewErr=1;Errlin=_ED;ErrMsg=20;RE
+IF (_LFA=0)
+  IF (Cycle=1)
+    JP#ENLIMSW
+  ELSE
+  IF (FState=4)|(FState=5)
+    NewErr=1;Errline=_ED;ErrMsg=19;JP#ENLIMSW
   ENDIF
+  NewErr=1;Errlin=_ED;ErrMsg=20;JP#ENLIMSW
+ENDIF
 
 REM Case for A reverse-----------
 REM Check for matching pressure in receive mode.
-  IF (_LRA=0)
-    NewErr=1;Errline=_ED;ErrMsg=20;RE
-  ENDIF
+IF (_LRA=0)
+  NewErr=1;Errline=_ED;ErrMsg=20;JP#ENLIMSW
+ENDIF
 
 REM Case for B forward---------
 REM Check for cycle and matching pressure in pump mode.
-  IF (_LFB=0)
-    IF (Cycle=1)
-      WT50
-      RE
-    ELSE
-    IF (FState=1)|(FState=2)
-      NewErr=1;Errlin=_ED;ErrMsg=19;RE
-    ENDIF
-    NewErr=1;Errlin=_ED;ErrMsg=20;RE
+IF (_LFB=0)
+  IF (Cycle=1)
+    JP#ENLIMSW
+  ELSE
+  IF (FState=1)|(FState=2)
+    NewErr=1;Errlin=_ED;ErrMsg=19;JP#ENLIMSW
   ENDIF
+  NewErr=1;Errlin=_ED;ErrMsg=20;JP#ENLIMSW
+ENDIF
 
 REM Case for B reverse----------
 REM Check for matching pressure in receive mode.
-  IF (_LRB=0)
-    NewErr=1;Errlin=_ED;ErrMsg=20;RE
-  ENDIF
+IF (_LRB=0)
+  NewErr=1;Errlin=_ED;ErrMsg=20;JP#ENLIMSW
 ENDIF
+
 
 REM @ToDo check if this code does anything
 IF (Finding=0) & (Cycle=0)
   IF (_LFA=0)|(_LRA=0);DC 100000000;STA;AMA;DC 2048000;ENDIF
   IF (_LFB=0)|(_LRB=0);DC ,100000000;STB;AMB;DC ,2048000;ENDIF
 ENDIF
-
+REM JP to here to exit Limit swith routine.
+#ENLIMSW
+WT50
 RE
+
 #LOSPPA
 SPlow=_SPA;SPhigh=SPlow+2;FracLo=(@ABS[PmpSpdA]-_SPA)*1000;FracHi=2000-FracLo
 EN
