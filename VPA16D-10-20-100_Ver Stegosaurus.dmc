@@ -462,16 +462,16 @@ REM Check for cycle and matching pressure in pump mode.
   IF (_LFB=0)
     IF (Cycle<>1)
       IF (FState=1)|(FState=2)
-        NewErr=1;Errline=_ED;ErrMsg=19;JP#ENLIMSW
+        NewErr=1;Errline=_ED;ErrMsg=19
       ELSE
-        NewErr=1;Errline=_ED;ErrMsg=20;JP#ENLIMSW
+        NewErr=1;Errline=_ED;ErrMsg=20
       ENDIF
     ENDIF
   ENDIF
 REM Case for B reverse----------
 REM Check for matching pressure in receive mode.
   IF (_LRB=0)
-    NewErr=1;Errline=_ED;ErrMsg=20;JP#ENLIMSW
+    NewErr=1;Errline=_ED;ErrMsg=20
   ENDIF
 ENDIF
 RE
