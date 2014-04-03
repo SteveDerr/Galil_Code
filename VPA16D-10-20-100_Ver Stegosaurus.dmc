@@ -342,30 +342,30 @@ XQ#CYCLEA,2
 XQ#CYCLEB,6
 #CTSLOOP
 JP#CTSLOOP,((AStopd+BStopd)>0)
-JS #ClsAll
+JS#ClsAll
 Cycle=0;CyclDone=1
 #ZEROT
 WT 1000
 MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;MLofstA=0;MLtotA=0;MLDispA=0
 MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;MLofstB=0;MLtotB=0;MLDispB=0
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8
-EN
+EN;EN;EN
 #DAQLOOP
-JS #CURMLA
-JS #CURMLB
-JS #SPEED
+JS#CURMLA
+JS#CURMLB
+JS#SPEED
 'JS #CURPA
 'JS #CURPB
 IF XdcrCur=1;Pcur=PcurA;ENDIF
 IF XdcrCur=2;Pcur=PcurB;ENDIF
 IF XdcrCur=0;Pcur=0;ENDIF
 WT 200
-JP #DAQLOOP,DAQmode>0
+JP#DAQLOOP,DAQmode>0
 EN
 #PDAQ
-JS #CURPA
+JS#CURPA
 WT 200
-JP #PDAQ,DAQmode>0
+JP#PDAQ,DAQmode>0
 EN
 #ESTOP
 STA;STB;FState=0;HX2;HX6;HX3;HX5;HX4
@@ -404,7 +404,7 @@ JP#FLLOOP,((AStopd+BStopd)>0)
 Finding=0;FState=0;PowerUp=0;InitDone=1
 JS#ClsAll
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8
-EN
+EN;EN
 #FNDA
 JS#OpnAin;JS#ClsAout
 SHA;DC 2048000;OEA=1
@@ -420,7 +420,8 @@ StkeA=DeltCtsA/CntsPmm
 VolA=DeltCtsA/CntsPMLA
 PR CntMarg;BGA;AM A
 DP 0;AStopd=0
-MLtotA=0;MLDispA=0;MLofstA=0;OEA=0;EN
+MLtotA=0;MLDispA=0;MLofstA=0;OEA=0
+EN;EN
 #FNDB
 JS#OpnBin;JS#ClsBout
 SHB;DC ,2048000;OEB=1
@@ -436,7 +437,9 @@ StkeB=DeltCtsB/CntsPmm
 VolB=DeltCtsB/CntsPMLB
 PR ,CntMarg;BGB;AM B
 DP ,0;BStopd=0
-MLtotB=0;MLDispB=0;MLofstB=0;OEB=0;EN
+MLtotB=0;MLDispB=0;MLofstB=0;OEB=0
+EN;EN
+
 #LIMSWI
 REM Wait for motion to stop before doing anything
 WT100
@@ -577,7 +580,6 @@ HX3
 EN
 '
 #MLSCALA
-
 #CALCNTA
 StkML=TotStke*MLPmmA
 CntsPMLA=CntsPmm/MLPmmA
@@ -586,9 +588,9 @@ SpdFacA=(@RND[(CntsPMLA/10)]/6144)
 'Round to 3 decimal places
 SpdFacA=(@RND[(SpdFacA*1000)]/1000)
 CntMarg = Margin*CntsPmm
-IF Burn>0;Burn=0;BV;ENDIF;EN
+IF Burn>0;Burn=0;BV;ENDIF
+EN:EN
 #MLSCALB
-
 #CALCNTB
 StkML=TotStke*MLPmmB
 CntsPMLB=CntsPmm/MLPmmB
@@ -597,20 +599,21 @@ SpdFacB=(@RND[(CntsPMLB/10)]/6144)
 'Round to 3 decimal places
 SpdFacB=(@RND[(SpdFacB*1000)]/1000)
 CntMarg = Margin*CntsPmm
-IF Burn>0;Burn=0;BV;ENDIF;EN
+IF Burn>0;Burn=0;BV;ENDIF
+EN;EN
 
 #NEWPOSA
 TarPosA=MLnewA*CntsPMLA
 SP (Rate*CntsPMLA)/60
 PA TarPosA;BGA;AM A
-JS #CURMLA
+JS#CURMLA
 FState=0
 EN
 #NEWPOSB
 TarPosB=MLnewB*CntsPMLB
 SP ,(Rate*CntsPMLB)/60
 PA ,TarPosB;BGB;AM B
-JS #CURMLB
+JS#CURMLB
 FState=0
 EN
 #NEWSP
@@ -638,7 +641,7 @@ ELSE
 ENDIF
 JS#SETZR
 JP#RAMP,Ramping>0
-EN
+EN;EN
 '
 #PCNTRLA
 JS#ClsAin
@@ -661,14 +664,15 @@ XQ#SYNCA,2
 Pready=1
 EN
 #POSERR
-NewErr=1;Errline=_ED;ErrMsg=11;ST;AM;MO;SH;ZS;HX;RE
+NewErr=1;Errline=_ED;ErrMsg=11;ST;AM;MO;SH;ZS;HX
+RE
 
 #REFILLA
 StReflA=1;StCylA=1
 IF PState>0
-  JS#SETPST
+	JS#SETPST
 ELSE
-  FState=3
+	FState=3
 ENDIF
 JS#ClsAout
 WT 500
@@ -680,26 +684,28 @@ MLtotA=MLtotA+MLDispA;MLDispA=0;Transit=0
 SP RevSpdA;TarPosA =StartMLA*CntsPMLA
 PA TarPosA;BGA;AMA
 JS#ClsAin;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;MLDispA=MLzeroA-MLcurA
-IF CONTA=1;CONTA=0;StReflA=0;FState=0;EN;ENDIF;'Stop here if called by STRTPRS
-CompErr=0;'allow to continue if other cylinder generated CompErr
-IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
-IF (ReStpP=1) | (ReqStp=1);'we will not continue
-  StReflA=0;Fjststrd=0;FState=0;PState=0;StCylA=0
-  EN
+IF CONTA=1
+	CONTA=0;StReflA=0;FState=0'Stop here if called by STRTPRS
 ELSE
-  IF PState>0
-    StReflA=0
-    JP#SYNCA
-  ELSE
-    FState=4
-    IF (Paused=0) & (ReqStp=0)&(Fjststrd=0)
-      StReflA=0
-      JP#TRKA2B
-    ELSE
-      StReflA=0
-      Fjststrd=0
-    ENDIF
-  ENDIF
+	CompErr=0;'allow to continue if other cylinder generated CompErr
+	IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
+	IF (ReStpP=1) | (ReqStp=1);'we will not continue
+		StReflA=0;Fjststrd=0;FState=0;PState=0;StCylA=0
+	ELSE
+		IF PState>0
+			StReflA=0
+			JP#SYNCA
+		ELSE
+			FState=4
+			IF (Paused=0) & (ReqStp=0)&(Fjststrd=0)
+				StReflA=0
+				JP#TRKA2B
+			ELSE
+				StReflA=0
+				Fjststrd=0
+			ENDIF
+		ENDIF
+	ENDIF
 ENDIF
 EN
 #REFILLB
@@ -719,51 +725,56 @@ MLtotB=MLtotB+MLDispB;MLDispB=0;Transit=0
 SP ,RevSpdB;TarPosB=StartMLB*CntsPMLB
 PA ,TarPosB;BGB;AMB
 JS#ClsBin;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;MLDispB=MLzeroB-MLcurB
-IF CONTB=1;CONTB=0;StReflB=0;FState=0;EN;ENDIF;'Stop here if called by STRTPRS
-IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
-IF (ReStpP=1) | (ReqStp=1);'we will not continue
-  StReflB=0;Fjststrd=0;FState=0;PState=0;StCylB=0
-  EN
+IF CONTB=1
+	CONTB=0;StReflB=0;FState=0'Stop here if called by STRTPRS
 ELSE
-  IF PState>0
-    StReflB=0
-    JP#SYNCB
-  ELSE
-    FState=1
-    IF (Paused=0) & (ReqStp=0)&(Fjststrd=0)
-      StReflB=0
-      JP#TRKB2A
-    ELSE
-      StReflB=0
-      Fjststrd=0
-    ENDIF
-  ENDIF
+	IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
+	IF (ReStpP=1) | (ReqStp=1);'we will not continue
+		StReflB=0;Fjststrd=0;FState=0;PState=0;StCylB=0
+	ELSE
+		IF PState>0
+			StReflB=0
+			JP#SYNCB
+		ELSE
+			FState=1
+			IF (Paused=0) & (ReqStp=0)&(Fjststrd=0)
+				StReflB=0
+				JP#TRKB2A
+			ELSE
+				StReflB=0
+				Fjststrd=0
+			ENDIF
+		ENDIF
+	ENDIF
 ENDIF
 EN
+
+
+
 #RCYCA
 Cycle=1
 JP#SKPRA,_LRA=0
-JG -JgSpCal;BGA;AM A
+JG -JgSpCal;BGA;AMA
 #SKPRA
 MLnewA=CalStrtA;Rate=RateCal
-JS #NEWPOSA
+JS#NEWPOSA
 AM A
 WT 1000
 MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;MLofstA=0;MLtotA=0
 Cycle=0
-EN
+EN;EN
 #RCYCB
 Cycle=1
 JP#SKPRB,_LRB=0
-JG ,-JgSpCal;BGB;AM B
+JG ,-JgSpCal;BGB;AMB
 #SKPRB
 MLnewB=CalStrtB;Rate=RateCal
-JS #NEWPOSB
+JS#NEWPOSB
 AM B
 WT 1000
 MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;MLofstB=0;MLtotB=0
 Cycle=0
-EN
+EN;EN
 #RESET
 RstPosA=ResetMLA*CntsPMLA
 RstPosB=ResetMLB*CntsPMLB
@@ -783,11 +794,14 @@ IF TempChg=1
 ENDIF
 EN
 #SAVEML
-MLaccum=MLaccum+DeltaML;BV;EN
+MLaccum=MLaccum+DeltaML;BV
+EN
 #SETFFBA
-OEA=0;ZRA=ZTAave+30;ZCA=1;PmodeA=1;EN
+OEA=0;ZRA=ZTAave+30;ZCA=1;PmodeA=1
+EN
 #SETFFBB
-OEB=0;ZRB=ZTBave+30;ZCB=1;PmodeB=1;EN
+OEB=0;ZRB=ZTBave+30;ZCB=1;PmodeB=1
+EN
 #SETPFBA
 ZCA=0;PmodeA=0;'OEA=3;EN
 #SETPFBB
@@ -821,7 +835,7 @@ ENDIF
 IF (Aflow<>1) & (Bflow<>1)
   PState=7
 ENDIF
-EN  
+EN;EN;EN
 #SETZR
 SPcntsA=(PSetPt*CntpPsiA)+PzerCntA;SPcntsB=(PSetPt*CntpPsiB)+PzerCntB
 IF SPcntsA>65400;SPcntsA=65400;ENDIF;IF SPcntsB>65400;SPcntsB=65400;ENDIF
@@ -856,7 +870,7 @@ IF LowFlow=1;JS#LOSPPA;XQ#ADJSPA,4;ENDIF
 JP#FINA,_XQ2>0
 JP#FINA,_XQ6>0
 XQ#CHKMLA,2;XQ#TRKB2A,6
-EN
+EN;EN
 #STARTB
 FState=4;XdcrCur=2
 JS#BACTIV
@@ -867,7 +881,7 @@ IF LowFlow=1;JS#LOSPPB;XQ#ADJSPB,4;ENDIF
 JP#FINB,_XQ2>0
 JP#FINB,_XQ6>0
 XQ#CHKMLB,6;XQ#TRKA2B,2
-EN
+EN;EN
 
 #STPBOTH
 ReqStp=1
@@ -917,7 +931,7 @@ ELSE
     ENDIF
   ENDIF
 ENDIF
-EN
+EN;EN;EN;EN
 #STRTPOS
 IF PmpMode=1;StartMLA=PmpStart;StartMLB=PmpStart;ENDIF
 IF PmpMode=0;StartMLA=RcvStart;StartMLB=RcvStart;ENDIF
@@ -980,21 +994,23 @@ IF Afirst=1
 ELSE
     JS#PCNTRLB
 ENDIF 
-EN
+EN;EN
 '
 '
 #STPCYCL
-STA;STB;Cycle=0;JS #ClsAll;HX1;HX2;HX4;HX6;EN
+STA;STB;Cycle=0;JS#ClsAll;HX1;HX2;HX4;HX6
+EN
 #STPDAQ
-DAQmode=0;EN
+DAQmode=0
+EN
 '
 #STPDP
 ReStpP=1
 EN
 '
 #SETSCAL
-JS #MLSCALA
-JS #MLSCALB
+JS#MLSCALA
+JS#MLSCALB
 EN
 #SYNCA
 StCylA=2;CompErr=0
@@ -1055,7 +1071,7 @@ ENDIF
 IF (@ABS[SPtmpA-ZTAave]<500)
     AtPA=1;'exit this loop
 ENDIF
-JP #ATPRESA,AtPA=0
+JP#ATPRESA,AtPA=0
 IF CompErr=0
   StCylA=3
 ENDIF
@@ -1066,7 +1082,7 @@ IF StCylB <> 3
   JS#OpnAout
 ENDIF
 JP#CHKLMTA
-EN
+EN;EN;EN
 
 #SYNCB
 StCylB=2;CompErr=0
@@ -1125,7 +1141,7 @@ ENDIF
 IF (@ABS[SPtmpB-ZTBave]<500)
     AtPB=1;'exit this loop
 ENDIF
-JP #ATPRESB,AtPB=0
+JP#ATPRESB,AtPB=0
 IF CompErr=0
   StCylB=3
 ENDIF
@@ -1136,7 +1152,7 @@ IF StCylA <> 3
   JS#OpnBout
 ENDIF
 JP#CHKLMTB
-EN
+EN;EN;EN
 '
 #TESTCAL
 DM RodDia[10]
@@ -1184,14 +1200,14 @@ IF (MLtot>=TarVol)|(Paused=1)
   JG 0,0;Done=1;XdcrCur=2;Paused=1;ta2b=1;ReqStp=1;HX6;HX4
   JP#REFILLA
 ENDIF
-JP #Loop2,Done=0
+JP#Loop2,Done=0
 FState=3;XdcrCur=2
 IF LowFlow=1;JS#LOSPPB;XQ#ADJSPB,4;ENDIF
 #WAIT4B
 JP#WAIT4B,(_XQ6>0)
 XQ#CHKMLB,6
-JS #REFILLA
-EN
+JS#REFILLA
+EN;EN;EN
 '
 #TrBtoA
 Transit=1;HX4
@@ -1217,14 +1233,14 @@ IF (MLtot>=TarVol)|(Paused=1)
   JG 0,0;Done=1;XdcrCur=1;Paused=1;tb2a=1;ReqStp=1;HX2;HX4
   JP#REFILLB
 ENDIF
-JP #Loop4,DoneB=0
+JP#Loop4,DoneB=0
 FState=6;XdcrCur=1
 IF LowFlow=1;JS#LOSPPA;XQ#ADJSPA,4;ENDIF
 #WAIT4A
 JP#WAIT4A,(_XQ2>0)
 XQ#CHKMLA,2
-JS #REFILLB
-EN
+JS#REFILLB
+EN;EN;EN
 '
 '
 #TRKA2B
@@ -1285,7 +1301,7 @@ ta2b=0
 'Set Back to position feedback
 ZCA=0
 JG 0;BGA
-EN
+EN;EN;EN;EN;EN
 '
 #TRKB2A
 JP#TRKB2A,StReflB>0
@@ -1345,7 +1361,7 @@ tb2a=0
 'Set Back to position feedback
 ZCB=0
 JG ,0;BGB
-EN
+EN;EN;EN;EN;EN
 
 'Set variables for XferDeA and XferDeB
 #StDlVar
@@ -1447,7 +1463,8 @@ IF TrnsVol <(DecVol+0.5);TrnsVol=DecVol+0.5;ENDIF
 IF TrnsVol>(StartMLA+1.00);TrnsVol=(StartMLA+1.00);ENDIF
 RevSpdA=-PmpSpdA*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
 IF RevSpdA>JgSpdMx;RevSpdA=JgSpdMx;ENDIF
-IF RevSpdA<JgSpdMn;RevSpdA=JgSpdMn;ENDIF;EN
+IF RevSpdA<JgSpdMn;RevSpdA=JgSpdMn;ENDIF
+EN
 #VCALCSB
 'TranStps=(Tdec/lpDlay)*1000
 'DecVol=(-PmpRate/120)*Tdec
@@ -1458,79 +1475,103 @@ IF TrnsVol <(DecVol+0.5);TrnsVol=DecVol+0.5;ENDIF
 IF TrnsVol>(StartMLB+1.00);TrnsVol=(StartMLB+1.00);ENDIF
 RevSpdB=-PmpSpdB*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
 IF RevSpdB>JgSpdMx;RevSpdB=JgSpdMx;ENDIF
-IF RevSpdB<JgSpdMn;RevSpdB=JgSpdMn;ENDIF;EN
+IF RevSpdB<JgSpdMn;RevSpdB=JgSpdMn;ENDIF
+EN
 '
 #VRECALA
 JS#CALCNTA
-BV;EN
+BV
+EN
 #VRECALB
 JS#CALCNTB
-BV;EN
+BV
+EN
 #VSCALE
 CntpPsiA=(65535/PRange[Pxdcr])*(PfsVA/A2DFS)
 CntpPsiB=(65535/PRange[Pxdcr])*(PfsVB/A2DFS)
 VppsiA[Pxdcr]=PfsVA/PRange[Pxdcr]
 VppsiB[Pxdcr]=PfsVB/PRange[Pxdcr]
-BV;EN
+BV
+EN
 '
 #ZEROML
 JS#CURMLA,DAQmode=0
 MLofstA=MLDispA;MLtotA=0
 JS#CURMLB,DAQmode=0
 MLofstB=MLDispB;MLtotB=0
-BV;EN
+BV
+EN
 #ZEROVA
 SumA=0;IncA2=0
 #READA2
 SumA=SumA+_ZTA;IncA2=IncA2+1;WT tdla;JP#READA2,IncA2<AveNo
 PzerCntA=SumA/IncA2
-BV;EN
+BV
+EN;EN
 #ZEROVB
 SumB=0;IncB2=0
 #READB2
 SumB=SumB+_ZTB;IncB2=IncB2+1;WT tdla;JP#READB2,IncB2<AveNo
 PzerCntB=SumB/IncB2
-BV;EN
+BV
+EN;EN
 #ZEROBTH
 JS#ZEROVA
 JS#ZEROVB
 EN
 #ZEROOF
-OF0,0;EN
+OF0,0
+EN
 
 '
 #OpnAout
-SB 2;Aflow=1; EN
+SB 2;Aflow=1;
+EN
 #ClsAout
-CB 2;Aflow=0; EN
+CB 2;Aflow=0;
+EN
 #OpnAin
-SB 1; EN
+SB 1;
+EN
 #ClsAin
-CB 1; EN
+CB 1;
+EN
 #OpnBout
-SB 4;Bflow=1; EN
+SB 4;Bflow=1;
+EN
 #ClsBout
-CB 4;Bflow=0; EN
+CB 4;Bflow=0;
+EN
 #OpnBin
-SB 3; EN
+SB 3;
+EN
 #ClsBin
-CB 3; EN
+CB 3;
+EN
 #OpnAll
-JS #OpnAout;JS #OpnAin;JS #OpnBout;JS #OpnBin;EN
+JS#OpnAout;JS#OpnAin;JS#OpnBout;JS#OpnBin
+EN
 #ClsAll
-JS #ClsAout;JS #ClsAin;JS #ClsBout;JS #ClsBin;EN
+JS#ClsAout;JS#ClsAin;JS#ClsBout;JS#ClsBin;
+EN
 #OpnOut
-JS #OpnAout;JS #OpnBout;EN
+JS#OpnAout;JS#OpnBout;
+EN
 #OpnIn
-JS #OpnAin;JS #OpnBin;EN
+JS#OpnAin;JS#OpnBin;
+EN
 #AACTIV
-JS #ClsBout;JS #ClsBin;JS#ClsAin;JS#OpnAout;EN
+JS#ClsBout;JS#ClsBin;JS#ClsAin;JS#OpnAout;
+EN
 #BACTIV
-JS #ClsAout;JS #ClsAin;JS#ClsBin;JS#OpnBout;EN
+JS#ClsAout;JS#ClsAin;JS#ClsBin;JS#OpnBout;
+EN
 #ClsIn
-JS #ClsAin;JS #ClsBin;EN
+JS#ClsAin;JS#ClsBin;
+EN
 #ClsOut
-JS #ClsAout;JS #ClsBout;EN
+JS#ClsAout;JS#ClsBout;
+EN
 
 REM ********* CUSTOM CONFIGURATION FILES - INSERT BELOW
 REM VAP16D-10-20-100 CONFIGURATION - REV 1-23-2013
@@ -1570,12 +1611,12 @@ Aflow=0;Bflow=0;PfiltA=0;PfiltB=0;PlastA=0;PlastB=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
 OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
 LstCntsA=0;LstCntsB=0
-JS #VESPRM
-JS #MECHPRM
-JS #TESTCAL
-JS #INITCF,Frstim>0
-JS #FACTCAL,Frstim=0
-JS #SYSCFG
+JS#VESPRM
+JS#MECHPRM
+JS#TESTCAL
+JS#INITCF,Frstim>0
+JS#FACTCAL,Frstim=0
+JS#SYSCFG
 EN
 #MECHPRM
 RodSize=2;Pxdcr=7;AQ 1,4;AQ 2,4;AQ 3,4
@@ -1586,7 +1627,8 @@ TotStke = 200
 Margin = 5
 EN
 #FACTCAL
-MLPmmA=MLPmmAf;MLPmmB=MLPmmBf;PfsVA=PfsVAf;PfsVB=PfsVBf;EN
+MLPmmA=MLPmmAf;MLPmmB=MLPmmBf;PfsVA=PfsVAf;PfsVB=PfsVBf;
+EN
 #BNFCAL
 MLPmmAf=MLPmmA;MLPmmBf=MLPmmB;PfsVAf=PfsVA;PfsVBf=PfsVB;BV
 EN
@@ -1600,10 +1642,11 @@ EN
 CntsPmm=(ECtsPR*MotorRed)/BSLead
 JgSpdMx=1900000
 JS#SETSCAL
-JS #DEFSPD
+JS#DEFSPD
 JS#DEFZKD
-JS #VSCALE
-BV;BN;EN
+JS#VSCALE
+BV;BN;
+EN
 
 #VESPRM
 StkeA=200;StkeB=200;VolA=19.5;VolB=19.5;StartMLA=18;StartMLB=18;PmpRate=-50
