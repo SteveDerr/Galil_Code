@@ -104,7 +104,8 @@ InitDone=0;CyclDone=0;Transit=0;PTempA=0;PTempB=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;FracLo=0;LowFlow=0;CompErr=0;Finding=0
 ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0
 DM AveSpAr[10];AveSpTm=TIME;Speedi=0
-JS#STRTDAQ;JS#ZEROOF;EN
+JS#STRTDAQ;JS#ZEROOF;
+EN
 '
 #SPEED
 'Shift array elemets
@@ -157,30 +158,30 @@ JP#ADJSPB
 EN
 #CHKLMTA
 WT 25
-JP #CHKLMTA,(MLcurA>Amin)&(MLcurA<Amax)
+JP#CHKLMTA,(MLcurA>Amin)&(MLcurA<Amax)
 JP#TPrAtoB
 EN
 #CHKLMTB
 WT 25
-JP #CHKLMTB,(MLcurB>Bmin)&(MLcurB<Bmax)
+JP#CHKLMTB,(MLcurB>Bmin)&(MLcurB<Bmax)
 JP#TPrBtoA
 EN
 #CHKMLA
 #LOOP1
 WT 25
-JP #STPBOTH,MLtot>=TarVol
+JP#STPBOTH,MLtot>=TarVol
 JS#CHGRATE,RateChng>0
-JP #LOOP1,MLcurA>TrnsVol
+JP#LOOP1,MLcurA>TrnsVol
 JS#TrAtoB,ReqStp=0
-EN
+EN;EN
 #CHKMLB
 #LOOP3
 WT 25
-JP #STPBOTH,MLtot>=TarVol
+JP#STPBOTH,MLtot>=TarVol
 JS#CHGRATE,RateChng>0
-JP #LOOP3,MLcurB>TrnsVol
+JP#LOOP3,MLcurB>TrnsVol
 JS#TrBtoA,ReqStp=0
-EN
+EN;EN
 #CHGRATE
 RateChng=0
 JP#CHGRATE,(FState=2)
@@ -227,7 +228,7 @@ IF FState=6
 ENDIF
 #NOCHNG
 Transit=0
-EN
+EN;EN
 #CMDERR
 ZC 0,0;ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErr=1;ErrMsg=100+ErrCode;HX
 Errline=_ED
@@ -235,7 +236,7 @@ RE
 #CURPA
 AccumA=0;IncA=0;AccumB=0
 #REPEATA;AccumA=AccumA+_ZTA;AccumB=AccumB+_ZTB;IncA=IncA+1;WT tdla
-JP #REPEATA,IncA<AveNo
+JP#REPEATA,IncA<AveNo
 ZTAave=(AccumA/IncA);ZTBave=(AccumB/IncA)
 IF AccumA=0;ZerOffA=0;ELSE; ZerOffA=PzerCntA;ENDIF
 IF AccumB=0;ZerOffB=0;ELSE; ZerOffB=PzerCntB;ENDIF
@@ -277,13 +278,13 @@ IF PcurB>PMax;OvrPresB=OvrPresB+1
 ELSE
   OvrPresB=0
 ENDIF
-EN
+EN;EN
 #CURMLA
 MLcurA=_TPA/CntsPMLA;TcurA=TIME;CurCntsA=_TPA
-'In rare cases this loop runs with 0 time between.
-'Add if statement to avoid div by zero
+REM In rare cases this loop runs with 0 time between.
+REM Add if statement to avoid div by zero
 IF TcurA-TlastA<>0;SPcurA=((LstCntsA-CurCntsA)/(TcurA-TlastA))/SpdFacA;ENDIF
-' DelTA=((TcurA-TlastA)/61440);'SPcurA=(MLlastA-MLcurA)/DelTA
+REM DelTA=((TcurA-TlastA)/61440);'SPcurA=(MLlastA-MLcurA)/DelTA
 LstCntsA=CurCntsA;TlastA=TcurA;
 IF ((FState<>3)&(PState<>3))
 IF Aflow= 1;MLDispA=MLzeroA-MLcurA;ENDIF
@@ -315,25 +316,25 @@ EN
 #CYCLEA
 JS#OpnAin;JS#ClsAout
 MLtotA=0;MLDispA=0;MLofstA=0;OEA=1
-JP #SKIPF2,_LFA=0
+JP#SKIPF2,_LFA=0
 JG JgSpd;BGA;AMA
 #SKIPF2
 IF InVopn=0;JS#ClsAin;JS#OpnAout;ENDIF
 MLnewA=StartMLA;Rate=InitRate
-JS #NEWPOSA
+JS#NEWPOSA
 AM A;AStopd=0;StReflA=0;OEA=0
-EN
+EN;EN
 #CYCLEB
 JS#OpnBin;JS#ClsBout
 MLtotB=0;MLDispB=0;MLofstB=0;OEB=1
-JP #SKIPF2B,_LFB=0
+JP#SKIPF2B,_LFB=0
 JG ,JgSpd;BGB;AMB
 #SKIPF2B
 IF InVopn=0;JS#ClsBin;JS#OpnBout;ENDIF
 MLnewB=StartMLB;Rate=InitRate
-JS #NEWPOSB
+JS#NEWPOSB
 AM B;BStopd=0;StReflB=0;OEB=0
-EN
+EN;EN
 #CYCTOST
 TLA=3.5;TLB=3.5;TKA=3.8;TKB=3.8
 Cycle=1;AStopd=1;BStopd=1
