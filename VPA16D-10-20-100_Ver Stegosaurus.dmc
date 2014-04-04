@@ -1266,7 +1266,8 @@ IF DelPcnt<-2500
   TRampA=1
 ENDIF
 #TRMPA
-REM See if we need to ramp up or down
+REM If our setpoint is greater than ZTBave
+REM the setpoint becomes ZTBave
 SPTRA= SPTRA+IncCntsA
 IF IncCntsA>0
   IF SPTRA>ZTBave
@@ -1318,27 +1319,31 @@ JS#ClsBout
 JS#ClsBin
 MLlimB=MLcurB-ErrVol
 'This is the new stuff- set to force feedback
-TRampB=1;SPTRB=ZTAave
+TRampB=1;SPTRB=ZTBave
 #RTRKB
-REM If within 3 psi of each other, set B set point to A PSI, 
+REM Don't try to match pressure if below 20 psi
+REM If our setpoint is higher than A pressure, match
 REM else ramp 200 counts towards A pressure.
-IF (TRampB=1)
-	IF ((PcurA>20)|(PcurB>20))
-		IF (@ABS[PcurA-PcurB]<3)
-			SPTRB=((PcurA*CntpPsiB)+PzerCntB)
+IF (TRampB=1) & ((PcurA>20)|(PcurB>20))
+	IF (PcurA>PcurB)
+		IF ((SPTRB-ZerOffB)>(ZTAave-ZerOffA)
+			SPTRB=(ZTAave-ZerOffB)
 		ELSE
-			IF (PcurA > PcurB)
-				SPTRB=SPTRB+200
-			ELSE
-				SPTRB=SPTRB-200
-			ENDIF
-			ZR,SPTRB
-			IF (_ZCB=0)
-				ZCB=1
-			ENDIF
-		ELSE
-			ZCB=0
+			SPTRB=SPTRB+200
 		ENDIF
+	ENDIF
+	
+	IF (PcurA<PcurB)
+		IF ((SPTRB-ZerOffB)<(ZTAave-ZerOffA))
+			SPTRB=(ZTAave-ZerOffB)
+		ELSE
+			SPTRB=SPTRB-200
+		ENDIF
+	ENDIF
+	
+	ZR,SPTRB
+	IF (_ZCB=0)
+		ZCB=1
 	ENDIF
 ELSE
 	ZCB=0
