@@ -1325,11 +1325,12 @@ REM Don't try to match pressure if below 20 psi
 REM If our setpoint is higher than A pressure, match
 REM else ramp 200 counts towards A pressure.
 IF (TRampB=1) & ((PcurA>20)|(PcurB>20))
+	IncCntsB=((PcurA-PcurB)*CntpPsiB)
 	IF (PcurA>PcurB)
 		IF ((SPTRB-ZerOffB)>(ZTAave-ZerOffA)
 			SPTRB=(ZTAave-ZerOffB)
 		ELSE
-			SPTRB=SPTRB+200
+			SPTRB=SPTRB+IncCntsB
 		ENDIF
 	ENDIF
 	
@@ -1337,7 +1338,7 @@ IF (TRampB=1) & ((PcurA>20)|(PcurB>20))
 		IF ((SPTRB-ZerOffB)<(ZTAave-ZerOffA))
 			SPTRB=(ZTAave-ZerOffB)
 		ELSE
-			SPTRB=SPTRB-200
+			SPTRB=SPTRB+IncCntsB
 		ENDIF
 	ENDIF
 	
