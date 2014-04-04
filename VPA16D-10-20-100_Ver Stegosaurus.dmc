@@ -1323,9 +1323,11 @@ TRampB=1;SPTRB=ZTBave
 #RTRKB
 REM Don't try to match pressure if below 20 psi
 REM If our setpoint is higher than A pressure, match
-REM else ramp 200 counts towards A pressure.
+REM else ramp to maximum of 200 cnts/5 ms
 IF (TRampB=1) & ((PcurA>20)|(PcurB>20))
 	IncCntsB=((PcurA-PcurB)*CntpPsiB)
+	IF IncCntsB>200;IncCtsB=200;ENDIF
+	IF IncCntsB<-200;IncCntsB=-200;ENDIF
 	IF (PcurA>PcurB)
 		IF ((SPTRB-ZerOffB)>(ZTAave-ZerOffA)
 			SPTRB=(ZTAave-ZerOffB)
