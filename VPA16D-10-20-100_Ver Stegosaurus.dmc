@@ -1318,7 +1318,7 @@ JS#ClsBout
 JS#ClsBin
 MLlimB=MLcurB-ErrVol
 'This is the new stuff- set to force feedback
-TRampB=1;SPTRB=0
+TRampB=1;SPTRB=ZTAave
 #RTRKB
 REM If within 3 psi of each other, set B set point to A PSI, 
 REM else ramp 200 counts towards A pressure.
@@ -1328,14 +1328,16 @@ IF (TRampB=1)
 			SPTRB=((PcurA*CntpPsiB)+PzerCntB)
 		ELSE
 			IF (PcurA > PcurB)
-				SPTRB=ZTBave+200
+				SPTRB=SPTRB+200
 			ELSE
-				SPTRB=ZTBave-200
+				SPTRB=SPTRB-200
 			ENDIF
 			ZR,SPTRB
-			IF (_ZTB=0)
+			IF (_ZCB=0)
 				ZCB=1
 			ENDIF
+		ELSE
+			ZCB=0
 		ENDIF
 	ENDIF
 ELSE
