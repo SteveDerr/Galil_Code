@@ -1253,8 +1253,7 @@ JS#ClsAout
 JS#ClsAin
 MLlimA=MLcurA-ErrVol
 'This is the new stuff- set to force feedback
-JP#TRKADON,((PcurB<20) & (PcurA<20))
-#RTRKA
+JP#LOOPA1,((PcurB<20) & (PcurA<20))
 REM Set A Setpoint to B and set ZCA=1
 REM Figure delta pressure counts for ramp
 SPTRA=ZTAave;ZR SPTRA;ZCA=1;DelPcnt=ZTBave-ZTAave;TRampA=0;IncCntsA=0
@@ -1291,7 +1290,9 @@ JP#TRMPA,TRampA=1
 PTempB=PcurB
 SPTRA=(PTempB*CntpPsiA)+PzerCntA; 'trying to match the pressure in B
 IF ((PcurB>20) | PcurA>20))
-	ZR SPTRA
+	ZR SPTRA;ZCA=1
+ELSE
+	ZCA=0
 ENDIF
 IF (MLcurA<0)|(MLcurA>VolA); 'Cylout of limits-chng to Pos FB
   IF MLcurA<0;ErrMsg=1;ENDIF
@@ -1304,14 +1305,12 @@ IF MLcurA<MLlimA;'Comp > 25% cyl vol
   ta2b=1
 ENDIF
 JP#LOOPA1,ta2b=0
-#TRKADON
-JP#RTRKA,((PcurB>30)&(ta2b=0))
-JP#TRKADON,ta2b=0
+
 ta2b=0
 'Set Back to position feedback
 ZCA=0
 JG 0;BGA
-EN;EN;EN;EN;EN
+EN;EN;EN
 
 #TRKB2A
 JP#TRKB2A,StReflB>0
@@ -1319,8 +1318,7 @@ JS#ClsBout
 JS#ClsBin
 MLlimB=MLcurB-ErrVol
 'This is the new stuff- set to force feedback
-JP#TRKBDON,((PcurA<20)&(PcurB<20))
-#RTRKB
+JP#LOOPB1,((PcurA<20)&(PcurB<20))
 SPTRB=ZTBave;ZR ,SPTRB;ZCB=1;DelPcnt=ZTAave-ZTBave;TRampB=0;IncCntsB=0
 IF DelPcnt>2500
   IncCntsB=200
@@ -1353,7 +1351,9 @@ JP#TRMPB,TRampB=1
 PTempA=PcurA
 SPTRB=(PTempA*CntpPsiB)+PzerCntB; 'trying to match the pressure in A
 IF ((PcurA>20) | (PcurB>20))
-	ZR ,SPTRB
+	ZR ,SPTRB;ZCB=1
+ELSE
+	ZCB=0
 ENDIF
 IF (MLcurB<0)|(MLcurB>VolB); 'Cyl out of limits-chng to Pos FB
   IF MLcurB<0;ErrMsg=3;ENDIF
@@ -1366,14 +1366,12 @@ IF MLcurB<MLlimB;'Comp > 25% cyl vol
   tb2a=1
 ENDIF
 JP#LOOPB1,tb2a=0
-#TRKBDON
-JP#RTRKB,((PcurA>30)&(tb2a=0))
-JP#TRKBDON,tb2a=0
+
 tb2a=0
 'Set Back to position feedback
 ZCB=0
 JG ,0;BGB
-EN;EN;EN;EN;EN
+EN;EN;EN;
 
 'Set variables for XferDeA and XferDeB
 #StDlVar
