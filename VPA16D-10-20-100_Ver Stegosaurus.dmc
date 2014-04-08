@@ -91,7 +91,7 @@ REM 2.210 cont - added variables SpdFacA, SpdFacB, LstCntsA, LstCntsB, Speedi, A
 
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
-Rev=2.211;Version=3.0;CylNum=2;Frstim=0
+Rev=0;Version=3.0;CylNum=2;Frstim=0
 RampA=0;RampB=0;StT2A=0;StT2B=0;OvrPresA=0;OvrPresB=0;RstPosA=0;RstPosB=0
 MO;CE 2,2;CN -1;MT 1,1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0;ResetMLB=0
 KP 12,12;KD 30,30;KI 0,0;OverLim=0;ZC 0,0;CONTA=0;CONTB=0;FlowRB=0;FloVolB=0
@@ -447,6 +447,7 @@ REM Finding limits, return.
 IF (Finding<>1)
 REM Case for A forward----------
 REM Check for cycle, and matching pressure in pump mode.
+
   IF (_LFA=0)
     IF (Cycle<>1)
       IF (FState=4)|(FState=5)
@@ -1287,9 +1288,11 @@ IF MLcurA<MLlimA;'Comp > 25% cyl vol
 ENDIF
 JP#TRMPA,TRampA=1
 #LOOPA1
-IF PcurB<5;PTempB=5;ELSE; PTempB=PcurB;ENDIF
+PTempB=PcurB
 SPTRA=(PTempB*CntpPsiA)+PzerCntA; 'trying to match the pressure in B
-ZR SPTRA
+IF ((PcurB>20) | PcurA>20))
+	ZR SPTRA
+ENDIF
 IF (MLcurA<0)|(MLcurA>VolA); 'Cylout of limits-chng to Pos FB
   IF MLcurA<0;ErrMsg=1;ENDIF
   IF MLcurA>VolA;ErrMsg=2;ENDIF
@@ -1347,9 +1350,11 @@ IF MLcurB<MLlimB;'Comp > 25% cyl vol
 ENDIF
 JP#TRMPB,TRampB=1
 #LOOPB1
-IF PcurA<5;PTempA=5;ELSE; PTempA=PcurA;ENDIF
+PTempA=PcurA
 SPTRB=(PTempA*CntpPsiB)+PzerCntB; 'trying to match the pressure in A
-ZR ,SPTRB
+IF ((PcurA>20) | (PcurB>20))
+	ZR ,SPTRB
+ENDIF
 IF (MLcurB<0)|(MLcurB>VolB); 'Cyl out of limits-chng to Pos FB
   IF MLcurB<0;ErrMsg=3;ENDIF
   IF MLcurB>VolB;ErrMsg=4;ENDIF
@@ -1368,7 +1373,7 @@ tb2a=0
 'Set Back to position feedback
 ZCB=0
 JG ,0;BGB
-EN
+EN;EN;EN;EN;EN
 
 'Set variables for XferDeA and XferDeB
 #StDlVar
