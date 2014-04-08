@@ -1266,8 +1266,8 @@ IF DelPcnt<-2500
   TRampA=1
 ENDIF
 #TRMPA
-REM If our setpoint is greater than ZTBave
-REM the setpoint becomes ZTBave
+REM Ramping procedure. Quickly increase ZT setpoint 
+REM until above ZTBave.
 SPTRA= SPTRA+IncCntsA
 IF IncCntsA>0
   IF SPTRA>ZTBave
@@ -1309,64 +1309,66 @@ ta2b=0
 ZCA=0
 JG 0;BGA
 EN;EN;EN;EN;EN
-'
+
 #TRKB2A
-REM Function to match B pressure to A pressure
-REM Wait for B to refill then close valves
-REM Skip to end if pressure in A and B is less than 20 PSI
 JP#TRKB2A,StReflB>0
 JS#ClsBout
 JS#ClsBin
 MLlimB=MLcurB-ErrVol
 'This is the new stuff- set to force feedback
-TRampB=1;SPTRB=ZTBave
+JP#TRKBDON,((PcurA<20)&(PcurB<20))
 #RTRKB
-REM Don't try to match pressure if below 20 psi
-REM If our setpoint is higher than A pressure, match
-REM else ramp to maximum of 200 cnts/5 ms
-IF (TRampB=1) & ((PcurA>20)|(PcurB>20))
-	IncCntsB=((PcurA-PcurB)*CntpPsiB)
-	IF IncCntsB>200;IncCtsB=200;ENDIF
-	IF IncCntsB<-200;IncCntsB=-200;ENDIF
-	IF (PcurA>PcurB)
-		IF ((SPTRB-ZerOffB)>(ZTAave-ZerOffA)
-			SPTRB=(ZTAave-ZerOffB)
-		ELSE
-			SPTRB=SPTRB+IncCntsB
-		ENDIF
-	ENDIF
-	
-	IF (PcurA<PcurB)
-		IF ((SPTRB-ZerOffB)<(ZTAave-ZerOffA))
-			SPTRB=(ZTAave-ZerOffB)
-		ELSE
-			SPTRB=SPTRB+IncCntsB
-		ENDIF
-	ENDIF
-	
-	ZR,SPTRB
-	IF (_ZCB=0)
-		ZCB=1
-	ENDIF
-ELSE
-	ZCB=0
+SPTRB=ZTBave;ZR ,SPTRB;ZCB=1;DelPcnt=ZTAave-ZTBave;TRampB=0;IncCntsB=0
+IF DelPcnt>2500
+  IncCntsB=200
+  TRampB=1
 ENDIF
+IF DelPcnt<-2500
+  IncCntsB=-200
+  TRampB=1
+ENDIF
+#TRMPB
+SPTRB= SPTRB+IncCntsB
+IF IncCntsB>0
+  IF SPTRB>ZTAave
+      SPTRB=ZTAave
+      TRampB=0
+  ENDIF
+ELSE
+  IF SPTRB<ZTAave
+      SPTRB=ZTAave
+      TRampB=0
+  ENDIF
+ENDIF
+ZR ,SPTRB
 WT 5
 IF MLcurB<MLlimB;'Comp > 25% cyl vol
   ErrMsg=9;NewErr=1;Errline=_ED;TRampB=0
 ENDIF
+JP#TRMPB,TRampB=1
+#LOOPB1
+IF PcurA<5;PTempA=5;ELSE; PTempA=PcurA;ENDIF
+SPTRB=(PTempA*CntpPsiB)+PzerCntB; 'trying to match the pressure in A
+ZR ,SPTRB
 IF (MLcurB<0)|(MLcurB>VolB); 'Cyl out of limits-chng to Pos FB
   IF MLcurB<0;ErrMsg=3;ENDIF
   IF MLcurB>VolB;ErrMsg=4;ENDIF
   NewErr=1;Errline=_ED
   tb2a=1
 ENDIF
-JP#RTRKB,(tb2a=0)
+IF MLcurB<MLlimB;'Comp > 25% cyl vol
+  ErrMsg=9;NewErr=1;Errline=_ED
+  tb2a=1
+ENDIF
+JP#LOOPB1,tb2a=0
+#TRKBDON
+JP#RTRKB,((PcurA>30)&(tb2a=0))
+JP#TRKBDON,tb2a=0
 tb2a=0
 'Set Back to position feedback
 ZCB=0
 JG ,0;BGB
-EN;EN
+EN
 
 'Set variables for XferDeA and XferDeB
 #StDlVar
