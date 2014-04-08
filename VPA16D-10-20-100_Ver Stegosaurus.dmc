@@ -1289,7 +1289,7 @@ JP#TRMPA,TRampA=1
 #LOOPA1
 PTempB=PcurB
 SPTRA=(PTempB*CntpPsiA)+PzerCntA; 'trying to match the pressure in B
-IF ((PcurB>20) | PcurA>20))
+IF ((PcurB>20) | (PcurA>20))
 	ZR SPTRA;ZCA=1
 ELSE
 	ZCA=0
