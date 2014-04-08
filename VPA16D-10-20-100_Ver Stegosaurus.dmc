@@ -459,8 +459,10 @@ REM Check for cycle, and matching pressure in pump mode.
   ENDIF
 REM Case for A reverse-----------
 REM Check for matching pressure in receive mode.
+REM We cycle the other way in volume calibration, 
+REM need to ignore reverse flag as well if Cycle=1
   IF (_LRA=0)
-    NewErr=1;Errline=_ED;ErrMsg=20
+    IF Cycle<>1;NewErr=1;Errline=_ED;ErrMsg=20;ENDIF
   ENDIF
 REM Case for B forward---------
 REM Check for cycle and matching pressure in pump mode.
@@ -476,7 +478,7 @@ REM Check for cycle and matching pressure in pump mode.
 REM Case for B reverse----------
 REM Check for matching pressure in receive mode.
   IF (_LRB=0)
-    NewErr=1;Errline=_ED;ErrMsg=20
+    IF Cycle<>1;NewErr=1;Errline=_ED;ErrMsg=20;ENDIF
   ENDIF
 ENDIF
 RE
@@ -1290,9 +1292,10 @@ JP#TRMPA,TRampA=1
 PTempB=PcurB
 SPTRA=(PTempB*CntpPsiA)+PzerCntA; 'trying to match the pressure in B
 IF ((PcurB>20) | (PcurA>20))
-	ZR SPTRA;ZCA=1
+  IF (_ZCA=0);ZCA=1;ENDIF
+  ZR SPTRA
 ELSE
-	ZCA=0
+  ZCA=0
 ENDIF
 IF (MLcurA<0)|(MLcurA>VolA); 'Cylout of limits-chng to Pos FB
   IF MLcurA<0;ErrMsg=1;ENDIF
@@ -1351,9 +1354,10 @@ JP#TRMPB,TRampB=1
 PTempA=PcurA
 SPTRB=(PTempA*CntpPsiB)+PzerCntB; 'trying to match the pressure in A
 IF ((PcurA>20) | (PcurB>20))
-	ZR ,SPTRB;ZCB=1
+  IF(_ZCB=0);ZCB=1;ENDIF
+  ZR ,SPTRB
 ELSE
-	ZCB=0
+  ZCB=0
 ENDIF
 IF (MLcurB<0)|(MLcurB>VolB); 'Cyl out of limits-chng to Pos FB
   IF MLcurB<0;ErrMsg=3;ENDIF
