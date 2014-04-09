@@ -1317,6 +1317,10 @@ JP#TRMPA,TRampA=1
 #LOOPA1
 PTempB=PcurB
 SPTRA=(PTempB*CntpPsiA)+PzerCntA; 'trying to match the pressure in B
+REM Set min ZR to our zero offset
+IF (SPTRA<(PzerCntA+10))
+  SPTRA=(PzerCntA+10)
+ENDIF
 REM Avoid matching pressure unless we are above 30 psi in either cylinder
 REM or if pressure matching is already turned on.
 IF ((PcurB>30) | (PcurA>30) | (_ZCA<>0))
@@ -1379,6 +1383,10 @@ JP#TRMPB,TRampB=1
 #LOOPB1
 PTempA=PcurA
 SPTRB=(PTempA*CntpPsiB)+PzerCntB; 'trying to match the pressure in A
+REM Set min ZR to our zero offset
+IF (SPTRB<(PzerCntB+10))
+  SPTRB=(PzerCntB+10)
+ENDIF
 REM Avoid matching pressure unless we are above 30 psi in either cylinder
 REM or if pressure matching is already turned on.
 IF ((PcurA>30) | (PcurB>30) | (_ZCB<>0))
