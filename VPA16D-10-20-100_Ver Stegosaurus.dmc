@@ -1255,7 +1255,7 @@ JS#ClsAout
 JS#ClsAin
 MLlimA=MLcurA-ErrVol
 'This is the new stuff- set to force feedback
-JP#LOOPA1,((PcurB<20) & (PcurA<20))
+JP#LOOPA1,((PcurB<30) & (PcurA<30))
 REM Set A Setpoint to B and set ZCA=1
 REM Figure delta pressure counts for ramp
 SPTRA=ZTAave;ZR SPTRA;ZCA=1;DelPcnt=ZTBave-ZTAave;TRampA=0;IncCntsA=0
@@ -1291,11 +1291,11 @@ JP#TRMPA,TRampA=1
 #LOOPA1
 PTempB=PcurB
 SPTRA=(PTempB*CntpPsiA)+PzerCntA; 'trying to match the pressure in B
-IF ((PcurB>20) | (PcurA>20))
+REM Avoid matching pressure unless we are above 30 psi in either cylinder
+REM or if pressure matching is already turned on.
+IF ((PcurB>30) | (PcurA>30) | (_ZCA<>0))
   IF (_ZCA=0);ZCA=1;ENDIF
   ZR SPTRA
-ELSE
-  ZCA=0
 ENDIF
 IF (MLcurA<0)|(MLcurA>VolA); 'Cylout of limits-chng to Pos FB
   IF MLcurA<0;ErrMsg=1;ENDIF
@@ -1321,7 +1321,7 @@ JS#ClsBout
 JS#ClsBin
 MLlimB=MLcurB-ErrVol
 'This is the new stuff- set to force feedback
-JP#LOOPB1,((PcurA<20)&(PcurB<20))
+JP#LOOPB1,((PcurA<30)&(PcurB<30))
 SPTRB=ZTBave;ZR ,SPTRB;ZCB=1;DelPcnt=ZTAave-ZTBave;TRampB=0;IncCntsB=0
 IF DelPcnt>2500
   IncCntsB=200
@@ -1353,11 +1353,11 @@ JP#TRMPB,TRampB=1
 #LOOPB1
 PTempA=PcurA
 SPTRB=(PTempA*CntpPsiB)+PzerCntB; 'trying to match the pressure in A
-IF ((PcurA>20) | (PcurB>20))
+REM Avoid matching pressure unless we are above 30 psi in either cylinder
+REM or if pressure matching is already turned on.
+IF ((PcurA>30) | (PcurB>30) | (_ZCB<>0))
   IF(_ZCB=0);ZCB=1;ENDIF
   ZR ,SPTRB
-ELSE
-  ZCB=0
 ENDIF
 IF (MLcurB<0)|(MLcurB>VolB); 'Cyl out of limits-chng to Pos FB
   IF MLcurB<0;ErrMsg=3;ENDIF
@@ -1381,23 +1381,23 @@ EN;EN;EN;
 #StDlVar
 i=0
 LoopIt=1
-DSetPt=8
 CtlSpd=(AveSp*.8)
+DSetPt=8
 IF AveSp < (.5*FRMax)
-  LoopIt=30
-  IF AveSp < (.3*FRMax)
-    DSetPt=6
-    IF AveSp < (.2*FRMax)
-      DSetPt=4
-      IF AveSp < (.15*FRMax)
-        DSetPt=2
-        LoopIt=40
-        IF AveSp < (.1*FRMax)
-          DSetPt=1
-        ENDIF
-      ENDIF
-    ENDIF
-  ENDIF
+	LoopIt=30
+	IF AveSp < (.3*FRMax)
+		DSetPt=6
+		IF AveSp < (.2*FRMax)
+			DSetPt=4
+			IF AveSp < (.15*FRMax)
+				DSetPt=2
+				LoopIt=40
+				IF AveSp < (.1*FRMax)
+					DSetPt=1
+				ENDIF
+			ENDIF
+		ENDIF
+	ENDIF
 ENDIF
 EN
 
@@ -1406,11 +1406,11 @@ IF StCylB=3; 'This should be the normal case
   MLcurB=_TPB/CntsPMLB
   MLzeroB=MLcurB
   JS#OpnBout
-  IF (SloPXfr=1) & (Ramping=0) & (MLcurA>XfrMlMin)
-    ASetPt=_ZRA
-    JS#StDlVar
-    JS#XferDeA
-  ENDIF
+	IF ((SloPXfr=1) & (Ramping=0) & (MLcurA>XfrMlMin))
+		ASetPt=_ZRA
+		JS#StDlVar
+		JS#XferDeA
+	ENDIF
   XdcrCur=2
   JP#Ex2RflA 
 ELSE
