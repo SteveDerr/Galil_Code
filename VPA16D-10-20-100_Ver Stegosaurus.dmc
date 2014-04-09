@@ -318,10 +318,10 @@ ENDIF
 EN
 #CURMLB
 MLcurB=_TPB/CntsPMLB;TcurB=TIME;CurCntsB=_TPB
-'In rare cases this loop runs with 0 time between.
-'Add if statement to avoid div by zero
+REM In rare cases this loop runs with 0 time between.
+REM Add if statement to avoid div by zero
 IF TcurB-TlastB<>0;SPcurB=((LstCntsB-CurCntsB)/(TcurB-TlastB))/SpdFacB;ENDIF
-'DelTB=((TcurB-TlastB)/61440);'SPcurB=(MLlastB-MLcurB)/DelTB
+REM DelTB=((TcurB-TlastB)/61440);'SPcurB=(MLlastB-MLcurB)/DelTB
 LstCntsB=CurCntsB;TlastB=TcurB
 IF ((FState<>6)&(PState<>6))
 IF Bflow=1;MLDispB=MLzeroB-MLcurB;ENDIF
@@ -612,10 +612,10 @@ EN
 #CALCNTA
 StkML=TotStke*MLPmmA
 CntsPMLA=CntsPmm/MLPmmA
-'Dumbed down math for galil
+REM Dumbed down math for galil
 SpdFacA=(@RND[(CntsPMLA/10)]/6144)
-'Round to 3 decimal places
-SpdFacA=(@RND[(SpdFacA*1000)]/1000)
+REM Round to 3 decimal places
+REM SpdFacA=(@RND[(SpdFacA*1000)]/1000)
 CntMarg = Margin*CntsPmm
 IF Burn>0;Burn=0;BV;ENDIF
 EN:EN
@@ -625,8 +625,8 @@ StkML=TotStke*MLPmmB
 CntsPMLB=CntsPmm/MLPmmB
 'Dumbed down math for Galil
 SpdFacB=(@RND[(CntsPMLB/10)]/6144)
-'Round to 3 decimal places
-SpdFacB=(@RND[(SpdFacB*1000)]/1000)
+REM Round to 3 decimal places
+REM SpdFacB=(@RND[(SpdFacB*1000)]/1000)
 CntMarg = Margin*CntsPmm
 IF Burn>0;Burn=0;BV;ENDIF
 EN;EN
@@ -714,7 +714,8 @@ SP RevSpdA;TarPosA =StartMLA*CntsPMLA
 PA TarPosA;BGA;AMA
 JS#ClsAin;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;MLDispA=MLzeroA-MLcurA
 IF CONTA=1
-	CONTA=0;StReflA=0;FState=0'Stop here if called by STRTPRS
+'Stop here if called by STRTPRS
+	CONTA=0;StReflA=0;FState=0
 ELSE
 	CompErr=0;'allow to continue if other cylinder generated CompErr
 	IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
@@ -755,7 +756,8 @@ SP ,RevSpdB;TarPosB=StartMLB*CntsPMLB
 PA ,TarPosB;BGB;AMB
 JS#ClsBin;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;MLDispB=MLzeroB-MLcurB
 IF CONTB=1
-	CONTB=0;StReflB=0;FState=0'Stop here if called by STRTPRS
+'Stop here if called by STRTPRS
+	CONTB=0;StReflB=0;FState=0
 ELSE
 	IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
 	IF (ReStpP=1) | (ReqStp=1);'we will not continue
