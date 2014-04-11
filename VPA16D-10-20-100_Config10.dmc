@@ -35,12 +35,12 @@ Aflow=0;Bflow=0;PfiltA=0;PfiltB=0;PlastA=0;PlastB=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
 OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
 LstCntsA=0;LstCntsB=0
-JS #VESPRM
-JS #MECHPRM
-JS #TESTCAL
-JS #INITCF,Frstim>0
-JS #FACTCAL,Frstim=0
-JS #SYSCFG
+JS#VESPRM
+JS#MECHPRM
+JS#TESTCAL
+JS#INITCF,Frstim>0
+JS#FACTCAL,Frstim=0
+JS#SYSCFG
 EN
 #MECHPRM
 RodSize=2;Pxdcr=7;AQ 1,4;AQ 2,4;AQ 3,4
@@ -51,7 +51,8 @@ TotStke = 200
 Margin = 5
 EN
 #FACTCAL
-MLPmmA=MLPmmAf;MLPmmB=MLPmmBf;PfsVA=PfsVAf;PfsVB=PfsVBf;EN
+MLPmmA=MLPmmAf;MLPmmB=MLPmmBf;PfsVA=PfsVAf;PfsVB=PfsVBf;
+EN
 #BNFCAL
 MLPmmAf=MLPmmA;MLPmmBf=MLPmmB;PfsVAf=PfsVA;PfsVBf=PfsVB;BV
 EN
@@ -65,10 +66,11 @@ EN
 CntsPmm=(ECtsPR*MotorRed)/BSLead
 JgSpdMx=1900000
 JS#SETSCAL
-JS #DEFSPD
+JS#DEFSPD
 JS#DEFZKD
-JS #VSCALE
-BV;BN;EN
+JS#VSCALE
+BV;BN;
+EN
 
 #VESPRM
 StkeA=200;StkeB=200;VolA=19.5;VolB=19.5;StartMLA=18;StartMLB=18;PmpRate=-50
@@ -76,5 +78,5 @@ Amin=1.5;Bmin=1.5;Amax=18.5;Bmax=18.5;FwdAlrmA=19.5;FwdAlrmB=19.5;PMax=10000
 RevAlrmA=2;RevAlrmB=2;Tdec=2;VolpCyl=18.5;CalStrtA=18;CalStrtB=18
 ReflPc=100;StrtTol=2;TranStps=500;DecVol=3;FRMax=100;ErrVol=.25*VolA
 InitRate=50;ReflFmn=10;PmpMode=1;PmpStart=18;RcvStart=2;RateCal=40
-RefillRA=100;RefillRB=100;XfrMlMin=.1
+RefillRA=100;RefillRB=100;XfrMlMin=.1;PrTrMd=0
 EN

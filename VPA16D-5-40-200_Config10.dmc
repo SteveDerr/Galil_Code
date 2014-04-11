@@ -77,5 +77,5 @@ Amin=3;Bmin=3;Amax=37;Bmax=37;FwdAlrmA=39;FwdAlrmB=39;PMax=5000
 RevAlrmA=2;RevAlrmB=2;Tdec=2;VolpCyl=38;CalStrtA=36;CalStrtB=36
 ReflPc=200;StrtTol=4;TranStps=500;DecVol=6;FRMax=200;ErrVol=.25*VolA
 InitRate=100;ReflFmn=10;PmpMode=1;PmpStart=36;RcvStart=4;RateCal=80
-RefillRA=200;RefillRB=200;XfrMlMin=.2
+RefillRA=200;RefillRB=200;XfrMlMin=.2;PrTrMd=0
 EN
