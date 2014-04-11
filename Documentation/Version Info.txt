@@ -1,0 +1,7 @@
+Current state of Stegosarus
+
+New code in #LIMSWI needs to be tested
+
+New matching pressure in flow control mode needs to be tested
+
+New code in LSLOOP needs to be tested.
