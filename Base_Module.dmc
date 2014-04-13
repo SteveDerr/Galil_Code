@@ -88,7 +88,7 @@ REM 2.208 - Added if statement to #Restart that resets valve config during Init 
 REM 2.209 - Fixed missing parenthesis on in #SPEED
 REM 2.210 - Added XsferDeA and XsferDeb functions, add Errline=_ED after NewErr=1
 REM 2.210 cont - added variables SpdFacA, SpdFacB, LstCntsA, LstCntsB, Speedi, AveSpAr[10]
-REM Codename Stegosarus - Test version of base module.
+REM 2.211
 
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
@@ -896,6 +896,7 @@ EN
 FState=1;XdcrCur=1
 JS#AACTIV
 JS#VCALCSA
+WT 200
 JG PmpSpdA;BGA
 IF LowFlow=1;JS#LOSPPA;XQ#ADJSPA,4;ENDIF
 #FINA
@@ -907,6 +908,7 @@ EN;EN
 FState=4;XdcrCur=2
 JS#BACTIV
 JS#VCALCSB
+WT 200
 JG ,PmpSpdB;BGB
 IF LowFlow=1;JS#LOSPPB;XQ#ADJSPB,4;ENDIF
 #FINB
@@ -1506,7 +1508,7 @@ IF StCylA=3; 'This should be the normal case
     JS#StDlVar
     JS#XferDeB
   ENDIF
-  XdcrCur=2
+  XdcrCur=1
   JP#Ex2RflB
 ELSE
   NewErr=1;Errline=_ED;ErrMsg=16 
