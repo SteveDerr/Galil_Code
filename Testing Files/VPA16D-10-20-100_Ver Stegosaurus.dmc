@@ -1512,7 +1512,7 @@ IF StCylA=3; 'This should be the normal case
     JS#StDlVar
     JS#XferDeB
   ENDIF
-  XdcrCur=2
+  XdcrCur=1
   JP#Ex2RflB
 ELSE
   NewErr=1;Errline=_ED;ErrMsg=16 
