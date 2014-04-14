@@ -619,7 +619,7 @@ REM Round to 3 decimal places
 REM SpdFacA=(@RND[(SpdFacA*1000)]/1000)
 CntMarg = Margin*CntsPmm
 IF Burn>0;Burn=0;BV;ENDIF
-EN:EN
+EN;EN
 #MLSCALB
 #CALCNTB
 StkML=TotStke*MLPmmB
