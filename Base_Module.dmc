@@ -104,7 +104,7 @@ StReflA=0;StReflB=0;Paused=0;ta2b=0;tb2a=0;TlastA=TIME;TlastB=TIME;ErrMsg=0
 InitDone=0;CyclDone=0;Transit=0;PTempA=0;PTempB=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;FracLo=0;LowFlow=0;CompErr=0;Finding=0
 ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0
-DM AveSpAr[10];AveSpTm=TIME;Speedi=0
+DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0
 JS#STRTDAQ;JS#ZEROOF;
 EN
 '
