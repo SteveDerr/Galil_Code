@@ -1488,7 +1488,13 @@ EN
 ZR ASetPt - (DSetPt*(i+1))
 WT 100
 i=i+1
-JP#XferDeA,((i<LoopIt)&(Ramping=0)&(SPcurB<CtlSpd)&(AInXfRg)&(BInXfRg))
+IF PrTrMd=1
+REM In pump moode loop until B is greater than ctlspd
+  JP#XferDeA,((i<LoopIt)&(Ramping=0)&(SPcurB<CtlSpd)&(AInXfRg)&(BInXfRg))
+ELSE
+REM In receive mode loop until B is less then ctlspd
+  JP#XferDeA,((i<LoopIt)&(Ramping=0)&(SPcurB>CtlSpd)&(AInXfRg)&(BInXfRg))
+ENDIF
 EN
 
 #Ex2RflA
@@ -1521,7 +1527,13 @@ EN
 ZR ,BSetPt - (DSetPt*(i+1))
 WT 100
 i=i+1
-JP#XferDeB,((i<LoopIt)&(Ramping=0)&(SPcurB<CtlSpd)&(AInXfRg)&(BInXfRg))
+IF PrTrMd=1
+REM In pump mode, loop until A is greater then ctlspd
+  JP#XferDeB,((i<LoopIt)&(Ramping=0)&(SPcurA<CtlSpd)&(AInXfRg)&(BInXfRg))
+ELSE
+REM In pump mode, loop until A is less then ctlspd
+  JP#XferDeB,((i<LoopIt)&(Ramping=0)&(SPcurA>CtlSpd)&(AInXfRg)&(BInXfRg))
+ENDIF
 EN
 
 #Ex2RflB
