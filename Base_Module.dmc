@@ -92,7 +92,7 @@ REM 2.211
 
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
-Rev=0;Version=3.0;CylNum=2;Frstim=0
+Rev=2.211;Version=3.0;CylNum=2;Frstim=0
 RampA=0;RampB=0;StT2A=0;StT2B=0;OvrPresA=0;OvrPresB=0;RstPosA=0;RstPosB=0
 MO;CE 2,2;CN -1;MT 1,1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0;ResetMLB=0
 KP 12,12;KD 30,30;KI 0,0;OverLim=0;ZC 0,0;CONTA=0;CONTB=0;FlowRB=0;FloVolB=0
