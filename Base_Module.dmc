@@ -930,6 +930,10 @@ IF FState=1;HX6;FState=0;HX2;ENDIF
 IF FState=3;HX6;ENDIF
 IF FState=4;HX2;FState=0;HX6;ENDIF
 IF FState=6;HX2;ENDIF
+REM Seem to have issue with flow mode stopiing
+REM Even with ZC 0, 0 seems like Galil thinks a cylinder
+REM is still moving. Added STA;STB
+STA;STB
 EN
 #STRTDAQ
 WT 5
