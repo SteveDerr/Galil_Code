@@ -89,7 +89,7 @@ REM 2.209 - Fixed missing parenthesis on in #SPEED
 REM 2.210 - Added XsferDeA and XsferDeb functions, add Errline=_ED after NewErr=1
 REM 2.210 cont - added variables SpdFacA, SpdFacB, LstCntsA, LstCntsB, Speedi, AveSpAr[10]
 REM 2.211
-REM 2.212 - Test communication change
+REM 2.212 - Fixed bug with pressure mode starting/stopping too quickly
 
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
@@ -106,16 +106,9 @@ InitDone=0;CyclDone=0;Transit=0;PTempA=0;PTempB=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;FracLo=0;LowFlow=0;CompErr=0;Finding=0
 ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0
 DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0
-REM Set the unsolicited message port to aux port
-CF T
 JS#STRTDAQ;JS#ZEROOF;
-
 EN
 '
-#DISPCF
-MG "Test message sent out on unsolicited port."
-EN
-
 #SPEED
 'Shift array elemets
 
