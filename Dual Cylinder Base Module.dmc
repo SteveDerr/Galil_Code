@@ -110,7 +110,7 @@ JS#STRTDAQ;JS#ZEROOF;
 EN
 '
 #SPEED
-'Shift array elemets
+REM Shift array elements
 
   AveSpAr[9]=AveSpAr[8]
   AveSpAr[8]=AveSpAr[7]
@@ -123,14 +123,12 @@ EN
   AveSpAr[1]=AveSpAr[0]
 
 IF (Aflow>0)&(Bflow>0)
-   ' vAeSp=((0.8*AveSp) + (0.1*SPcurA) + (0.1*SPcurB));'DON'T CHANGE AveSP
+REM Don't change AveSp in transition
 ELSE
   IF Aflow>0
-'    AveSp=((0.2*AveSp) + (0.8*SPcurA))
     AveSpAr[0]=SPcurA;Speedi=Speedi+1
   ENDIF 
   IF Bflow>0
-'    AveSp=((0.2*AveSp) + (0.8*SPcurB))
     AveSpAr[0]=SPcurB;Speedi=Speedi+1
   ENDIF
   IF ((Aflow=0)&(Bflow=0));AveSp=0;ENDIF
@@ -300,7 +298,6 @@ MLcurA=_TPA/CntsPMLA;TcurA=TIME;CurCntsA=_TPA
 REM In rare cases this loop runs with 0 time between.
 REM Add if statement to avoid div by zero
 IF TcurA-TlastA<>0;SPcurA=((LstCntsA-CurCntsA)/(TcurA-TlastA))/SpdFacA;ENDIF
-REM DelTA=((TcurA-TlastA)/61440);'SPcurA=(MLlastA-MLcurA)/DelTA
 LstCntsA=CurCntsA;TlastA=TcurA;
 IF ((FState<>3)&(PState<>3))
 IF Aflow= 1;MLDispA=MLzeroA-MLcurA;ENDIF
@@ -323,7 +320,6 @@ MLcurB=_TPB/CntsPMLB;TcurB=TIME;CurCntsB=_TPB
 REM In rare cases this loop runs with 0 time between.
 REM Add if statement to avoid div by zero
 IF TcurB-TlastB<>0;SPcurB=((LstCntsB-CurCntsB)/(TcurB-TlastB))/SpdFacB;ENDIF
-REM DelTB=((TcurB-TlastB)/61440);'SPcurB=(MLlastB-MLcurB)/DelTB
 LstCntsB=CurCntsB;TlastB=TcurB
 IF ((FState<>6)&(PState<>6))
 IF Bflow=1;MLDispB=MLzeroB-MLcurB;ENDIF
@@ -406,17 +402,17 @@ IF _XQ4>0;HX4;ENDIF
 EN
 #FLOWA
 FlowingA=1
-'Calculate Speed
+REM Calculate Speed
 SPA=(FlowRA*CntsPMLA)/60
-'Calculate Volume
+REM Calculate Volume
 PR FloVolA*CntsPMLA
 BGA;AMA;FlowingA=0
 EN
 #FLOWB
 FlowingB=1
-'Calculate Speed
+REM Calculate Speed
 SPB=(FlowRB*CntsPMLB)/60
-'Calculate Volume
+REM Calculate Volume
 PR ,FloVolB*CntsPMLB
 BGB;AMB;FlowingB=0
 EN
@@ -625,7 +621,7 @@ EN;EN
 #CALCNTB
 StkML=TotStke*MLPmmB
 CntsPMLB=CntsPmm/MLPmmB
-'Dumbed down math for Galil
+REM Dumbed down math for Galil
 SpdFacB=(@RND[(CntsPMLB/10)]/6144)
 REM Round to 3 decimal places
 REM SpdFacB=(@RND[(SpdFacB*1000)]/1000)
@@ -716,12 +712,15 @@ SP RevSpdA;TarPosA =StartMLA*CntsPMLA
 PA TarPosA;BGA;AMA
 JS#ClsAin;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;MLDispA=MLzeroA-MLcurA
 IF CONTA=1
-'Stop here if called by STRTPRS
+REM Stop here if called by STRTPRS
 	CONTA=0;StReflA=0;FState=0
 ELSE
-	CompErr=0;'allow to continue if other cylinder generated CompErr
-	IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
-	IF (ReStpP=1) | (ReqStp=1);'we will not continue
+REM allow to continue if other cylinder generated CompErr
+	CompErr=0
+REM We need to stop pressure loop after this refill
+	IF CompErr=1;ReStpP=1;ENDIF 
+REM we will not continue
+	IF (ReStpP=1) | (ReqStp=1)
 		StReflA=0;Fjststrd=0;FState=0;PState=0;StCylA=0
 	ELSE
 		IF PState>0
@@ -758,11 +757,13 @@ SP ,RevSpdB;TarPosB=StartMLB*CntsPMLB
 PA ,TarPosB;BGB;AMB
 JS#ClsBin;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;MLDispB=MLzeroB-MLcurB
 IF CONTB=1
-'Stop here if called by STRTPRS
+REM Stop here if called by STRTPRS
 	CONTB=0;StReflB=0;FState=0
 ELSE
-	IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
-	IF (ReStpP=1) | (ReqStp=1);'we will not continue
+REM We need to stop pressure loop after this refill
+	IF CompErr=1;ReStpP=1;ENDIF 
+REM we will not continue
+	IF (ReStpP=1) | (ReqStp=1)
 		StReflB=0;Fjststrd=0;FState=0;PState=0;StCylB=0
 	ELSE
 		IF PState>0
@@ -985,22 +986,27 @@ IF RevSpdA>JgSpdMx;RevSpdA=JgSpdMx;ENDIF
 IF RevSpdA<JgSpdMn;RevSpdA=JgSpdMn;ENDIF
 IF RevSpdB>JgSpdMx;RevSpdB=JgSpdMx;ENDIF
 IF RevSpdB<JgSpdMn;RevSpdB=JgSpdMn;ENDIF
-IF ((@ABS[StartMLB-MLcurB]) <StrtTol); 'B is at Start 
+REM B is at Start 
+IF ((@ABS[StartMLB-MLcurB]) <StrtTol)
   StReflB=0 
-  IF ((@ABS[StartMLA-MLcurA]) <StrtTol); 'A is at Start
+REM A is at Start
+  IF ((@ABS[StartMLA-MLcurA]) <StrtTol); 
     StReflA=0
     Afirst=1
   ELSE
-    IF (MLcurA>(Amax-1))|(MLcurA<(Amin+1));'Ais outside limits
+REM A is outside limits
+    IF (MLcurA>(Amax-1))|(MLcurA<(Amin+1))
       ReflA=1;Afirst=1
     ELSE
       Afirst=1
     ENDIF
   ENDIF
 ELSE
-  IF ((@ABS[StartMLA-MLcurA]) <StrtTol); 'A is at start, but B is not
+REM A is at start, but B is not
+  IF ((@ABS[StartMLA-MLcurA]) <StrtTol)
   StReflA=0
-    IF (MLcurB>(Bmax-1))|(MLcurB<(Bmin+1)); 'B is outside the limits
+REM B is outside the limits
+    IF (MLcurB>(Bmax-1))|(MLcurB<(Bmin+1)) 
       ReflB=1;Afirst=1
     ELSE
      Bfirst=1
@@ -1020,7 +1026,8 @@ ENDIF
 #WT4AB
 JP#WT4AB,StReflA>0  
 JP#WT4AB,StReflB>0 
-'Pmode=1;ReStpP=0
+'Pmode=1
+ReStpP=0
 IF Afirst=1
   PSetPt=PcurA+5
 ELSE
@@ -1082,7 +1089,8 @@ ELSE
       RampA=0
   ENDIF
 ENDIF
-IF (MLcurA<0)|(MLcurA>VolA); 'Cylinder is out of limits-chng to Pos FB
+REM Cylinder is out of limits-chng to Pos FB
+IF (MLcurA<0)|(MLcurA>VolA)
   ZCA=0;CompErr=1
   IF MLcurA<0;ErrMsg=1;ENDIF
   IF MLcurA>VolA;ErrMsg=2;ENDIF
@@ -1095,24 +1103,29 @@ ENDIF
 ZR SPtmpA
 WT 5
 JP#RMPA,RampA=1
-'at this point setpoint has been ramped up, but pressure may not match-wait
-'for pressure to match before exiting this routine
+REM at this point setpoint has been ramped up, but pressure may not match-wait
+REM for pressure to match before exiting this routine
 AtPA=0
 #ATPRESA
-IF (MLcurA<0)|(MLcurA>VolA); 'Cylinder is out of limits-chng to Pos FB
+REM Cylinder is out of limits-chng to Pos FB
+IF (MLcurA<0)|(MLcurA>VolA)
   IF _ZCA>0
     ZCA=0;StCylA=0;CompErr=1
     IF MLcurA<0;ErrMsg=1;ENDIF
     IF MLcurA>VolA;ErrMsg=2;ENDIF
-    NewErr=1;Errline=_ED;AtPA=1;'exit this loop
+REM exit this loop
+    NewErr=1;Errline=_ED;AtPA=1
   ENDIF
 ENDIF
-IF MLcurA<MLlimA;'Comp > 25% cyl vol or vol avail to Amin
+REM Comp > 25% cyl vol or vol avail to Amin
+IF MLcurA<MLlimA
     IF _ZCA>0;ZCA=0;StCylA=0;ErrMsg=8;NewErr=1;Errline=_ED;ENDIF
-    CompErr=1;AtPA=1;'exit this loop
+REM exit this loop
+    CompErr=1;AtPA=1
 ENDIF
 IF (@ABS[SPtmpA-ZTAave]<500)
-    AtPA=1;'exit this loop
+REM exit this loop
+    AtPA=1
 ENDIF
 JP#ATPRESA,AtPA=0
 IF CompErr=0
@@ -1154,7 +1167,8 @@ ELSE
       RampB=0
   ENDIF
 ENDIF
-IF (MLcurB<0)|(MLcurB>VolB); 'Cylinder is out of limits-chng to Pos FB
+REM Cylinder is out of limits-chng to Pos FB
+IF (MLcurB<0)|(MLcurB>VolB)
   ZCB=0;StCylB=0;CompErr=1
   IF MLcurB<0;ErrMsg=3;ENDIF
   IF MLcurB>VolB;ErrMsg=4;ENDIF
@@ -1169,20 +1183,25 @@ WT 5
 JP#RMPB,RampB=1
 AtPB=0
 #ATPRESB
-IF (MLcurB<0)|(MLcurB>VolB); 'Cylinder is out of limits-chng to Pos FB
+REM Cylinder is out of limits-chng to Pos FB
+IF (MLcurB<0)|(MLcurB>VolB)
   IF _ZCB>0
     ZCB=0;StCylB=0;CompErr=1
     IF MLcurB<0;ErrMsg=3;ENDIF
     IF MLcurB>VolB;ErrMsg=4;ENDIF
-    NewErr=1;Errline=_ED;AtPB=1;'exit this loop
+REM exit this loop
+    NewErr=1;Errline=_ED;AtPB=1
   ENDIF
 ENDIF
-IF MLcurB<MLlimB;'Comp > 25% cyl vol
+REM Comp > 25% cyl vol
+IF MLcurB<MLlimB
   IF _ZCB>0;ZCB=0;StCylB=0;ErrMsg=9;NewErr=1;Errline=_ED;CompErr=1;ENDIF
-  CompErr=1;AtPA=1;'exit this loop
+REM exit this loop
+  CompErr=1;AtPA=1
 ENDIF
 IF (@ABS[SPtmpB-ZTBave]<500)
-    AtPB=1;'exit this loop
+REM exit this loop
+    AtPB=1
 ENDIF
 JP#ATPRESB,AtPB=0
 IF CompErr=0
@@ -1294,7 +1313,7 @@ JP#TRKA2B,StReflA>0
 JS#ClsAout
 JS#ClsAin
 MLlimA=MLcurA-ErrVol
-'This is the new stuff- set to force feedback
+REM This is the new stuff- set to force feedback
 JP#LOOPA1,((PcurB<30) & (PcurA<30))
 REM Set A Setpoint to B and set ZCA=1
 REM Figure delta pressure counts for ramp
@@ -1324,13 +1343,15 @@ ELSE
 ENDIF
 ZR SPTRA
 WT 5
-IF MLcurA<MLlimA;'Comp > 25% cyl vol
+REM Comp > 25% cyl vol
+IF MLcurA<MLlimA
   ErrMsg=8;NewErr=1;Errline=_ED;TRampA=0
 ENDIF
 JP#TRMPA,TRampA=1
 #LOOPA1
 PTempB=PcurB
-SPTRA=(PTempB*CntpPsiA)+PzerCntA; 'trying to match the pressure in B
+REM trying to match the pressure in B
+SPTRA=(PTempB*CntpPsiA)+PzerCntA
 REM Set min ZR to our zero offset
 IF (SPTRA<(PzerCntA+10))
   SPTRA=(PzerCntA+10)
@@ -1341,20 +1362,22 @@ IF ((PcurB>30) | (PcurA>30) | (_ZCA<>0))
   IF (_ZCA=0);ZCA=1;ENDIF
   ZR SPTRA
 ENDIF
-IF (MLcurA<0)|(MLcurA>VolA); 'Cylout of limits-chng to Pos FB
+REM Cylout of limits-chng to Pos FB
+IF (MLcurA<0)|(MLcurA>VolA)
   IF MLcurA<0;ErrMsg=1;ENDIF
   IF MLcurA>VolA;ErrMsg=2;ENDIF
   NewErr=1;Errline=_ED
   ta2b=1
 ENDIF
-IF MLcurA<MLlimA;'Comp > 25% cyl vol
+REM Comp > 25% cyl vol
+IF MLcurA<MLlimA
   ErrMsg=8;NewErr=1;Errline=_ED
   ta2b=1
 ENDIF
 JP#LOOPA1,ta2b=0
 
 ta2b=0
-'Set Back to position feedback
+REM Set Back to position feedback
 ZCA=0
 JG 0;BGA
 EN;EN;EN
@@ -1364,7 +1387,7 @@ JP#TRKB2A,StReflB>0
 JS#ClsBout
 JS#ClsBin
 MLlimB=MLcurB-ErrVol
-'This is the new stuff- set to force feedback
+REM This is the new stuff- set to force feedback
 JP#LOOPB1,((PcurA<30)&(PcurB<30))
 SPTRB=ZTBave;ZR ,SPTRB;ZCB=1;DelPcnt=ZTAave-ZTBave;TRampB=0;IncCntsB=0
 IF DelPcnt>2500
@@ -1390,13 +1413,15 @@ ELSE
 ENDIF
 ZR ,SPTRB
 WT 5
-IF MLcurB<MLlimB;'Comp > 25% cyl vol
+REM Comp > 25% cyl vol
+IF MLcurB<MLlimB 
   ErrMsg=9;NewErr=1;Errline=_ED;TRampB=0
 ENDIF
 JP#TRMPB,TRampB=1
 #LOOPB1
 PTempA=PcurA
-SPTRB=(PTempA*CntpPsiB)+PzerCntB; 'trying to match the pressure in A
+REM trying to match the pressure in A
+SPTRB=(PTempA*CntpPsiB)+PzerCntB
 REM Set min ZR to our zero offset
 IF (SPTRB<(PzerCntB+10))
   SPTRB=(PzerCntB+10)
@@ -1407,20 +1432,22 @@ IF ((PcurA>30) | (PcurB>30) | (_ZCB<>0))
   IF(_ZCB=0);ZCB=1;ENDIF
   ZR ,SPTRB
 ENDIF
-IF (MLcurB<0)|(MLcurB>VolB); 'Cyl out of limits-chng to Pos FB
+REM Cyl out of limits-chng to Pos FB
+IF (MLcurB<0)|(MLcurB>VolB)
   IF MLcurB<0;ErrMsg=3;ENDIF
   IF MLcurB>VolB;ErrMsg=4;ENDIF
   NewErr=1;Errline=_ED
   tb2a=1
 ENDIF
-IF MLcurB<MLlimB;'Comp > 25% cyl vol
+REM Comp > 25% cyl vol
+IF MLcurB<MLlimB
   ErrMsg=9;NewErr=1;Errline=_ED
   tb2a=1
 ENDIF
 JP#LOOPB1,tb2a=0
 
 tb2a=0
-'Set Back to position feedback
+REM Set Back to position feedback
 ZCB=0
 JG ,0;BGB
 EN;EN;EN;
@@ -1474,7 +1501,8 @@ ENDIF
 EN
 
 #TPrAtoB
-IF StCylB=3; 'This should be the normal case
+REM This should be the normal case
+IF StCylB=3
   MLcurB=_TPB/CntsPMLB
   MLzeroB=MLcurB
   JS#OpnBout
@@ -1492,13 +1520,13 @@ ELSE
 ENDIF
 EN
 
-'Delay loop to minimize psi drop between switch
+REM Delay loop to minimize psi drop between switch
 #XferDeA
 ZR ASetPt - (DSetPt*(i+1))
 WT 100
 i=i+1
 IF PrTrMd=1
-REM In pump moode loop until B is greater than ctlspd
+REM In pump mode loop until B is greater than ctlspd
   JP#XferDeA,((i<LoopIt)&(Ramping=0)&(SPcurB<CtlSpd)&(AInXfRg)&(BInXfRg))
 ELSE
 REM In receive mode loop until B is less then ctlspd
@@ -1514,7 +1542,8 @@ ZR SPcntsA
 EN
 
 #TPrBtoA
-IF StCylA=3; 'This should be the normal case
+REM This should be the normal case
+IF StCylA=3
   MLcurA=_TPA/CntsPMLA
   MLzeroA=MLcurA
   JS#OpnAout
@@ -1531,7 +1560,7 @@ ELSE
 ENDIF
 EN
 
-'Delay loop to minimize psi drop between switch
+REM Delay loop to minimize psi drop between switch
 #XferDeB
 ZR ,BSetPt - (DSetPt*(i+1))
 WT 100
