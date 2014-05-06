@@ -4,7 +4,7 @@ REM Config4 Added JgSpCal, RateCal
 REM Config8 added #INITCF,#FACTCAL
 REM Config9 Initilized PcurA and PcurB in #FACTSET
 REM Config10 Initalize SloPXfr in #FACTSET and XfrMlMin in #VESPRM init LstCntsA&B
-REM stegosaurus version
+
 
 #DEFSPD
 JgSpd=(InitRate*CntsPMLA)/60
@@ -24,7 +24,7 @@ ENDIF
 EN
 #FACTSET
 SD 10000000,10000000
-TestMode=0;DontOpn=0;CfgVer=6
+TestMode=0;DontOpn=0;CfgVer=10
 PmpSpdA=0;PmpSpdB=0;MLzeroA=0;MLzeroB=0;MLaccum=0;Kgain=0
 Emax=100;Igain=0;Dgain=0;MLofstA=0;MLofstB=0
 MLtotA=0;MLtotB=0;TarVol=2000000000;lpDlay=5;MLDispA=0;MLDispB=0
