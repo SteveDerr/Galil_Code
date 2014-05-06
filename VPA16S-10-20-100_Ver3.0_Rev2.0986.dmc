@@ -1,10 +1,11 @@
 REM Single cylinder version
 REM 2.0982 Added ErrMsg=0 to #AUTO
 REM 2.0986 IF in low flow #ADJSPA is skipped during refill
+REM 2.212 - Trying to match code up to dual cylinder version.
 
 #AUTO
 TLA=9.5;TKA=9.8;TM 1000
-Rev=2.0986;Version=3.0
+Rev=2.0986;Version=3.0;CylNum=1;Frstim=0
 RampA=0;StT2A=0;OvrPresA=0;RstPosA=0;
 MO;CE 2,2;CN -1;MT 1,1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0
 KP 12;KD 30;KI 0;OverLim=0;ZC 0;CONTA=0
@@ -12,17 +13,32 @@ PmodeA=0;DecrK=1;Occur=0;Tchng=0;PSetPt=0;DelaydA=0
 AC 10000000;DC 2048000;AG 1;SP 1000000
 SH;FState=0;Pmode=0;JogDir=0;ChngDir=0;JogDirL=0;OutLmtA=0;
 PState=0;XdcrCur=1;jststrd=1;Fjststrd=1;Pready=0;ReqStp=0;StCylA=0
-StReflA=0;TlastA=TIME;ErrMsg=0;CylNum=1
+StReflA=0;TlastA=TIME;ErrMsg=0
 InitDone=0;CyclDone=0;Transit=0;PTempA=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;LowFlow=0;CompErr=0;Finding=0
-ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0;WT10000;JS#STRTDAQ;JS#ZEROOF;EN
+ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0
+DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0
+WT10000;JS#STRTDAQ;JS#ZEROOF
+EN
 '
 #SPEED
-IF Aflow>0;AveSp=((0.2*AveSp) + (0.8*SPcurA));ENDIF
+'Shift array elemets
+
+  AveSpAr[9]=AveSpAr[8]
+  AveSpAr[8]=AveSpAr[7]
+  AveSpAr[7]=AveSpAr[6]
+  AveSpAr[6]=AveSpAr[5]
+  AveSpAr[5]=AveSpAr[4]
+  AveSpAr[4]=AveSpAr[3]
+  AveSpAr[3]=AveSpAr[2]
+  AveSpAr[2]=AveSpAr[1]
+  AveSpAr[1]=AveSpAr[0]
+
+IF Aflow>0;AveSpAr[0]=SPcurA;Speedi=Speedi+1;ENDIF
 IF (Aflow=0);AveSp=0;ENDIF
 EN
 #ADJSPA
-JP #ADJSPA, StReflA=1
+JP#ADJSPA, StReflA=1
 SP SPhigh
 WT FracLo
 SP SPlow
@@ -31,7 +47,7 @@ JP#ADJSPA
 EN
 #CHKLMTA
 WT 25
-JP #CHKLMTA,(MLcurA>Amin)&(MLcurA<Amax)
+JP#CHKLMTA,(MLcurA>Amin)&(MLcurA<Amax)
 IF MLcurA<Amin
   StartMLA=PmpStart
 ELSE
@@ -42,11 +58,11 @@ EN
 #CHKMLA
 #LOOP1
 WT 25
-JP #STPBOTH,MLtot>=TarVol
+JP#STPBOTH,MLtot>=TarVol
 JS#CHGRATE,RateChng>0
-JP #LOOP1,MLcurA>TrnsVol
+JP#LOOP1,MLcurA>TrnsVol
 JP#REFILLA
-EN
+EN;EN
 
 #CHGRATE
 RateChng=0
@@ -57,13 +73,14 @@ JS#VCALCSA
 PmpSpdA=(PmpRate*CntsPMLA)/60
 JG PmpSpdA
 IF LowFlow=1;HX5;JS#LOSPPA;XQ#ADJSPA,5;ENDIF
-EN
+EN;EN
 
 #CMDERR
-ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErr=1;ErrMsg=100+ErrCode;HX;EN
+ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErr=1;ErrMsg=100+ErrCode;HX
+RE
 #CURPA
 AccumA=0;IncA=0
-#REPEATA;AccumA=AccumA+_ZTA;IncA=IncA+1;WT 4;JP #REPEATA,IncA<AveNo
+#REPEATA;AccumA=AccumA+_ZTA;IncA=IncA+1;WT 4;JP#REPEATA,IncA<AveNo
 IF AccumA=0;ZerOffA=0;ELSE; ZerOffA=PzerCntA;ENDIF
 PcurA=((AccumA/IncA)-ZerOffA)/CntpPsiA
 IF PcurA>PMax;OvrPresA=OvrPresA+1
@@ -83,7 +100,8 @@ IF PcurA>PMax;OvrPresA=OvrPresA+1
   ENDIF
 ELSE
   OvrPresA=0
-ENDIF;EN
+ENDIF
+EN;EN
 
 #CURMLA
 MLcurA=_TPA/CntsPMLA;TcurA=TIME
@@ -98,34 +116,34 @@ EN
 #CYCLEA
 JS#OpnAin;JS#ClsAout
 MLtotA=0;MLDispA=0;MLofstA=0;OEA=1
-JP #SKIPF2,_LFA=0
+JP#SKIPF2,_LFA=0
 JG JgSpd;BGA;AMA
 #SKIPF2
 IF InVopn=0;JS#ClsAin;JS#OpnAout;ENDIF
 MLnewA=StartMLA;Rate=InitRate
-JS #NEWPOSA
+JS#NEWPOSA
 AM A;AStopd=0;StReflA=0;OEA=0
-EN
+EN;EN
 
 #CYCTOST
 TLA=3.5;TKA=3.8
 Cycle=1;AStopd=1
 JS#CYCLEA
-JS #ClsAll
+JS#ClsAll
 Cycle=0;CyclDone=1
 #ZEROT
 WT 1000
 MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;MLofstA=0;MLtotA=0;MLDispA=0
 TLA=9.5;TKA=9.8
-EN
+EN;EN
 #DAQLOOP
-JS #CURMLA
-JS #SPEED
-JS #CURPA
+JS#CURMLA
+JS#SPEED
+JS#CURPA
 IF XdcrCur=1;Pcur=PcurA;ENDIF
 IF XdcrCur=0;Pcur=0;ENDIF
 WT 200
-JP #DAQLOOP,DAQmode>0
+JP#DAQLOOP,DAQmode>0
 EN
 #ESTOP
 STA;FState=0;HX2;HX5
@@ -168,7 +186,8 @@ StkeA=DeltCtsA/CntsPmm
 VolA=DeltCtsA/CntsPMLA
 PR CntMarg;BGA;AM A
 DP 0;AStopd=0
-MLtotA=0;MLDispA=0;MLofstA=0;OEA=0;EN
+MLtotA=0;MLDispA=0;MLofstA=0;OEA=0
+EN;EN
 
 #LIMSWI
 IF (Finding=1)|(Cycle=1)
@@ -176,7 +195,7 @@ IF (Finding=1)|(Cycle=1)
 ELSE
   IF (_LFA=0)|(_LRA=0);DC 100000000;STA;AMA;DC 2048000;ENDIF
 ENDIF
-EN
+RE
 #LOSPPA
 SPlow=_SPA;SPhigh=SPlow+2;FracLo=(@ABS[PmpSpdA]-_SPA)*1000;FracHi=2000-FracLo
 EN
@@ -217,9 +236,9 @@ IF Burn>0;Burn=0;BV;ENDIF;EN
 TarPosA=MLnewA*CntsPMLA
 SP (Rate*CntsPMLA)/60
 PA TarPosA;BGA;AM A
-JS #CURMLA
+JS#CURMLA
 FState=0
-EN
+EN;EN
 
 #NEWSP
 IF TarPres<PSetPt
@@ -246,7 +265,7 @@ ELSE
 ENDIF
 JS#SETZR
 JP#RAMP,Ramping>0
-EN
+EN;EN
 '
 #PCNTRLA
 JS#ClsAin
@@ -258,7 +277,8 @@ Pready=1
 EN
 
 #POSERR
-NewErr=1;ErrMsg=11;ST;AM;MO;SH;ZS;HX;RE
+NewErr=1;ErrMsg=11;ST;AM;MO;SH;ZS;HX
+RE
 
 #REFILLA
 StReflA=1;StCylA=1
@@ -306,7 +326,7 @@ JP#SKPRA,_LRA=0
 JG -JgSpCal;BGA;AM A
 #SKPRA
 MLnewA=CalStrtA;Rate=RateCal
-JS #NEWPOSA
+JS#NEWPOSA
 AM A
 WT 1000
 MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;MLofstA=0;MLtotA=0
@@ -410,7 +430,7 @@ ReStpP=1
 EN
 '
 #SETSCAL
-JS #MLSCALA
+JS#MLSCALA
 EN
 #SYNCA
 JP#SYNCA,StReflA>0
@@ -465,7 +485,7 @@ IF MLcurA<MLlimA;'Comp > 25% cyl vol
   IF CompErr=1;SPtmpA=_ZTA;ENDIF;'Exit this loop if err in prev loop
   IF _ZCA>0;ZCA=0;ErrMsg=8;NewErr=1;CompErr=1;SPtmpA=_ZTA;ENDIF
 ENDIF
-JP #ATPRESA,(@ABS[SPtmpA-_ZTA]>500)
+JP#ATPRESA,(@ABS[SPtmpA-_ZTA]>500)
 IF CompErr=1
   StCylA=0;HX3
 ELSE
@@ -474,7 +494,7 @@ ENDIF
 MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;JS#OpnAout;XdcrCur=1
 JS#SETPST
 JP#CHKLMTA
-EN
+EN;EN;EN
 
 
 #TESTCAL
@@ -514,17 +534,20 @@ IF RevSpdA<JgSpdMn;RevSpdA=JgSpdMn;ENDIF;EN
 
 #VRECALA
 JS#CALCNTA
-BV;EN
+BV
+EN
 
 #VSCALE
 CntpPsiA=(65535/PRange[Pxdcr])*(PfsVA/A2DFS)
 VppsiA[Pxdcr]=PfsVA/PRange[Pxdcr]
-BV;EN
+BV
+EN
 '
 #ZEROML
 JS#CURMLA,DAQmode=0
 MLofstA=MLDispA;MLtotA=0
-BV;EN
+BV
+EN
 #ZEROVA
 SumA=0;IncA2=0;AQ1;WT 1000
 #READA
@@ -534,47 +557,57 @@ SumA=0;IncA2=0;AQ1,4;WT 1000
 #READA2
 SumA=SumA+_ZTA;IncA2=IncA2+1;JP#READA2,IncA2<AveNo
 PzerCntA=SumA/IncA2;IF ZerTmpA<PzerCntA;PzerCntA=ZerTmpA;ENDIF
-BV;EN
+BV
+EN;EN;EN
 
 #ZEROBTH
 JS#ZEROVA
 EN
 #ZEROOF
-OF0;EN
+OF0
+EN
 
 '
 #OpnAout
-SB 2;Aflow=1; EN
+SB 2;Aflow=1
+EN
 #ClsAout
-CB 2;Aflow=0; EN
+CB 2;Aflow=0
+EN
 #OpnAin
-SB 1; EN
+SB 1
+EN
 #ClsAin
-CB 1; EN
+CB 1
+EN
 #OpnBout
-SB 4;Bflow=1; EN
+SB 4;Bflow=1
+EN
 #ClsBout
-CB 4;Bflow=0; EN
+CB 4;Bflow=0
+EN
 #OpnBin
-SB 3; EN
+SB 3
+EN
 #ClsBin
-CB 3; EN
+CB 3
+EN
 #OpnAll
-JS #OpnAout;JS #OpnAin;JS #OpnBout;JS #OpnBin;EN
+JS#OpnAout;JS#OpnAin;JS#OpnBout;JS#OpnBin;EN
 #ClsAll
-JS #ClsAout;JS #ClsAin;JS #ClsBout;JS #ClsBin;EN
+JS#ClsAout;JS#ClsAin;JS#ClsBout;JS#ClsBin;EN
 #OpnOut
-JS #OpnAout;JS #OpnBout;EN
+JS#OpnAout;JS#OpnBout;EN
 #OpnIn
-JS #OpnAin;JS #OpnBin;EN
+JS#OpnAin;JS#OpnBin;EN
 #AACTIV
-JS #ClsBout;JS #ClsBin;JS#ClsAin;JS#OpnAout;EN
+JS#ClsBout;JS#ClsBin;JS#ClsAin;JS#OpnAout;EN
 #BACTIV
-JS #ClsAout;JS #ClsAin;JS#ClsBin;JS#OpnBout;EN
+JS#ClsAout;JS#ClsAin;JS#ClsBin;JS#OpnBout;EN
 #ClsIn
-JS #ClsAin;JS #ClsBin;EN
+JS#ClsAin;JS#ClsBin;EN
 #ClsOut
-JS #ClsAout;JS #ClsBout;EN
+JS#ClsAout;JS#ClsBout;EN
 
 REM ********* CUSTOM CONFIGURATION FILES - INSERT BELOW
 REM VAP16D-10-20-100 CONFIGURATION - REV 1-23-2013
@@ -599,10 +632,10 @@ Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=100;KP 4,4;KD 30,30;KI 0,0
 Aflow=0;Bflow=0;PfiltA=0;PlastA=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;DeltaML=0;Ramping=0
 OEA=0;ER 1000000;PzerCntA=0;Burn=0
-JS #VESPRM
-JS #MECHPRM
-JS #TESTCAL
-JS #SYSCFG
+JS#VESPRM
+JS#MECHPRM
+JS#TESTCAL
+JS#SYSCFG
 EN
 #MECHPRM
 RodSize=2;Pxdcr=7;AQ 1,4;AQ 2,4;AQ 3,4
@@ -618,7 +651,7 @@ EN
 CntsPmm=(ECtsPR*MotorRed)/BSLead
 JgSpdMx=1900000
 JS#SETSCAL
-JS #DEFSPD
+JS#DEFSPD
 IF _AQ1=1
   A2DFS=10;ZK 200;ZD 300;ZI1;ZF 0.95
 ENDIF
@@ -628,7 +661,7 @@ ENDIF
 IF _AQ1=4
   A2DFS=10;ZK 200;ZD 300;ZI1;ZF 0.95
 ENDIF
-JS #VSCALE
+JS#VSCALE
 BV;BN;EN
 
 #VESPRM
