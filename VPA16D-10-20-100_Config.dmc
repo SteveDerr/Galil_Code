@@ -4,7 +4,7 @@ REM Config4 Added JgSpCal, RateCal
 REM Config8 added #INITCF,#FACTCAL
 REM Config9 Initiliazed PcurA,PcurB in #FACTSET
 REM Config10 Initalized SloPXfr in #FACTSET and XfrMlMin in #VESPRM init LstCntsA&B
-REM stegosaurus version
+
 
 #DEFSPD
 JgSpd=(InitRate*CntsPMLA)/60
