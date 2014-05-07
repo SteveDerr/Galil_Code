@@ -256,8 +256,8 @@ AccumA=0;IncA=0;AccumB=0
 #REPEATA;AccumA=AccumA+_ZTA;AccumB=AccumB+_ZTB;IncA=IncA+1;WT tdla
 JP#REPEATA,IncA<AveNo
 ZTAave=(AccumA/IncA);ZTBave=(AccumB/IncA)
-IF AccumA=0;ZerOffA=0;ELSE; ZerOffA=PzerCntA;ENDIF
-IF AccumB=0;ZerOffB=0;ELSE; ZerOffB=PzerCntB;ENDIF
+IF AccumA=0;ZerOffA=0;ELSE;ZerOffA=PzerCntA;ENDIF
+IF AccumB=0;ZerOffB=0;ELSE;ZerOffB=PzerCntB;ENDIF
 PcurA=(ZTAave-ZerOffA)/CntpPsiA;PcurB=(ZTBave-ZerOffB)/CntpPsiB
 IF PcurA>PMax;OvrPresA=OvrPresA+1
   IF OvrPresA>2
@@ -1020,7 +1020,7 @@ REM B is at Start
 IF ((@ABS[StartMLB-MLcurB]) <StrtTol)
   StReflB=0 
 REM A is at Start
-  IF ((@ABS[StartMLA-MLcurA]) <StrtTol); 
+  IF ((@ABS[StartMLA-MLcurA]) <StrtTol)
     StReflA=0
     Afirst=1
   ELSE
@@ -1280,7 +1280,7 @@ AT 0
 HiSpdA=PmpSpdA
 DSpdA=PmpSpdA/TranStps;Done=0
 DSpdB=PmpSpdB/TranStps;LoSpdB=0
-JG ,0; BGB;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;JS#OpnBout
+JG ,0;BGB;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;JS#OpnBout
 #Loop2
 AT -lpDlay
 HiSpdA=HiSpdA-DSpdA
@@ -1313,7 +1313,7 @@ AT 0
 HiSpdB=PmpSpdB
 DSpdB=PmpSpdB/TranStps;DoneB=0
 DSpdA=PmpSpdA/TranStps;LoSpdA=0
-JG 0; BGA;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;JS#OpnAout
+JG 0;BGA;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;JS#OpnAout
 #Loop4
 AT -lpDlay
 HiSpdB=HiSpdB-DSpdB
