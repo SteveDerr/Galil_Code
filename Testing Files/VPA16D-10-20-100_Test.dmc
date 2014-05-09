@@ -969,12 +969,14 @@ EN
 WT 5
 DAQmode=1
 XQ#PDAQ,7
-JP#DAQLOOP;EN
+JP#DAQLOOP
+EN
+
 #STRTMPL
-IF _XQ4>0
-  HX4
-ENDIF
-'Pmode=1;PState=7;XQ#MASTPLP,4;EN
+'Pmode=1
+PState=7;XQ#MASTPLP,4
+EN
+
 #STRTFLO
 Transit=0
 IF (StReflA=1)|(StReflB=1);JP#STRTFLO;ENDIF
@@ -1065,10 +1067,6 @@ IF Afirst=1
   PSetPt=PcurA+5
 ELSE
   PSetPt=PcurB+5
-ENDIF
-REM Make sure thread 3 is open.
-IF _XQ3>0
-	HX3
 ENDIF
 XQ#LSLOOP,3
 JS#STRTMPL

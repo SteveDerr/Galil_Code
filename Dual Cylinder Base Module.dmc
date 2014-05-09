@@ -1063,10 +1063,6 @@ IF Afirst=1
 ELSE
   PSetPt=PcurB+5
 ENDIF
-REM Make sure thread 3 is open.
-IF _XQ3>0
-	HX3
-ENDIF
 XQ#LSLOOP,3
 JS#STRTMPL
 IF Afirst=1
