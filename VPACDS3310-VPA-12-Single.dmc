@@ -5,7 +5,6 @@ REM MotorRed=25 in test unit - needs to be 50 in actual unit
 REM took out Pxdcr - to be set from Qlarity before FACTSET
 REM 2.0986 Set lpD=50 
 REM 2.0987 Set gains and filter in PLOOPA
-
 REM 2.211
 #AUTO
 TLA=9.5;TKA=9.8;TM 1000
@@ -21,13 +20,10 @@ StReflA=0;Paused=0;TlastA=TIME;LstCntsA=_TPA;ErrMsg=0;SyncTru=0
 InitDone=0;CyclDone=0;Transit=0;PTempA=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;LowFlow=0;CompErr=0;Finding=0
 ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0
-
 DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0
 WT10000;JS#STRTDAQ;JS#ZEROOF
 EN
 #SPEED
-
-
 REM Shift array elemets
   AveSpAr[9]=AveSpAr[8]
   AveSpAr[8]=AveSpAr[7]
@@ -77,22 +73,18 @@ JP#LOOP1,MLcurA>TrnsVol
 Wait4op=1;JG 0
 JP#REFILLA
 EN;EN
-
 #CHGRATE
 RateChng=0
 #LOOPCHG
 JP#LOOPCHG,(StReflA=1)
 JS#VCALCSA
-
 PmpSpdA=(PmpRate*CntsPMLA)/60
 JG PmpSpdA
 IF LowFlow=1;HX4;JS#LOSPPA;XQ#ADJSPA,4;ENDIF
 EN;EN
-
 #CMDERR
 'ZC 0
 ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErr=1;ErrMsg=100+ErrCode;HX
-
 EN
 #CURPA
 AccumA=0;IncA=0
@@ -101,9 +93,6 @@ JP#REPEATA,IncA<AveNo
 IF Pxdcr<5;PcurA=((AccumA/IncA)-PzeroA)/VppsiA[Pxdcr];ENDIF
 IF Pxdcr >=5;PcurA=(((AccumA/IncA)-PzeroA)/PfsVA)*PRange[Pxdcr];ENDIF
 IF XdcrCur=1;Pcur=PcurA;ENDIF
-
-
-
 IF Pcur>PMax
 	OvrPres=OvrPres+1
 	IF OvrPres>2
@@ -117,7 +106,6 @@ ENDIF
 EN;EN
 #CURMLA
 MLcurA=_TPA/CntsPMLA;TcurA=TIME;CurCntsA=_TPA
-
 REM In rare cases this loop runs with 0 time between.
 REM Add if statement to avoid div by zero
 IF TcurA-TlastA<>0;SPcurA=((LstCntsA-CurCntsA)/(TcurA-TlastA))/SpdFacA;ENDIF
@@ -134,7 +122,6 @@ IF ((FState<>3)&(PState<>3))
 	ENDIF
 ENDIF
 EN
-
 #CYCLEA
 JS#OpnAin;JS#ClsAout
 MLtotA=0;MLDispA=0;MLofstA=0;OEA=1
@@ -146,7 +133,6 @@ MLnewA=StartMLA;Rate=InitRate
 JS#NEWPOSA
 AM A;AStopd=0;StReflA=0;OEA=0
 EN;EN
-
 #CYCTOST
 TLA=3.5;TKA=3.8
 Cycle=1;AStopd=1
@@ -184,8 +170,6 @@ SPA=(FlowRA*CntsPMLA)/60
 PR FloVolA*CntsPMLA
 BGA;AMA;FlowingA=0
 EN
-
-
 #FNDLMTS
 TLA=2.5;TKA=2.8
 JS#ZEROOF
@@ -210,8 +194,6 @@ StkeA=DeltCtsA/CntsPmm
 VolA=DeltCtsA/CntsPMLA
 PR CntMarg;BGA;AM A
 DP 0;AStopd=0
-
-
 MLtotA=0;MLDispA=0;MLofstA=0;OEA=0
 EN;EN
 #LIMSWI
@@ -220,12 +202,10 @@ IF (Finding=1)|(Cycle=1)
 ELSE
   IF (_LFA=0)|(_LRA=0);DC 100000000;STA;AMA;DC 2048000;ENDIF
 ENDIF
-
 RE
 #LOSPPA
 SPlow=_SPA;SPhigh=SPlow+2;FracLo=(@ABS[PmpSpdA]-_SPA)*1000;FracHi=2000-FracLo
 EN
-
 #MASTPLP
 JS#NEWSP,Ramping=1
 IF (ReStpP=1)
@@ -246,10 +226,8 @@ IF ZCA >0
   JS#SETPFBA
   HX3;HX5;SHA
 ENDIF
-
 JS#ZEROOF
 EN
-
 #MLSCALA
 MLPmmA=(3.14159*RodDia[RodSize]*RodDia[RodSize])/4000
 #CALCNTA
@@ -258,8 +236,6 @@ CntsPMLA=CntsPmm/MLPmmA
 REM Dumbed down math for galil
 SpdFacA=(@RND[(CntsPMLA/10)]/6144)
 CntMarg = Margin*CntsPmm
-
-
 IF Burn>0;Burn=0;BV;ENDIF
 EN;EN
 #NEWPOSA
@@ -269,7 +245,6 @@ PA TarPosA;BGA;AM A
 JS#CURMLA
 FState=0
 EN
-
 #NEWSP
 IF TarPres<PSetPt
   RampRate=-RampRate
@@ -278,7 +253,6 @@ Pinc=RampRate/10
 IF Pinc=0
   Ramping=0
 ENDIF
-
 #RAMP
 sttime=TIME
 PSetPt=PSetPt + Pinc
@@ -307,7 +281,6 @@ IF SyncTru=1
   JP#CHKLMTA
 ENDIF
 EN;EN;EN
-
 #PCNTRLA
 JS#ClsAin
 XdcrCur=1;PState=1;StCylA=3;ReStpP=0
@@ -316,7 +289,6 @@ JS#SETFFBO
 JS#OpnAout
 Pready=1
 EN
-
 #PLOOPA
 AT 0
 #PLA
@@ -328,8 +300,6 @@ IsumA=IsumA+errorA;MotorVA=(KgainA*errorA)+(IgainA*IsumA)-(DgainA*VelcurA)
 IF MotorVA>9.98;MotorVA=9.98;ENDIF;IF MotorVA<-9.98;MotorVA=-9.98;ENDIF
 OF MotorVA
 JP#PLA,PmodeA>0
-
-
 OF 0;STA;AMA;StPctlA=0
 EN;EN
 #POSERR
@@ -401,7 +371,6 @@ WT 1000
 MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;MLofstA=0;MLtotA=0
 Cycle=0
 EN;EN
-
 #RESET
 RstPosA=ResetMLA*CntsPMLA
 DP RstPosA
@@ -418,17 +387,14 @@ REM Try running CHKLMTA on thread 3. Having problems with
 REM thread 2.
 IF _XQ3<0;XQ#CHKLMTA,3;ENDIF
 EN
-
 #SETPFBA
 ZCA=0;PmodeA=0;JS#SETKVA
-
 EN
 #SETKPA
 MOA;KP 0;KD 0;KI 0;KgainA=KPP;DgainA=KDP;IgainA=KIP;SHA
 EN
 #SETKVA
 MOA;KP KPvel;KD KDvel;KI KIvel;KgainA=0;DgainA=0;IgainA=0;SHA
-
 EN
 #SETPST
 IF  StCylA=3
@@ -440,7 +406,6 @@ ENDIF
 IF StCylA=1
     PState=3
 ENDIF    
-
 EN  
 #SETSPV
 IF Pxdcr<5
@@ -450,7 +415,6 @@ IF Pxdcr >=5
  SPvoltA=((PSetPt/PRange[Pxdcr])*PfsVA)+PzeroA
 ENDIF
 EN
-
 #STARTA
 FState=1;XdcrCur=1;ReqStp=0;ReStpP=0
 JS#AACTIV
@@ -466,7 +430,6 @@ IF LowFlow=1;JS#LOSPPA;XQ#ADJSPA,4;ENDIF
 JP#FINA,_XQ2>0
 XQ#CHKMLA,2
 EN;EN
-
 #STPBOTH
 ReqStp=1
 IF FState=1;STA;ENDIF
@@ -496,7 +459,6 @@ jststrd=1;ReflA=0;ReqStp=0;ReStpP=0
 RevSpdA=(ReflPc*CntsPMLA)/60
 IF RevSpdA>JgSpdMx;RevSpdA=JgSpdMx;ENDIF
 IF RevSpdA<JgSpdMn;RevSpdA=JgSpdMn;ENDIF
-
 IF (MLcurA>(Amax))|(MLcurA<(Amin));'Ais outside limits
     StReflA=1;CONTA=1
     Wait4op=1
@@ -507,25 +469,19 @@ JP#WAIT4RL,_XQ2>0
 PSetPt=PcurA
 JS#STRTMPL
 JP#PCNTRLA
-
 EN;EN
-
-
 #STPCYCL
 STA;Cycle=0;JS#ClsAll;HX1;HX2;HX4;HX6
 EN
 #STPDAQ
 DAQmode=0
-
 EN
 #STPDP
 ReStpP=1
 EN
-
 #SETSCAL
 JS#MLSCALA
 EN
-
 #SYNCA
 StCylA=2;PState=4; AMA
 JS#ClsAout;JS#ClsAin
@@ -534,8 +490,6 @@ JS#SETFFBO
 'Ramp up to current TarPres
 SyncTru=1;Ramping=1;JP#NEWSP
 EN
-
-
 #TESTCAL
 DM RodDia[10]
 DM PRange[8];DM VppsiA[8];DM VppsiB[8]
@@ -558,7 +512,6 @@ PRange[5]=1000
 PRange[6]=5000
 PRange[7]=10000
 EN
-
 #VCALCSA
 'TranStps=(Tdec/lpDlay)*1000
 'DecVol=(-PmpRate/120)*Tdec
@@ -570,23 +523,19 @@ IF TrnsVol>(StartMLA+1.00);TrnsVol=(StartMLA+1.00);ENDIF
 RevSpdA=-PmpSpdA*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
 IF RevSpdA>JgSpdMx;RevSpdA=JgSpdMx;ENDIF
 IF RevSpdA<JgSpdMn;RevSpdA=JgSpdMn;ENDIF
-
 EN
 #VRECALA
 JS#CALCNTA
 BV
-
 EN
 #VSCALE
 VppsiA[Pxdcr]=PfsVA/PRange[Pxdcr]
 BV
-
 EN
 #ZEROML
 JS#CURMLA,DAQmode=0
 MLofstA=MLDispA;MLtotA=0
 BV
-
 EN
 #ZEROVA
 IF Pxdcr < 5
@@ -596,15 +545,11 @@ IF Pxdcr >=5
 PzeroA=PzeroA + (PcurA*PfsVA/PRange[Pxdcr]);BV
 ENDIF
 EN
-
 #ZEROBTH
 JS#ZEROVA
 EN
-
 #ZEROOF
 OF0
-
-
 EN
 #OpnAout
 SB 2;Aflow=1;EN
@@ -643,14 +588,12 @@ REM ********* CUSTOM CONFIGURATION FILES - INSERT BELOW
 REM VAP16D-10-20-100 CONFIGURATION - REV 1-23-2013
 REM Config3 Added InVopn=0 to #FACTSET, Added CfgVer
 REM Config4 Added JgSpCal, RateCal
-
 #DEFSPD
 JgSpd=(InitRate*CntsPMLA)/60
 JgSpdMn=(ReflFmn*CntsPMLA)/60
 JgSpCal=(RateCal*CntsPMLA)/60
 EN
 #FACTSET
-
 TestMode=0;DontOpn=0;CfgVer=7
 PmpSpdA=0;MLzeroA=0;MLaccum=0;Kgain=0
 Igain=0;Dgain=0;MLofstA=0
@@ -683,16 +626,13 @@ MotorRed = 50;'standard units
 TotStke = 320
 Margin = 5
 EN
-
 #SYSCFG
 CntsPmm=(ECtsPR*MotorRed)/BSLead
 JgSpdMx=1900000
 JS#SETSCAL
 JS#DEFSPD
-
 JS#VSCALE
 BV;BN
-
 EN
 #VESPRM
 StkeA=320;VolA=20;StartMLA=18;PmpRate=-10
