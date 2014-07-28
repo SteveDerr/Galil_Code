@@ -1,6 +1,6 @@
 #AUTO
 TLA=9.5;TKA=9.8;TM 1000
-Rev=2.212;Version=3.0;CylNum=1;Frstim=0
+Rev=2.213;Version=3.0;CylNum=1;Frstim=0
 RampA=0;StT2A=0;OvrPresA=0;RstPosA=0;
 MO;CE 2;CN 1;MT -1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0
 KP 4;KD 30;KI 0;OverLim=0;ZCA=0;CONTA=0;lpD=50
@@ -12,7 +12,7 @@ StReflA=0;Paused=0;TlastA=TIME;LstCntsA=_TPA;ErrMsg=0;SyncTru=0
 InitDone=0;CyclDone=0;Transit=0;PTempA=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;LowFlow=0;CompErr=0;Finding=0
 ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0
-DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0
+DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0;AveSp=0
 WT10000;JS#STRTDAQ;JS#ZEROOF
 EN
 #SPEED
@@ -603,7 +603,7 @@ JS#TESTCAL
 IF PRange[Pxdcr]>1000
   KPP=20;KDP=0.002;KIP=0.1
 ELSE
-  KPP=5;KDP=0.003;KIP=0.1
+  KPP=(.025*MotorRed);KDP=0.003;KIP=0.1
 ENDIF
 JS#SYSCFG
 EN

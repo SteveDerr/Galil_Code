@@ -1,14 +1,6 @@
-REM Single cylinder version
-REM 2.0982 Added ErrMsg=0 to #AUTO
-REM Adapted NRE code to CDS 3310 - back to older force feedback scheme Oct 2013
-REM MotorRed=25 in test unit - needs to be 50 in actual unit
-REM took out Pxdcr - to be set from Qlarity before FACTSET
-REM 2.0986 Set lpD=50 
-REM 2.0987 Set gains and filter in PLOOPA
-REM 2.211
 #AUTO
 TLA=9.5;TKA=9.8;TM 1000
-Rev=2.211;Version=3.0;CylNum=1;Frstim=0
+Rev=2.212;Version=3.0;CylNum=1;Frstim=0
 RampA=0;StT2A=0;OvrPresA=0;RstPosA=0;
 MO;CE 2;CN 1;MT -1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0
 KP 4;KD 30;KI 0;OverLim=0;ZCA=0;CONTA=0;lpD=50
@@ -24,7 +16,6 @@ DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0
 WT10000;JS#STRTDAQ;JS#ZEROOF
 EN
 #SPEED
-REM Shift array elemets
   AveSpAr[9]=AveSpAr[8]
   AveSpAr[8]=AveSpAr[7]
   AveSpAr[7]=AveSpAr[6]
@@ -37,7 +28,7 @@ REM Shift array elemets
 IF Aflow>0
     AveSpAr[0]=SPcurA;Speedi=Speedi+1
 ELSE 
-	AveSpAr[0]=0
+  AveSpAr[0]=0
 ENDIF
 IF Speedi>3;JS#SPEED2;ENDIF
 EN
@@ -70,6 +61,7 @@ WT 25
 JP#STPBOTH,MLtot>=TarVol
 JS#CHGRATE,RateChng>0
 JP#LOOP1,MLcurA>TrnsVol
+HX4
 Wait4op=1;JG 0
 JP#REFILLA
 EN;EN
@@ -94,32 +86,30 @@ IF Pxdcr<5;PcurA=((AccumA/IncA)-PzeroA)/VppsiA[Pxdcr];ENDIF
 IF Pxdcr >=5;PcurA=(((AccumA/IncA)-PzeroA)/PfsVA)*PRange[Pxdcr];ENDIF
 IF XdcrCur=1;Pcur=PcurA;ENDIF
 IF Pcur>PMax
-	OvrPres=OvrPres+1
-	IF OvrPres>2
-		JS#OpnAll
-		JS#ESTOP
-		ErrMsg=12;NewErr=1;Errline=_ED
-	ENDIF
+  OvrPres=OvrPres+1
+  IF OvrPres>2
+    JS#OpnAll
+    JS#ESTOP
+    ErrMsg=12;NewErr=1;Errline=_ED
+  ENDIF
 ELSE
-	OvrPres=0
+  OvrPres=0
 ENDIF
 EN;EN
 #CURMLA
 MLcurA=_TPA/CntsPMLA;TcurA=TIME;CurCntsA=_TPA
-REM In rare cases this loop runs with 0 time between.
-REM Add if statement to avoid div by zero
 IF TcurA-TlastA<>0;SPcurA=((LstCntsA-CurCntsA)/(TcurA-TlastA))/SpdFacA;ENDIF
 LstCntsA=CurCntsA;TlastA=TcurA;
 IF ((FState<>3)&(PState<>3))
-	IF Aflow= 1;MLDispA=MLzeroA-MLcurA;ENDIF
-	MLtot=MLDispA+MLtotA+-MLofstA
-	IF (Finding=0)&(Cycle=0)  
-		IF (MLcurA<(.03*VolA))|(MLcurA>(.97*VolA))
-			TLA=2.5;TKA=2.8
-		ELSE
-			TLA=9.5;TKA=9.8
-		ENDIF
-	ENDIF
+  IF Aflow= 1;MLDispA=MLzeroA-MLcurA;ENDIF
+  MLtot=MLDispA+MLtotA+-MLofstA
+  IF (Finding=0)&(Cycle=0)  
+    IF (MLcurA<(.03*VolA))|(MLcurA>(.97*VolA))
+      TLA=2.5;TKA=2.8
+    ELSE
+      TLA=9.5;TKA=9.8
+    ENDIF
+  ENDIF
 ENDIF
 EN
 #CYCLEA
@@ -149,15 +139,21 @@ EN;EN;EN
 #DAQLOOP
 JS#CURMLA
 JS#SPEED
-JS#CURPA
+'JS#CURPA
 IF XdcrCur=1;Pcur=PcurA;ENDIF
 IF XdcrCur=0;Pcur=0;ENDIF
 WT 200
 JP#DAQLOOP,DAQmode>0
 EN
+#PDAQ
+JS#CURPA
+WT200
+JP#PDAQ,DAQmode>0
+EN
 #ESTOP
-STA;FState=0;HX2;HX4
-AM;ZCA=0;PState=0;
+STA;HX1;HX2;HX3;HX4;HX5
+STA;OF0;FState=0
+AM;ZCA=0;PState=0
 FlowingA=0
 StReflA=0
 IF _XQ1>0;HX1;ENDIF
@@ -211,7 +207,7 @@ JS#NEWSP,Ramping=1
 IF (ReStpP=1)
   IF PmodeA>0  
     JS#SETPFBA
-    SHA;HX2;HX3;HX5
+    SHA;HX2;HX5
   ENDIF
   Pmode=PmodeA
   IF (PState<>3) 
@@ -224,7 +220,7 @@ JP#MASTPLP,PState>0
 ReStpP=0
 IF ZCA >0
   JS#SETPFBA
-  HX3;HX5;SHA
+  HX2;HX5;SHA
 ENDIF
 JS#ZEROOF
 EN
@@ -233,7 +229,6 @@ MLPmmA=(3.14159*RodDia[RodSize]*RodDia[RodSize])/4000
 #CALCNTA
 StkML=TotStke*MLPmmA
 CntsPMLA=CntsPmm/MLPmmA
-REM Dumbed down math for galil
 SpdFacA=(@RND[(CntsPMLA/10)]/6144)
 CntMarg = Margin*CntsPmm
 IF Burn>0;Burn=0;BV;ENDIF
@@ -275,7 +270,7 @@ JP#RAMP,Ramping>0
 IF SyncTru=1
   SyncTru=0
   Wait4op=3
-  #WAIT3
+#WAIT3
   JP#WAIT3,Wait4op>0  
   JS#OpnAout
   JP#CHKLMTA
@@ -303,9 +298,8 @@ JP#PLA,PmodeA>0
 OF 0;STA;AMA;StPctlA=0
 EN;EN
 #POSERR
-REM We don't care about position error when OEA is off
-IF _OEA<>0
-	NewErr=1;ErrMsg=11;ST;AM;MO;SH;HX
+IF PState=0
+  NewErr=1;ErrMsg=11;ST;AM;MO;SH
 ENDIF
 RE
 #REFILLA
@@ -331,15 +325,15 @@ Wait4op=2
 JP#WAIT2,Wait4op>0
 JS#ClsAin;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA
 IF CONTA=1
-	CONTA=0
-	StReflA=0
-	FState=0
-	JP#EXTRFA
+  CONTA=0
+  StReflA=0
+  FState=0
+  JP#EXTRFA
 ENDIF;'Stop here if called by STRTPRS
 IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
 IF (ReStpP=1) | (ReqStp=1);'we will not continue
   StReflA=0;Fjststrd=0;FState=0;PState=0;StCylA=0
-
+'
   JP#EXTRFA
 ELSE
   IF PState>0
@@ -358,7 +352,7 @@ ELSE
 ENDIF
 #EXTRFA
 EN;EN;EN
-
+'
 #RCYCA
 Cycle=1
 JP#SKPRA,_LRA=0
@@ -383,9 +377,7 @@ JS#SETKPA
 OEA=0;PSetPt=PcurA;ZCA=1;PmodeA=1
 JS#SETSPV
 IF _XQ5<0;XlastA=_TPA;VlastA=@AN[1];XQ#PLOOPA,5;ENDIF
-REM Try running CHKLMTA on thread 3. Having problems with 
-REM thread 2.
-IF _XQ3<0;XQ#CHKLMTA,3;ENDIF
+IF _XQ2<0;XQ#CHKLMTA,2;ENDIF
 EN
 #SETPFBA
 ZCA=0;PmodeA=0;JS#SETKVA
@@ -427,25 +419,25 @@ ENDIF
 JG PmpSpdA;BGA;StCylA=3
 IF LowFlow=1;JS#LOSPPA;XQ#ADJSPA,4;ENDIF
 #FINA
-JP#FINA,_XQ2>0
-XQ#CHKMLA,2
+'JP#FINA,_XQ2>0
+JP#CHKMLA
 EN;EN
 #STPBOTH
 ReqStp=1
 IF FState=1;STA;ENDIF
-AM;ZCA=0;IF _XQ5>0;HX5;ENDIF
+AM;ZCA=0;IF _XQ4>0;HX4;ENDIF
 StReflA=0;Fjststrd=0;FState=0;PState=0
 StCylA=0;FState=0;HX2
 EN
 #STRTDAQ
 WT 5
-DAQmode=1;JP#DAQLOOP
+DAQmode=1;XQ#PDAQ,7;JP#DAQLOOP
 EN
 #STRTMPL
 Pmode=1;PState=7;XQ#MASTPLP,4
 EN
 #STRTFLO
-JP#STARTA
+XQ#STARTA,2
 EN
 #STRTPOS
 IF PmpMode=1;StartMLA=PmpStart;StartMLB=PmpStart;ENDIF
@@ -516,11 +508,14 @@ EN
 'TranStps=(Tdec/lpDlay)*1000
 'DecVol=(-PmpRate/120)*Tdec
 PmpSpdA=(PmpRate*CntsPMLA)/60
-IF @ABS[PmpSpdA]<2000;LowFlow=1;ELSE;LowFlow=0;IF _XQ5>0;HX5;ENDIF;ENDIF
+IF @ABS[PmpSpdA]<2000;LowFlow=1;ELSE;LowFlow=0;IF _XQ4>0;HX4;ENDIF;ENDIF
 TrnsVol= StartMLA-VolpCyl+DecVol
 IF TrnsVol <(DecVol+0.5);TrnsVol=DecVol+0.5;ENDIF
 IF TrnsVol>(StartMLA+1.00);TrnsVol=(StartMLA+1.00);ENDIF
 RevSpdA=-PmpSpdA*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
+IF RevSpdA>(1.1*(FRMax*CntsPMLA)/60)
+  RevSpdA=(1.1*(FRMax*CntsPMLA)/60)
+ENDIF
 IF RevSpdA>JgSpdMx;RevSpdA=JgSpdMx;ENDIF
 IF RevSpdA<JgSpdMn;RevSpdA=JgSpdMn;ENDIF
 EN
@@ -583,11 +578,7 @@ JS#ClsAout;JS#ClsAin;JS#ClsBin;JS#OpnBout;EN
 JS#ClsAin;JS#ClsBin;EN
 #ClsOut
 JS#ClsAout;JS#ClsBout;EN
-
-REM ********* CUSTOM CONFIGURATION FILES - INSERT BELOW
-REM VAP16D-10-20-100 CONFIGURATION - REV 1-23-2013
-REM Config3 Added InVopn=0 to #FACTSET, Added CfgVer
-REM Config4 Added JgSpCal, RateCal
+'
 #DEFSPD
 JgSpd=(InitRate*CntsPMLA)/60
 JgSpdMn=(ReflFmn*CntsPMLA)/60
@@ -604,7 +595,7 @@ MLcurA=0;MLtot=0;TrnsVol=0;PSetPt=0;SPlocal=0;
 Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=250;tdla=4;KP 4;KD 30;KI 0
 Aflow=0;Bflow=0;PfiltA=0;PlastA=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;DeltaML=0;Ramping=0
-OEA=0;ER 1000000;PzeroA=0;Burn=0;Pcur=0
+OEA=0;ER 1000000;PzeroA=0;Burn=0;Pcur=0;PcurA=0
 LstCntsA=0
 JS#VESPRM
 JS#MECHPRM
@@ -622,7 +613,7 @@ PfsVA=5.000
 BSLead = 5
 ECtsPR = 20000
 'MotorRed = 25;'test vpa
-MotorRed = 50;'standard units
+'MotorRed = 50;'standard units
 TotStke = 320
 Margin = 5
 EN
