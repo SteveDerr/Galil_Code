@@ -1,7 +1,7 @@
 NO
 #AUTO
 TLA=9.5;TKA=9.8;TM 1000
-Rev=2.0987;Version=3.0
+Rev=2.0988;Version=3.0
 RampA=0;StT2A=0;OvrPresA=0;RstPosA=0;
 MO;CE 2,2;CN -1;MT 1,1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0
 KP 12;KD 30;KI 0;OverLim=0;ZC 0;CONTA=0;FloVol1=0;Rflstate=0
@@ -125,7 +125,7 @@ WT 200
 JP #DAQLOOP,DAQmode>0
 EN
 #ESTOP
-STA;FState=0;HX2;HX5
+STA;FState=0;HX2;HX3;HX5
 AM;ZCA=0;PState=0;
 FlowingA=0
 StReflA=0
@@ -178,6 +178,60 @@ EN
 SPlow=_SPA;SPhigh=SPlow+2;FracLo=(@ABS[PmpSpdA]-_SPA)*1000;FracHi=2000-FracLo
 EN
 '
+#LSLOOP
+REM Custom limit switch loop for pressure mode
+REM Case for A forward
+REM Check for matching pressure in pump mode.
+IF (_LFA=0)
+  ZCA=0
+  IF (PmpMode=1)&((PState=4)|(PState=5))
+      NewErr=1;Errline=_ED;ErrMsg=19
+  ELSE
+    StCylA=0;NewErr=1;Errline=_ED;ErrMsg=20;HX2
+    JS#ClsAout;JS#OpnAin;JS#SETPST
+    IF StCylB=3;JS#OpnBout;ENDIF
+  ENDIF
+ENDIF
+REM Case for A reverse
+REM Check for matching pressure in receive mode
+IF (_LRA=0)
+  ZCA=0
+  IF (PmpMode=0)&((PState=4)|(PState=5))
+    NewErr=1;Errline=_ED;ErrMsg=19
+  ELSE
+    StCylA=0;NewErr=1;Errline=_ED;ErrMsg=20;HX2
+    JS#ClsAout;JS#OpnAin;JS#SETPST
+    IF StCylB=3;JS#OpnBout;ENDIF
+  ENDIF
+ENDIF
+REM Case for B forward
+REM Check for matching pressure in pump mode.
+IF(_LFB=0)
+  ZCB=0
+  IF (PmpMode=1)&((PState=1)|(PState=2))
+      NewErr=1;Errline=_ED;ErrMsg=19
+  ELSE
+    NewErr=1;Errline=_ED;ErrMsg=20;HX6
+    JS#ClsBout;JS#OpnBin;JS#SETPST
+    IF StCylA=3;JS#OpnAout;ENDIF
+  ENDIF
+ENDIF
+REM Case for B reverse
+REM Check for matching pressure in receive mode
+IF(_LRB=0)
+  ZCB=0
+  IF (PmpMode=0)&((PState=1)|(PState=2))
+    NewErr=1;Errline=_ED;ErrMsg=19
+  ELSE
+    NewErr=1;Errline=_ED;ErrMsg=20;HX6
+    JS#ClsBout;JS#OpnBin;JS#SETPST
+    IF StCylA=3;JS#OpnAout;ENDIF
+  ENDIF
+ENDIF
+
+JP#LSLOOP
+EN
+
 #MASTPLP
 JS#NEWSP,Ramping=1
 IF (ReStpP=1)
@@ -200,6 +254,7 @@ IF _ZCA >0
 ENDIF
 '
 JS#ZEROOF
+HX3
 EN
 '
 #MLSCALA
@@ -250,6 +305,7 @@ JS#ClsAin
 XdcrCur=1;PState=1;StCylA=3
 JS#SETZR
 JS#SETFFBA
+XQ#CHKLMTA,2
 JS#OpnAout
 Pready=1
 EN
@@ -318,7 +374,6 @@ EN
 MLaccum=MLaccum+DeltaML;BV;EN
 #SETFFBA
 OEA=0;ZRA=_ZTA+30;ZCA=1;PmodeA=1;'StCylA=1
-IF _XQ3<0;OutLmtA=0;XQ#CHKLMTA,3;ENDIF;EN
 EN
 '
 #RFLACUM
@@ -428,7 +483,7 @@ IF (MLcurA>(Amax))|(MLcurA<(Amin));'Ais outside limits
 ENDIF
 '
 PSetPt=PcurA+5
-'
+XQ#LSLOOP,3
 JS#STRTMPL
 JP#PCNTRLA
 '
