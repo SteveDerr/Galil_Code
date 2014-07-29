@@ -2,8 +2,8 @@ REM VAP16D-10-20-100 CONFIGURATION - REV 1-23-2013
 REM Config3 Added InVopn=0 to #FACTSET, Added CfgVer
 REM Config4 Added JgSpCal, RateCal
 REM Config8 added #INITCF,#FACTCAL
-REM Config9 Initiliazed PcurA,PcurB in #FACTSET
-REM Config10 Initalized SloPXfr in #FACTSET and XfrMlMin in #VESPRM init LstCntsA&B
+REM Config9 Initialize PcurA and PcurB in #FACTSET
+REM Config10 Initialize SloPXfr in #FACTSET and XfrMlMin in #VESPRM init LstCntsA&B
 
 
 #DEFSPD
@@ -44,7 +44,8 @@ JS#FACTCAL,Frstim=0
 JS#SYSCFG
 EN
 #MECHPRM
-RodSize=2;Pxdcr=7;AQ 1,4;AQ 2,4;AQ 3,4
+RodSize=2;Pxdcr=7
+AQ 1,4;AQ 2,4;AQ 3,4
 BSLead = 5
 ECtsPR = 20000
 MotorRed = 20
@@ -52,7 +53,7 @@ TotStke = 200
 Margin = 5
 EN
 #FACTCAL
-MLPmmA=MLPmmAf;MLPmmB=MLPmmBf;PfsVA=PfsVAf;PfsVB=PfsVBf;
+MLPmmA=MLPmmAf;MLPmmB=MLPmmBf;PfsVA=PfsVAf;PfsVB=PfsVBf
 EN
 #BNFCAL
 MLPmmAf=MLPmmA;MLPmmBf=MLPmmB;PfsVAf=PfsVA;PfsVBf=PfsVB;BV
@@ -70,7 +71,7 @@ JS#SETSCAL
 JS#DEFSPD
 JS#DEFZKD
 JS#VSCALE
-BV;BN;
+BV;BN
 EN
 
 #VESPRM
