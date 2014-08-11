@@ -1,6 +1,6 @@
 #AUTO
 TLA=9.5;TKA=9.8;TM 1000
-Rev=2.214;Version=3.0;CylNum=1;Frstim=0
+Rev=9.999;Version=3.0;CylNum=1;Frstim=0
 RampA=0;StT2A=0;OvrPresA=0;RstPosA=0;
 MO;CE 2;CN 1;MT -1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0
 KP 4;KD 30;KI 0;OverLim=0;ZCA=0;CONTA=0;lpD=50
@@ -202,6 +202,29 @@ RE
 #LOSPPA
 SPlow=_SPA;SPhigh=SPlow+2;FracLo=(@ABS[PmpSpdA]-_SPA)*1000;FracHi=2000-FracLo
 EN
+#LSLOOP
+IF (_LFA=0)
+  ZCA=0
+  ReStpP=1
+  IF (PmpMode=1)&((PState=4)|(PState=5))
+      NewErr=1;Errline=_ED;ErrMsg=19
+  ELSE
+    StCylA=0;NewErr=1;Errline=_ED;ErrMsg=20;HX2
+    JS#ClsAout;JS#OpnAin;JS#SETPST
+  ENDIF
+ENDIF
+IF (_LRA=0)
+  ZCA=0
+  ReStpP=1
+  IF (PmpMode=0)&((PState=4)|(PState=5))
+    NewErr=1;Errline=_ED;ErrMsg=19
+  ELSE
+    StCylA=0;NewErr=1;Errline=_ED;ErrMsg=20;HX2
+    JS#ClsAout;JS#OpnAin;JS#SETPST
+  ENDIF
+ENDIF
+JP#LSLOOP
+EN
 #MASTPLP
 JS#NEWSP,Ramping=1
 IF (ReStpP=1)
@@ -223,6 +246,7 @@ IF ZCA >0
   HX2;HX5;SHA
 ENDIF
 JS#ZEROOF
+HX3
 EN
 #MLSCALA
 MLPmmA=(3.14159*RodDia[RodSize]*RodDia[RodSize])/4000
@@ -285,15 +309,22 @@ JS#OpnAout
 Pready=1
 EN
 #PLOOPA
+IsumA=0
 AT 0
 #PLA
 AT -lpD
+'
 VfiltA=(0.75*VlastA)+(0.25*@AN[1]);VlastA=VfiltA;XcurA=_TPA
 VelcurA=(XcurA-XlastA)/lpD;XlastA=XcurA;errorA=VfiltA-SPvoltA
 IF VelcurA>2000;VelcurA=2000;ENDIF;IF VelcurA<-2000;VelcurA=-2000;ENDIF
 IsumA=IsumA+errorA;MotorVA=(KgainA*errorA)+(IgainA*IsumA)-(DgainA*VelcurA)
-IF MotorVA>9.98;MotorVA=9.98;ENDIF;IF MotorVA<-9.98;MotorVA=-9.98;ENDIF
+IF MotorVA>3;MotorVA=3;ENDIF;IF MotorVA<-3;MotorVA=-3;ENDIF
 OF MotorVA
+IF @ABS[@AN[1]]>4
+  OF 0
+  MO
+  PmodeA=0
+ENDIF
 JP#PLA,PmodeA>0
 OF 0;STA;AMA;StPctlA=0
 EN;EN
@@ -384,9 +415,11 @@ ZCA=0;PmodeA=0;JS#SETKVA
 EN
 #SETKPA
 MOA;KP 0;KD 0;KI 0;KgainA=KPP;DgainA=KDP;IgainA=KIP;SHA
+IF _XQ3<0;XQ#LSLOOP,3;ENDIF
 EN
 #SETKVA
 MOA;KP KPvel;KD KDvel;KI KIvel;KgainA=0;DgainA=0;IgainA=0;SHA
+HX3
 EN
 #SETPST
 IF  StCylA=3
@@ -603,7 +636,7 @@ JS#TESTCAL
 IF PRange[Pxdcr]>1000
   KPP=20;KDP=0.002;KIP=0.1
 ELSE
-  KPP=1.5;KDP=0.0035;KIP=0.035
+  KPP=4;KDP=0.003;KIP=0.03
 ENDIF
 JS#SYSCFG
 EN
