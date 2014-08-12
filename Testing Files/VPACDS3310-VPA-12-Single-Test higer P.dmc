@@ -318,6 +318,17 @@ AT -lpD
 VfiltA=(0.75*VlastA)+(0.25*@AN[1]);VlastA=VfiltA;XcurA=_TPA
 VelcurA=(XcurA-XlastA)/lpD;XlastA=XcurA;errorA=VfiltA-SPvoltA
 IF VelcurA>2000;VelcurA=2000;ENDIF;IF VelcurA<-2000;VelcurA=-2000;ENDIF
+IF errorA<.05
+	IF errorA>-.05
+		KgainA=KPP*2
+	ELSE
+		KgainA=KPP
+	ENDIF
+ELSE
+	KgainA=KPP
+ENDIF
+	
+
 IsumA=IsumA+errorA;MotorVA=(KgainA*errorA)+(IgainA*IsumA)-(DgainA*VelcurA)
 IF MotorVA>3;MotorVA=3;ENDIF;IF MotorVA<-3;MotorVA=-3;ENDIF
 OF MotorVA
@@ -643,7 +654,7 @@ JS#TESTCAL
 IF PRange[Pxdcr]>1000
   KPP=20;KDP=0.002;KIP=0.1
 ELSE
-  KPP=5;KDP=0.0035;KIP=0.01
+  KPP=2.5;KDP=0.0035;KIP=0.01
 ENDIF
 JS#SYSCFG
 EN
