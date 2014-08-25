@@ -330,19 +330,9 @@ ENDIF
 	
 
 IsumA=IsumA+errorA;MotorVA=(KgainA*errorA)+(IgainA*IsumA)-(DgainA*VelcurA)
-IF MotorVA>3;MotorVA=3;ENDIF;IF MotorVA<-3;MotorVA=-3;ENDIF
+IF MotorVA>6;MotorVA=6;ENDIF;IF MotorVA<-6;MotorVA=-6;ENDIF
 OF MotorVA
-REM If we go over limits, put in safe values
-IF @AN[1]>4
-  FailA=@AN[1]
-  FailB=MotorVA
-  KgainA=1.5;IgainA=.01;DgainA=.0035
-ENDIF
-IF @AN[1]<-4
-  FailA=@AN[1]
-  FailB=MotorVA
-  KgainA=1.5;IgainA=.01;DgainA=.0035
-ENDIF
+
 JP#PLA,PmodeA>0
 OF 0;STA;AMA;StPctlA=0
 EN;EN
@@ -654,7 +644,7 @@ JS#TESTCAL
 IF PRange[Pxdcr]>1000
   KPP=20;KDP=0.002;KIP=0.1
 ELSE
-  KPP=2.5;KDP=0.0035;KIP=0.01
+  KPP=2.1;KDP=0.004;KIP=0.01
 ENDIF
 JS#SYSCFG
 EN
