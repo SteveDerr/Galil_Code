@@ -294,7 +294,7 @@ VelcurA=(XcurA-XlastA)/lpD;XlastA=XcurA;errorA=VfiltA-SPvoltA
 IF VelcurA>2000;VelcurA=2000;ENDIF;IF VelcurA<-2000;VelcurA=-2000;ENDIF
 IsumA=IsumA+errorA
 PrsJgSp=(KgainA*errorA)+(IgainA*IsumA)-(DgainA*VelcurA)
-IF PrsJgSp>50000;PrsJgSp=50000;ENDIF;IF PrsJgSp<-50000;PrsJgSp=-50000;ENDIF
+IF PrsJgSp>200000;PrsJgSp=200000;ENDIF;IF PrsJgSp<-200000;PrsJgSp=-200000;ENDIF
 JG PrsJgSp
 
 JP#PLA,PmodeA>0
