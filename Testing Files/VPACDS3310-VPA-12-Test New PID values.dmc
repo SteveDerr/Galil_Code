@@ -292,11 +292,12 @@ AT -lpD
 VfiltA=(0.75*VlastA)+(0.25*@AN[1]);VlastA=VfiltA;XcurA=_TPA
 VelcurA=(XcurA-XlastA)/lpD;XlastA=XcurA;errorA=VfiltA-SPvoltA
 IF VelcurA>2000;VelcurA=2000;ENDIF;IF VelcurA<-2000;VelcurA=-2000;ENDIF
-IsumA=IsumA+errorA
-PrsJgSp=(KgainA*errorA)+(IgainA*IsumA)-(DgainA*VelcurA)
+IsumA=IsumA+(errorA*IgainA)
+IF IsumA>200000;IsumA=200000;ENDIF;IF IsumA<-200000;IsumA=-200000;ENDIF
+PrsJgSp=(KgainA*errorA)+(IsumA)-(DgainA*VelcurA)
 IF PrsJgSp>200000;PrsJgSp=200000;ENDIF;IF PrsJgSp<-200000;PrsJgSp=-200000;ENDIF
 JG PrsJgSp
-
+'
 JP#PLA,PmodeA>0
 OF 0;STA;AMA;StPctlA=0
 EN;EN
@@ -604,9 +605,9 @@ JS#VESPRM
 JS#MECHPRM
 JS#TESTCAL
 IF PRange[Pxdcr]>1000
-  KPP=300000;KDP=30;KIP=0.3
+  KPP=500000;KDP=30;KIP=0
 ELSE
-  KPP=500000;KDP=30;KIP=0.3
+  KPP=500000;KDP=30;KIP=0
 ENDIF
 JS#SYSCFG
 EN
