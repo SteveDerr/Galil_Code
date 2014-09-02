@@ -3,7 +3,7 @@ TLA=9.5;TKA=9.8;TM 1000
 Rev=2.214;Version=3.0;CylNum=1;Frstim=0
 RampA=0;StT2A=0;OvrPresA=0;RstPosA=0;
 MO;CE 2;CN 1;MT -1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0
-KP 4;KD 30;KI 0;OverLim=0;ZCA=0;CONTA=0;lpD=50
+KP 4;KD 30;KI 0;OverLim=0;ZCA=0;CONTA=0;lpD=10
 PmodeA=0;DecrK=1;Occur=0;Tchng=0;PSetPt=0;DelaydA=0
 AC 1000000;DC 2048000;AG 1;SP 1000000
 SH;FState=0;Pmode=0;JogDir=0;ChngDir=0;JogDirL=0;Wait4op=0
@@ -281,6 +281,7 @@ JS#ClsAin
 XdcrCur=1;PState=1;StCylA=3;ReStpP=0
 'JS#SETSPV
 JS#SETFFBO
+JG 0;BG
 JS#OpnAout
 Pready=1
 EN
@@ -291,9 +292,21 @@ AT -lpD
 VfiltA=(0.75*VlastA)+(0.25*@AN[1]);VlastA=VfiltA;XcurA=_TPA
 VelcurA=(XcurA-XlastA)/lpD;XlastA=XcurA;errorA=VfiltA-SPvoltA
 IF VelcurA>2000;VelcurA=2000;ENDIF;IF VelcurA<-2000;VelcurA=-2000;ENDIF
-IsumA=IsumA+errorA;MotorVA=(KgainA*errorA)+(IgainA*IsumA)-(DgainA*VelcurA)
-IF MotorVA>9.98;MotorVA=9.98;ENDIF;IF MotorVA<-9.98;MotorVA=-9.98;ENDIF
-OF MotorVA
+IsumA=IsumA+(errorA*IgainA)
+IF IsumA>100000;IsumA=100000;ENDIF;IF IsumA<-100000;IsumA=-100000;ENDIF
+IF errorA>0
+  IF IsumA<0
+    IsumA=0
+  ENDIF
+ELSE
+  IF IsumA>0
+    IsumA=0
+  ENDIF
+ENDIF
+PrsJgSp=(KgainA*errorA)+(IsumA)-(DgainA*VelcurA)
+IF PrsJgSp>200000;PrsJgSp=200000;ENDIF;IF PrsJgSp<-200000;PrsJgSp=-200000;ENDIF
+JG PrsJgSp
+'
 JP#PLA,PmodeA>0
 OF 0;STA;AMA;StPctlA=0
 EN;EN
@@ -383,10 +396,10 @@ EN
 ZCA=0;PmodeA=0;JS#SETKVA
 EN
 #SETKPA
-MOA;KP 0;KD 0;KI 0;KgainA=KPP;DgainA=KDP;IgainA=KIP;SHA
+KgainA=KPP;DgainA=KDP;IgainA=KIP;SHA
 EN
 #SETKVA
-MOA;KP KPvel;KD KDvel;KI KIvel;KgainA=0;DgainA=0;IgainA=0;SHA
+KgainA=0;DgainA=0;IgainA=0;SHA
 EN
 #SETPST
 IF  StCylA=3
@@ -601,9 +614,9 @@ JS#VESPRM
 JS#MECHPRM
 JS#TESTCAL
 IF PRange[Pxdcr]>1000
-  KPP=20;KDP=0.002;KIP=0.1
+  KPP=500000;KDP=30;KIP=10000
 ELSE
-  KPP=1.5;KDP=0.0035;KIP=0.035
+  KPP=500000;KDP=30;KIP=0.3
 ENDIF
 JS#SYSCFG
 EN
