@@ -104,8 +104,8 @@ PState=0;XdcrCur=1;jststrd=1;Fjststrd=1;Pready=0;ReqStp=0;StCylA=0;StCylB=0
 StReflA=0;StReflB=0;Paused=0;ta2b=0;tb2a=0;TlastA=TIME;TlastB=TIME;ErrMsg=0
 InitDone=0;CyclDone=0;Transit=0;PTempA=0;PTempB=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;FracLo=0;LowFlow=0;CompErr=0;Finding=0
-ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0
-DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0
+ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0;ErrCode=0
+DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0;LineNum=0
 JS#STRTDAQ;JS#ZEROOF;
 EN
 
@@ -267,11 +267,9 @@ IF PcurA>(1.1*PRange[Pxdcr])
 ENDIF
 IF PcurA>PMax
 	ErrMsg=12;NewErr=1;Errline=_ED
-	IF PState<>0
-		ReStp=1
+	IF PState=0
 		HX1
-		STA;STB;HX2;HX3,HX4;HX5;HX6
-		FState=0;FlowingA=0;FlowingB=0
+		XQ#STPBOTH,1
 	ENDIF
 ENDIF
 IF PcurB>(1.1*PRange[Pxdcr])
@@ -282,11 +280,9 @@ IF PcurB>(1.1*PRange[Pxdcr])
 ENDIF
 IF PcurB>PMax
     ErrMsg=13;NewErr=1;Errline=_ED
-    IF PState<>0
-		ReStp=1
+    IF PState=0
 		HX1
-		STA;STB;HX2;HX3;HX4;HX5;HX6
-		FState=0;FlowingA=0;FlowingB=0
+		XQ#STPBOTH,1
     ENDIF
 ENDIF
 EN;EN
@@ -942,6 +938,7 @@ EN;EN
 
 #STPBOTH
 ReqStp=1
+IF FState=0;STA;STB;ENDIF
 IF FState=1;STA;tb2a=1;ENDIF
 IF FState=2;HX2;JG 0;STB;XQ#REFILLA,2;FState=3;ENDIF
 IF FState=3;STB;ENDIF
