@@ -8,11 +8,12 @@ PmodeA=0;DecrK=1;Occur=0;Tchng=0;PSetPt=0;DelaydA=0
 AC 1000000;DC 2048000;AG 1;SP 1000000
 SH;FState=0;Pmode=0;JogDir=0;ChngDir=0;JogDirL=0;Wait4op=0
 PState=0;XdcrCur=1;jststrd=1;Fjststrd=1;Pready=0;ReqStp=0;StCylA=0
-StReflA=0;Paused=0;TlastA=TIME;LstCntsA=_TPA;ErrMsg=0;SyncTru=0
+StReflA=0;Paused=0;TlastA=TIME;LstCntsA=_TPA;ErrMsg=0;StSync=0
 InitDone=0;CyclDone=0;Transit=0;PTempA=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;LowFlow=0;CompErr=0;Finding=0
 ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0
 DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0;AveSp=0
+SyncCtr=0;FromSyn=0
 WT10000;JS#STRTDAQ;JS#ZEROOF
 EN
 #SPEED
@@ -47,7 +48,7 @@ EN
 #CHKLMTA
 WT 25
 JP#CHKLMTA,(MLcurA>Amin)&(MLcurA<Amax)
-PmodeA=0
+PmodeA=0;StSync=0;PSetPt=PcurA
 IF MLcurA<=Amin
   StartMLA=PmpStart
 ELSE
@@ -206,7 +207,8 @@ EN
 #MASTPLP
 JS#NEWSP,Ramping=1
 IF (ReStpP=1)
-  IF PmodeA>0  
+  IF PmodeA>0
+	StSync=0;Wait4op=0
     JS#SETPFBA
     SHA;HX2;HX5
   ENDIF
@@ -215,6 +217,29 @@ IF (ReStpP=1)
       PState=0
   ENDIF
   Pready=0
+ENDIF
+IF StSync=2
+	SyncCtr=SyncCtr+1
+	IF SyncCtr>100
+		SyncCtr=0
+		Wait4op=4
+		StSync=3
+	ENDIF
+		
+	IF @ABS[Pcur]>(.9*@ABS[PSetPt])
+		IF @ABS[Pcur]<(1.1*@ABS[PSetPt])
+			SyncCtr=0
+			Wait4op=3
+			StSync=3
+		ENDIF
+	ENDIF
+ENDIF
+IF StSync=3
+	IF Wait4op=0
+		Ramping=1
+		StSync=0
+		JS#OpnAout
+	ENDIF
 ENDIF
 WT 200
 JP#MASTPLP,PState>0
@@ -268,21 +293,12 @@ WT 80
 sptime=TIME
 dtime=sptime-sttime
 JP#RAMP,Ramping>0
-IF SyncTru=1
-  SyncTru=0
-  Wait4op=3
-#WAIT3
-  JP#WAIT3,Wait4op>0  
-  JS#OpnAout
-  JP#CHKLMTA
-ENDIF
-EN;EN;EN
+EN;EN
 #PCNTRLA
 JS#ClsAin
 XdcrCur=1;PState=1;StCylA=3;ReStpP=0
 'JS#SETSPV
 JS#SETFFBO
-JG 0;BG
 JS#OpnAout
 Pready=1
 EN
@@ -294,7 +310,7 @@ VfiltA=(0.75*VlastA)+(0.25*@AN[1]);VlastA=VfiltA;XcurA=_TPA
 VelcurA=(XcurA-XlastA)/lpD;XlastA=XcurA;errorA=VfiltA-SPvoltA
 IF VelcurA>2000;VelcurA=2000;ENDIF;IF VelcurA<-2000;VelcurA=-2000;ENDIF
 IsumA=IsumA+(errorA*IgainA)
-IF IsumA>100000;IsumA=100000;ENDIF;IF IsumA<-100000;IsumA=-100000;ENDIF
+IF IsumA>150000;IsumA=150000;ENDIF;IF IsumA<-150000;IsumA=-150000;ENDIF
 IF errorA>0
   IF IsumA<0
     IsumA=0
@@ -317,7 +333,6 @@ ENDIF
 RE
 #REFILLA
 JP#REFILLA,Wait4op>0
-PSetPt=PcurA
 StReflA=1;StCylA=1
 IF PState>0
   JS#SETPST
@@ -331,6 +346,7 @@ STA;AMA
 MLtotA=MLtotA+MLDispA;MLDispA=0;Transit=0
 SP RevSpdA;TarPosA =StartMLA*CntsPMLA
 PA TarPosA;BGA;AMA
+StSync=1
 Wait4op=2
 #WAIT2
 JP#WAIT2,Wait4op>0
@@ -379,10 +395,17 @@ MLaccum=MLaccum+DeltaML;BV
 EN
 #SETFFBO
 JS#SETKPA
-OEA=0;PSetPt=PcurA;ZCA=1;PmodeA=1
+OEA=0;ZCA=1;PmodeA=1
+IF FromSyn<>1;PSetPt=PcurA;ENDIF
 JS#SETSPV
+JG 0;BG
 IF _XQ5<0;XlastA=_TPA;VlastA=@AN[1];XQ#PLOOPA,5;ENDIF
-IF _XQ2<0;XQ#CHKLMTA,2;ENDIF
+IF FromSyn=0
+	IF _XQ2<0;XQ#CHKLMTA,2;ENDIF
+ELSEIF FromSyn=1
+	FromSyn=0
+	JP#CHKLMTA
+ENDIF
 EN
 #SETPFBA
 ZCA=0;PmodeA=0;JS#SETKVA
@@ -483,9 +506,10 @@ EN
 StCylA=2;PState=4; AMA
 JS#ClsAout;JS#ClsAin
 'Start Pressure control loop, control at current pressure
+StSync=2;FromSyn=1
 JS#SETFFBO
 'Ramp up to current TarPres
-SyncTru=1;Ramping=1;JP#NEWSP
+
 EN
 #TESTCAL
 DM RodDia[10]
