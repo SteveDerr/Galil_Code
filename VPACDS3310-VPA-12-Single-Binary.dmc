@@ -14,7 +14,7 @@ SPlow=0;SPhigh=0;FracLo=0;FracHi=0;LowFlow=0;CompErr=0;Finding=0
 ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0
 DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0;AveSp=0
 SyncCtr=0;FromSyn=0
-WT10000;JS#STRTDAQ;JS#ZEROOF
+WT10000;JS#STRTDAQ
 EN
 #SPEED
   AveSpAr[9]=AveSpAr[8]
@@ -170,7 +170,6 @@ BGA;AMA;FlowingA=0
 EN
 #FNDLMTS
 TLA=2.5;TKA=2.8
-JS#ZEROOF
 Finding=1.0;AStopd=1;CyclDone=0;InitDone=0
 JS#FNDA
 Finding=0;FState=0;PowerUp=0;InitDone=1
@@ -210,7 +209,7 @@ IF (ReStpP=1)
   IF PmodeA>0
   StSync=0;Wait4op=0
     JS#SETPFBA
-    SHA;HX2;HX5
+    SHA;HX2
   ENDIF
   Pmode=PmodeA
   IF (PState<>3) 
@@ -248,7 +247,6 @@ IF ZCA >0
   JS#SETPFBA
   HX2;HX5;SHA
 ENDIF
-JS#ZEROOF
 EN
 #MLSCALA
 MLPmmA=(3.14159*RodDia[RodSize]*RodDia[RodSize])/4000
@@ -408,13 +406,10 @@ ELSEIF FromSyn=1
 ENDIF
 EN
 #SETPFBA
-ZCA=0;PmodeA=0;JS#SETKVA
+ZCA=0;PmodeA=0
 EN
 #SETKPA
 KgainA=KPP;DgainA=KDP;IgainA=KIP;SHA
-EN
-#SETKVA
-KgainA=0;DgainA=0;IgainA=0;SHA
 EN
 #SETPST
 IF  StCylA=3
@@ -571,9 +566,6 @@ ENDIF
 EN
 #ZEROBTH
 JS#ZEROVA
-EN
-#ZEROOF
-OF0
 EN
 #OpnAout
 SB 2;Aflow=1;EN
