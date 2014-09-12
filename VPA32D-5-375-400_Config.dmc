@@ -80,8 +80,5 @@ Amin=25;Bmin=25;Amax=315;Bmax=315;FwdAlrmA=330;FwdAlrmB=330;PMax=5000
 RevAlrmA=15;RevAlrmB=15;Tdec=2;VolpCyl=335;CalStrtA=300;CalStrtB=300
 ReflPc=500;StrtTol=40;TranStps=500;DecVol=25;FRMax=400;ErrVol=.25*VolA
 InitRate=350;ReflFmn=100;PmpMode=1;PmpStart=280;RcvStart=60;RateCal=300
-RefillRA=350;RefillRB=350;XfrMlMin=?;PrTrMd=0
-IF BADVARNAME = 1
-Broken code to draw attention to fact that this isn't tested on 32 pumps.
-ENDIF
+RefillRA=350;RefillRB=350;XfrMlMin=.5;PrTrMd=0
 EN
