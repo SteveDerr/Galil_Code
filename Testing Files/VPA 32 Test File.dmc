@@ -1,95 +1,4 @@
-REM VPA BASE MODULE COMMON TO ALL MODELS
-REM SET ZI 0.5,0.5
-REM - Corrections to MLDisp, MLtot Calculations
-REM - Torque limits set low for testing.
-REM Modified Pressure Ramp
-REM Removed digital filtering on CURPA/B
-REM 5000 psi transducer
-REM CntpPsiA/B Calculated
-REM Modified RCYCA/B
-REM Routine to Calculate Speed
-REM 10KSI RodDia 11.125
-REM ADDED #VRECALA/B
-REM 2.069 eliminates use of @AN
-REM 2.070 Fixed MLzeroA/B
-REM 2.071 Fixed exit to MASTPLP etc when ReStpP=1, change at start criteria 
-REM from 0.5 to 2
-REM 2.072 Changed loop criteria in MASTPLP and #REFILLA/B
-REM 2.073 Mods to pressure loop, elim Afollow, base on PState
-REM 2.074 Added DelaydA/B, OutLmtA/B,NxtCyl,StCylA/B,redefined XdcrCur
-REM 2.075 zeroed ta2b and tb2a in STRTFLO
-REM 2.076 ADDEED CONTA AND CONTB TO HELP STRTPRS SEQUENCE
-REM 2.077 Added FState=0 to NEWPOSA/B
-REM 2.0771 - Modified to account for 500 cnt offset on ZTA - METU only
-REM 2.078 Added WT 3 to CURPA CURPB loops AQ 1
-REM 2.080 Added StrtTol,Eliminated all but one Rate=,moved TranStps&DecVol
-REM to #VESPRM
-REM 2.081 Set TL TK to 5.0 because diff output on amp essentially doubles
-REM command voltage
-REM 2.082 Modified STPBOTH to stop thread 1 if called during initialize
-REM 2.083 Delay STRTPRS and STRTFLO if either cylinder is refilling
-REM 2.084 Reset MLTot after Initialize FState= 0 if stopped while FState =1
-REM 2.085 ReflPc=500, Kprop=500, Set limits on ZR, Modified ZEROBTH to
-REM account for negative values
-REM 2.086 RCYCA/B REVISED STPCYC reviseed
-REM 2.087 Added Rate=300 to RCYCA/B Modified #CALCNTB/A to add conditional
-REM burn, add Burn=0
-REM 2.088 KP set to 12, Emax set to 250 to allow TRKA2B to pressurrize more
-REM quickly Kprop=200
-REM 2.089 Set JgSpdMx=766000, Limited RevSpdA/B to JgSpdMx
-REM 2.090 Modified CURPA/B to only apply PzerCntA/B if non-zero_ZTA/B
-REM 2.091 Added #SETPST, Modified TPrAtoB, TPrBtoA, Removed HX3 from #SETPFBA
-REM and HX& from #SETPFBB
-REM 2.092 Changed IF conditional in #SETPST
-REM 2.093 Chnaged TRKA2B and TRKB2A to use Force Feedback mode
-REM 2.094 Changed CYCTOST, CYCLA, CYCLB, FNDLMTS, FNDA, FNDB to open outlet
-REM valves when moving up
-REM 2.095 Added digital filter to AveSp calculation in #SPEED
-REM - Modified TRKA2B & B2A to change to pos FB if Min or Max positions are
-REM reached
-REM - Lowered TL and TK curing FNDLMTS - Added OEA/B=3 during FNDLMTS and
-REM CYCTOST and SETPFBA/B
-REM - Added #FLOWA/B, FlowVolA/B, FlowRA/B
-REM - Added ErrMsg NewErr
-REM 2.0962 Set AQ=4 to avoid going out of range of A2D
-REM 2.0963 added #ESTOP - exceeding PMax did not always stop immediately
-REM Changed setting MLzeroA/B to correct  MLtot calculation (comp vol not added
-REM Added #STRTPOS PmpMode,PmpStart,RcvStart toset pump to pump or receive mode
-REM Added DontOpn
-REM 2.0964 Added PTempA/B to allow setting of a min presin cases close to 0
-REM 2.0965 Added #ADJSPA/B to make flow rate more accurate for low flows
-REM 2.0967 Corrected errors in LowFlow routines
-REM 2.0968 some minor corrections
-REM 2.0969 Added InVopn to allow selection of inlet or outlet open Init/Cycle
-REM 2.0970 Removed redundant line fro 2.0969 correction
-REM 2.0971 Added Stops when overprs limit reached in CURPA/B
-REM 2.0972/3 Fixed errors
-REM 2.0974 modified #SPEED to send 0 if neither is flowing
-REM 2.0975 Set Rate for Cyctost,added RateCal, JgSpCal
-REM 2.0976 Fixed errors in #STRTFLO and #ESTOP
-REM 2.0977 Fixed exit due to CompErr in SYNCA/B
-REM 2.0978 Added Transit=0 at end of TrAtoB and TrBtoA
-REM 2.0979 Moved Transit=0 to REFILLA and REFILLB added to STRTFLO
-REM 2.0980 Added Cycle=0, Finding=0 to #AUTO
-REM 2.0981 Changed Filter in #SPEED
-REM 2.0982 Added ErrMsg=0 to #AUTO
-REM 2.0983 Added ,ReqStp=0 after JS#TrAtoB on #CHKMLA and #CHKMLB
-REM 2.0986 Added CylNum, >= in #NEWSP, mod #ZER0BTH,Calc MLdispA/B in RefillA/B
-REM 2.0987 Added Frstim so we can keep Calibration Values
-REM 2.0988 Moved ADJSPA/B to Thread 4 Moved #CHKLMTB, TprBtoA to Thrd 5,
-REM added PDAQ to thrd 7,added tdla, Added torque limit to CURMLA/B
-REM Added #DEFZKD , #RESTART. ZTAave/ZTBave
-REM 2.0989 - Changed default on InVopn=0
-REM 2.200 - in P Cont, thrd 2/6 for Cyl A/B add #LSLOOP on thrd 3
-REM 2.205 - Modified AveSp to get accurate values during transition
-REM 2.206 - Set SPcntsA/B min from 150 to 50
-REM 2.207 - Changed each Dual Cylinder configs
-REM 2.208 - Added if statement to #Restart that resets valve config during Init for Cyl moving up
-REM 2.209 - Fixed missing parenthesis on in #SPEED
-REM 2.210 - Added XsferDeA and XsferDeb functions, add Errline=_ED after NewErr=1
-REM 2.210 cont - added variables SpdFacA, SpdFacB, LstCntsA, LstCntsB, Speedi, AveSpAr[10]
-REM 2.211
-
+NO
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
 Rev=2.211;Version=3.0;CylNum=2;Frstim=0
@@ -110,7 +19,7 @@ EN
 '
 #SPEED
 'Shift array elemets
-
+'
   AveSpAr[9]=AveSpAr[8]
   AveSpAr[8]=AveSpAr[7]
   AveSpAr[7]=AveSpAr[6]
@@ -120,7 +29,7 @@ EN
   AveSpAr[3]=AveSpAr[2]
   AveSpAr[2]=AveSpAr[1]
   AveSpAr[1]=AveSpAr[0]
-
+'
 IF (Aflow>0)&(Bflow>0)
    ' vAeSp=((0.8*AveSp) + (0.1*SPcurA) + (0.1*SPcurB));'DON'T CHANGE AveSP
 ELSE
@@ -136,13 +45,13 @@ ELSE
 ENDIF
 IF Speedi>3;JS#SPEED2;ENDIF
 EN
-
+'
 #SPEED2
 Speedi=0
 TempSpTo=(AveSpAr[0]+AveSpAr[1]+AveSpAr[2]+AveSpAr[3]+AveSpAr[4]+AveSpAr[5])
 AveSp=((TempSpTo+AveSpAr[6]+AveSpAr[7]+AveSpAr[8]+AveSpAr[9])/10)
 EN
-
+'
 #ADJSPA
 SP SPhigh
 WT FracLo
@@ -160,24 +69,20 @@ EN
 #CHKLMTA
 WT 25
 JP#CHKLMTA,(MLcurA>Amin)&(MLcurA<Amax)
-REM Figure out which transfer mode to use
-REM Mode 1 is pumping mode 0 is receiving
 IF (MLcurA<=Amin)
-	PrTrMd=1
+  PrTrMd=1
 ELSE
-	PrTrMd=0
+  PrTrMd=0
 ENDIF
 JP#TPrAtoB
 EN
 #CHKLMTB
 WT 25
 JP#CHKLMTB,(MLcurB>Bmin)&(MLcurB<Bmax)
-REM Figure out which transfer mode to use
-REM Mode 1 is pumping mode 0 is receiving
 IF (MLcurB<=Bmin)
-	PrTrMd=1
+  PrTrMd=1
 ELSE
-	PrTrMd=0
+  PrTrMd=0
 ENDIF
 JP#TPrBtoA
 EN
@@ -256,7 +161,7 @@ ZTAave=(AccumA/IncA);ZTBave=(AccumB/IncA)
 IF AccumA=0;ZerOffA=0;ELSE; ZerOffA=PzerCntA;ENDIF
 IF AccumB=0;ZerOffB=0;ELSE; ZerOffB=PzerCntB;ENDIF
 PcurA=(ZTAave-ZerOffA)/CntpPsiA;PcurB=(ZTBave-ZerOffB)/CntpPsiB
-
+'
 IF PcurA>PMax;OvrPresA=OvrPresA+1
   IF OvrPresA>2
     IF PcurA>(1.1*PRange[Pxdcr])
@@ -296,10 +201,7 @@ ENDIF
 EN;EN
 #CURMLA
 MLcurA=_TPA/CntsPMLA;TcurA=TIME;CurCntsA=_TPA
-REM In rare cases this loop runs with 0 time between.
-REM Add if statement to avoid div by zero
 IF TcurA-TlastA<>0;SPcurA=((LstCntsA-CurCntsA)/(TcurA-TlastA))/SpdFacA;ENDIF
-REM DelTA=((TcurA-TlastA)/61440);'SPcurA=(MLlastA-MLcurA)/DelTA
 LstCntsA=CurCntsA;TlastA=TcurA;
 IF ((FState<>3)&(PState<>3))
 IF Aflow= 1;MLDispA=MLzeroA-MLcurA;ENDIF
@@ -310,19 +212,15 @@ IF (Finding=0)&(Cycle=0)
  ELSE;TLA=9.5;TKA=9.8
  ENDIF
 ENDIF
-REM Check to see if we are in range of slow transfer limits
 IF ((MLcurA>XfrMlMin) & (MLcurA<(VolA-XfrMlMin)))
-	AInXfRg=1
+  AInXfRg=1
 ELSE
-	AInXfRg=0
+  AInXfRg=0
 ENDIF
 EN
 #CURMLB
 MLcurB=_TPB/CntsPMLB;TcurB=TIME;CurCntsB=_TPB
-REM In rare cases this loop runs with 0 time between.
-REM Add if statement to avoid div by zero
 IF TcurB-TlastB<>0;SPcurB=((LstCntsB-CurCntsB)/(TcurB-TlastB))/SpdFacB;ENDIF
-REM DelTB=((TcurB-TlastB)/61440);'SPcurB=(MLlastB-MLcurB)/DelTB
 LstCntsB=CurCntsB;TlastB=TcurB
 IF ((FState<>6)&(PState<>6))
 IF Bflow=1;MLDispB=MLzeroB-MLcurB;ENDIF
@@ -333,11 +231,10 @@ IF (Finding=0)&(Cycle=0)
  ELSE;TLB=9.5;TKB=9.8
  ENDIF
 ENDIF
-REM Check to see if we are in range of slow transfer limits
 IF ((MLcurB>XfrMlMin) & (MLcurB<(VolB-XfrMlMin)))
-	BInXfRg=1
+  BInXfRg=1
 ELSE
-	BInXfRg=0
+  BInXfRg=0
 ENDIF
 EN
 #CYCLEA
@@ -466,15 +363,11 @@ PR ,CntMarg;BGB;AM B
 DP ,0;BStopd=0
 MLtotB=0;MLDispB=0;MLofstB=0;OEB=0
 EN;EN
-
+'
 #LIMSWI
-REM Wait for motion to stop before doing anything
 WT100
-REM Finding limits, return.
 IF (Finding<>1)
-REM Case for A forward----------
-REM Check for cycle, and matching pressure in pump mode.
-
+'
   IF (_LFA=0)
     IF (Cycle<>1)
       IF (FState=4)|(FState=5)
@@ -484,15 +377,9 @@ REM Check for cycle, and matching pressure in pump mode.
       ENDIF
     ENDIF
   ENDIF
-REM Case for A reverse-----------
-REM Check for matching pressure in receive mode.
-REM We cycle the other way in volume calibration, 
-REM need to ignore reverse flag as well if Cycle=1
   IF (_LRA=0)
     IF Cycle<>1;NewErr=1;Errline=_ED;ErrMsg=20;ENDIF
   ENDIF
-REM Case for B forward---------
-REM Check for cycle and matching pressure in pump mode.
   IF (_LFB=0)
     IF (Cycle<>1)
       IF (FState=1)|(FState=2)
@@ -502,25 +389,20 @@ REM Check for cycle and matching pressure in pump mode.
       ENDIF
     ENDIF
   ENDIF
-REM Case for B reverse----------
-REM Check for matching pressure in receive mode.
   IF (_LRB=0)
     IF Cycle<>1;NewErr=1;Errline=_ED;ErrMsg=20;ENDIF
   ENDIF
 ENDIF
 RE
-
+'
 #LOSPPA
 SPlow=_SPA;SPhigh=SPlow+2;FracLo=(@ABS[PmpSpdA]-_SPA)*1000;FracHi=2000-FracLo
 EN
 #LOSPPB
 SPlow=_SPB;SPhigh=SPlow+2;FracLo=(@ABS[PmpSpdB]-_SPB)*1000;FracHi=2000-FracLo
 EN
-
+'
 #LSLOOP
-REM Custom limit switch loop for pressure mode
-REM Case for A forward
-REM Check for matching pressure in pump mode.
 IF (_LFA=0)
   ZCA=0
   IF (PmpMode=1)&((PState=4)|(PState=5))
@@ -531,8 +413,6 @@ IF (_LFA=0)
     IF StCylB=3;JS#OpnBout;ENDIF
   ENDIF
 ENDIF
-REM Case for A reverse
-REM Check for matching pressure in receive mode
 IF (_LRA=0)
   ZCA=0
   IF (PmpMode=0)&((PState=4)|(PState=5))
@@ -543,8 +423,6 @@ IF (_LRA=0)
     IF StCylB=3;JS#OpnBout;ENDIF
   ENDIF
 ENDIF
-REM Case for B forward
-REM Check for matching pressure in pump mode.
 IF(_LFB=0)
   ZCB=0
   IF (PmpMode=1)&((PState=1)|(PState=2))
@@ -555,8 +433,6 @@ IF(_LFB=0)
     IF StCylA=3;JS#OpnAout;ENDIF
   ENDIF
 ENDIF
-REM Case for B reverse
-REM Check for matching pressure in receive mode
 IF(_LRB=0)
   ZCB=0
   IF (PmpMode=0)&((PState=1)|(PState=2))
@@ -567,13 +443,12 @@ IF(_LRB=0)
     IF StCylA=3;JS#OpnAout;ENDIF
   ENDIF
 ENDIF
-
+'
 JP#LSLOOP
 EN
-
+'
 #MASTPLP
 JS#NEWSP,Ramping=1
-REM Request to stop
 IF (ReStpP=1)
   IF PmodeA>0  
     JS#SETPFBA
@@ -613,10 +488,7 @@ EN
 #CALCNTA
 StkML=TotStke*MLPmmA
 CntsPMLA=CntsPmm/MLPmmA
-REM Dumbed down math for galil
 SpdFacA=(@RND[(CntsPMLA/10)]/6144)
-REM Round to 3 decimal places
-REM SpdFacA=(@RND[(SpdFacA*1000)]/1000)
 CntMarg = Margin*CntsPmm
 IF Burn>0;Burn=0;BV;ENDIF
 EN;EN
@@ -626,12 +498,10 @@ StkML=TotStke*MLPmmB
 CntsPMLB=CntsPmm/MLPmmB
 'Dumbed down math for Galil
 SpdFacB=(@RND[(CntsPMLB/10)]/6144)
-REM Round to 3 decimal places
-REM SpdFacB=(@RND[(SpdFacB*1000)]/1000)
 CntMarg = Margin*CntsPmm
 IF Burn>0;Burn=0;BV;ENDIF
 EN;EN
-
+'
 #NEWPOSA
 TarPosA=MLnewA*CntsPMLA
 SP (Rate*CntsPMLA)/60
@@ -696,13 +566,13 @@ EN
 #POSERR
 NewErr=1;Errline=_ED;ErrMsg=11;ST;AM;MO;SH;ZS;HX
 RE
-
+'
 #REFILLA
 StReflA=1;StCylA=1
 IF PState>0
-	JS#SETPST
+  JS#SETPST
 ELSE
-	FState=3
+  FState=3
 ENDIF
 JS#ClsAout
 WT 500
@@ -716,27 +586,27 @@ PA TarPosA;BGA;AMA
 JS#ClsAin;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;MLDispA=MLzeroA-MLcurA
 IF CONTA=1
 'Stop here if called by STRTPRS
-	CONTA=0;StReflA=0;FState=0
+  CONTA=0;StReflA=0;FState=0
 ELSE
-	CompErr=0;'allow to continue if other cylinder generated CompErr
-	IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
-	IF (ReStpP=1) | (ReqStp=1);'we will not continue
-		StReflA=0;Fjststrd=0;FState=0;PState=0;StCylA=0
-	ELSE
-		IF PState>0
-			StReflA=0
-			JP#SYNCA
-		ELSE
-			FState=4
-			IF (Paused=0) & (ReqStp=0)&(Fjststrd=0)
-				StReflA=0
-				JP#TRKA2B
-			ELSE
-				StReflA=0
-				Fjststrd=0
-			ENDIF
-		ENDIF
-	ENDIF
+  CompErr=0;'allow to continue if other cylinder generated CompErr
+  IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
+  IF (ReStpP=1) | (ReqStp=1);'we will not continue
+    StReflA=0;Fjststrd=0;FState=0;PState=0;StCylA=0
+  ELSE
+    IF PState>0
+      StReflA=0
+      JP#SYNCA
+    ELSE
+      FState=4
+      IF (Paused=0) & (ReqStp=0)&(Fjststrd=0)
+        StReflA=0
+        JP#TRKA2B
+      ELSE
+        StReflA=0
+        Fjststrd=0
+      ENDIF
+    ENDIF
+  ENDIF
 ENDIF
 EN
 #REFILLB
@@ -758,31 +628,31 @@ PA ,TarPosB;BGB;AMB
 JS#ClsBin;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;MLDispB=MLzeroB-MLcurB
 IF CONTB=1
 'Stop here if called by STRTPRS
-	CONTB=0;StReflB=0;FState=0
+  CONTB=0;StReflB=0;FState=0
 ELSE
-	IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
-	IF (ReStpP=1) | (ReqStp=1);'we will not continue
-		StReflB=0;Fjststrd=0;FState=0;PState=0;StCylB=0
-	ELSE
-		IF PState>0
-			StReflB=0
-			JP#SYNCB
-		ELSE
-			FState=1
-			IF (Paused=0) & (ReqStp=0)&(Fjststrd=0)
-				StReflB=0
-				JP#TRKB2A
-			ELSE
-				StReflB=0
-				Fjststrd=0
-			ENDIF
-		ENDIF
-	ENDIF
+  IF CompErr=1;ReStpP=1;ENDIF ;'We need to stop pressure loop after this refill
+  IF (ReStpP=1) | (ReqStp=1);'we will not continue
+    StReflB=0;Fjststrd=0;FState=0;PState=0;StCylB=0
+  ELSE
+    IF PState>0
+      StReflB=0
+      JP#SYNCB
+    ELSE
+      FState=1
+      IF (Paused=0) & (ReqStp=0)&(Fjststrd=0)
+        StReflB=0
+        JP#TRKB2A
+      ELSE
+        StReflB=0
+        Fjststrd=0
+      ENDIF
+    ENDIF
+  ENDIF
 ENDIF
 EN
-
-
-
+'
+'
+'
 #RCYCA
 Cycle=1
 JP#SKPRA,_LRA=0
@@ -891,7 +761,7 @@ IF PState=6
   ZR SPcntsA
 ENDIF
 EN
-
+'
 #STARTA
 FState=1;XdcrCur=1
 JS#AACTIV
@@ -916,7 +786,7 @@ JP#FINB,_XQ2>0
 JP#FINB,_XQ6>0
 XQ#CHKMLB,6;XQ#TRKA2B,2
 EN;EN
-
+'
 #STPBOTH
 ReqStp=1
 IF FState=1;STA;tb2a=1;ENDIF
@@ -930,9 +800,6 @@ IF FState=1;HX6;FState=0;HX2;ENDIF
 IF FState=3;HX6;ENDIF
 IF FState=4;HX2;FState=0;HX6;ENDIF
 IF FState=6;HX2;ENDIF
-REM Seem to have issue with flow mode stopiing
-REM Even with ZC 0, 0 seems like Galil thinks a cylinder
-REM is still moving. Added STA;STB
 STA;STB
 EN
 #STRTDAQ
@@ -1121,7 +988,7 @@ IF StCylB <> 3
 ENDIF
 JP#CHKLMTA
 EN;EN;EN
-
+'
 #SYNCB
 StCylB=2;CompErr=0
 JS#ClsBout;JS#ClsBin;JS#SETFFBB;JS#SETPST
@@ -1282,29 +1149,22 @@ EN;EN;EN
 '
 '
 #TRKA2B
-REM Track A to B pressure match function
-REM Wait for refill
-REM Skip to end if pressure in A and B is less than 20 PSI
 JP#TRKA2B,StReflA>0
 JS#ClsAout
 JS#ClsAin
 MLlimA=MLcurA-ErrVol
 'This is the new stuff- set to force feedback
 JP#LOOPA1,((PcurB<30) & (PcurA<30))
-REM Set A Setpoint to B and set ZCA=1
-REM Figure delta pressure counts for ramp
 SPTRA=ZTAave;ZR SPTRA;ZCA=1;DelPcnt=ZTBave-ZTAave;TRampA=0;IncCntsA=0
 IF DelPcnt>2500
-	IncCntsA=200
-	TRampA=1
+  IncCntsA=200
+  TRampA=1
 ENDIF
 IF DelPcnt<-2500
   IncCntsA=-200
   TRampA=1
 ENDIF
 #TRMPA
-REM Ramping procedure. Quickly increase ZT setpoint 
-REM until above ZTBave.
 SPTRA= SPTRA+IncCntsA
 IF IncCntsA>0
   IF SPTRA>ZTBave
@@ -1326,12 +1186,9 @@ JP#TRMPA,TRampA=1
 #LOOPA1
 PTempB=PcurB
 SPTRA=(PTempB*CntpPsiA)+PzerCntA; 'trying to match the pressure in B
-REM Set min ZR to our zero offset
 IF (SPTRA<(PzerCntA+10))
   SPTRA=(PzerCntA+10)
 ENDIF
-REM Avoid matching pressure unless we are above 30 psi in either cylinder
-REM or if pressure matching is already turned on.
 IF ((PcurB>30) | (PcurA>30) | (_ZCA<>0))
   IF (_ZCA=0);ZCA=1;ENDIF
   ZR SPTRA
@@ -1347,13 +1204,13 @@ IF MLcurA<MLlimA;'Comp > 25% cyl vol
   ta2b=1
 ENDIF
 JP#LOOPA1,ta2b=0
-
+'
 ta2b=0
 'Set Back to position feedback
 ZCA=0
 JG 0;BGA
 EN;EN;EN
-
+'
 #TRKB2A
 JP#TRKB2A,StReflB>0
 JS#ClsBout
@@ -1392,12 +1249,9 @@ JP#TRMPB,TRampB=1
 #LOOPB1
 PTempA=PcurA
 SPTRB=(PTempA*CntpPsiB)+PzerCntB; 'trying to match the pressure in A
-REM Set min ZR to our zero offset
 IF (SPTRB<(PzerCntB+10))
   SPTRB=(PzerCntB+10)
 ENDIF
-REM Avoid matching pressure unless we are above 30 psi in either cylinder
-REM or if pressure matching is already turned on.
 IF ((PcurA>30) | (PcurB>30) | (_ZCB<>0))
   IF(_ZCB=0);ZCB=1;ENDIF
   ZR ,SPTRB
@@ -1413,72 +1267,71 @@ IF MLcurB<MLlimB;'Comp > 25% cyl vol
   tb2a=1
 ENDIF
 JP#LOOPB1,tb2a=0
-
+'
 tb2a=0
 'Set Back to position feedback
 ZCB=0
 JG ,0;BGB
 EN;EN;EN;
-
-REM Set variables for XferDeA and XferDeB
+'
 #StDlVar
 i=0
 LoopIt=1
 CtlSpd=(AveSp*.8)
 IF PrTrMd=1
-	DSetPt=8
-	IF ((AveSp<(.5*FRMax))&(AveSp>0))
-		LoopIt=30
-		IF AveSp < (.3*FRMax)
-			DSetPt=6
-			IF AveSp < (.2*FRMax)
-				DSetPt=4
-				IF AveSp < (.15*FRMax)
-					DSetPt=2
-					LoopIt=40
-					IF AveSp < (.1*FRMax)
-						DSetPt=1
-					ENDIF
-				ENDIF
-			ENDIF
-		ENDIF
-	ENDIF
+  DSetPt=8
+  IF ((AveSp<(.5*FRMax))&(AveSp>0))
+    LoopIt=30
+    IF AveSp < (.3*FRMax)
+      DSetPt=6
+      IF AveSp < (.2*FRMax)
+        DSetPt=4
+        IF AveSp < (.15*FRMax)
+          DSetPt=2
+          LoopIt=40
+          IF AveSp < (.1*FRMax)
+            DSetPt=1
+          ENDIF
+        ENDIF
+      ENDIF
+    ENDIF
+  ENDIF
 ENDIF
-
+'
 IF PrTrMd=0
-	DSetPt=-8
-	IF ((AveSp>(-.5*FRMax))&(AveSp<0))
-		LoopIt=30
-		IF AveSp > (-.3*FRMax)
-			DSetPt=-6
-			IF AveSp > (-.2*FRMax)
-				DSetPt=4
-				IF AveSp > (-.15*FRMax)
-					DSetPt=-2
-					LoopIt=40
-					IF AveSp > (-.1*FRMax)
-						DSetPt=-1
-					ENDIF
-				ENDIF
-			ENDIF
-		ENDIF
-	ENDIF
+  DSetPt=-8
+  IF ((AveSp>(-.5*FRMax))&(AveSp<0))
+    LoopIt=30
+    IF AveSp > (-.3*FRMax)
+      DSetPt=-6
+      IF AveSp > (-.2*FRMax)
+        DSetPt=4
+        IF AveSp > (-.15*FRMax)
+          DSetPt=-2
+          LoopIt=40
+          IF AveSp > (-.1*FRMax)
+            DSetPt=-1
+          ENDIF
+        ENDIF
+      ENDIF
+    ENDIF
+  ENDIF
 ENDIF
-
-
+'
+'
 EN
-
+'
 #TPrAtoB
 IF StCylB=3; 'This should be the normal case
   MLcurB=_TPB/CntsPMLB
   MLzeroB=MLcurB
   JS#OpnBout
-	IF ((SloPXfr=1) & (Ramping=0) & (AInXfRg) & (BInXfRg))
-		ASetPt=_ZRA
-		JS#StDlVar
-		JS#XferDeA
-	ENDIF
-		
+  IF ((SloPXfr=1) & (Ramping=0) & (AInXfRg) & (BInXfRg))
+    ASetPt=_ZRA
+    JS#StDlVar
+    JS#XferDeA
+  ENDIF
+'
   XdcrCur=2
   JP#Ex2RflA 
 ELSE
@@ -1486,28 +1339,26 @@ ELSE
   JP#Ex2RflA
 ENDIF
 EN
-
+'
 'Delay loop to minimize psi drop between switch
 #XferDeA
 ZR ASetPt - (DSetPt*(i+1))
 WT 100
 i=i+1
 IF PrTrMd=1
-REM In pump moode loop until B is greater than ctlspd
   JP#XferDeA,((i<LoopIt)&(Ramping=0)&(SPcurB<CtlSpd)&(AInXfRg)&(BInXfRg))
 ELSE
-REM In receive mode loop until B is less then ctlspd
   JP#XferDeA,((i<LoopIt)&(Ramping=0)&(SPcurB>CtlSpd)&(AInXfRg)&(BInXfRg))
 ENDIF
 EN
-
+'
 #Ex2RflA
 JS#ClsAout
 StCylA=1;JS#SETPST
 JP#REFILLA
 ZR SPcntsA
 EN
-
+'
 #TPrBtoA
 IF StCylA=3; 'This should be the normal case
   MLcurA=_TPA/CntsPMLA
@@ -1525,21 +1376,19 @@ ELSE
   JP#Ex2RflB
 ENDIF
 EN
-
+'
 'Delay loop to minimize psi drop between switch
 #XferDeB
 ZR ,BSetPt - (DSetPt*(i+1))
 WT 100
 i=i+1
 IF PrTrMd=1
-REM In pump mode, loop until A is greater then ctlspd
   JP#XferDeB,((i<LoopIt)&(Ramping=0)&(SPcurA<CtlSpd)&(AInXfRg)&(BInXfRg))
 ELSE
-REM In pump mode, loop until A is less then ctlspd
   JP#XferDeB,((i<LoopIt)&(Ramping=0)&(SPcurA>CtlSpd)&(AInXfRg)&(BInXfRg))
 ENDIF
 EN
-
+'
 #Ex2RflB
 JS#ClsBout
 StCylB=1;JS#SETPST
@@ -1616,7 +1465,7 @@ EN
 #ZEROOF
 OF0,0
 EN
-
+'
 '
 #OpnAout
 SB 2;Aflow=1;
@@ -1667,16 +1516,6 @@ EN
 JS#ClsAout;JS#ClsBout;
 EN
 
-REM ********* CUSTOM CONFIGURATION FILES - INSERT BELOW
-REM VPA32D-5-375-400 CONFIGURATION
-REM Config3 Added InVopn=0 to #FACTSET, Added CfgVer
-REM Config4 Added JgSpCal, RateCal
-REM Config5 change start and volume parameters
-REM Config8 added #INITCF,#FACTCAL
-REM Config9 Initilized PcurA and PcurB in #FACTSET
-REM Config10 Initalize SloPXfr in #FACTSET and set XfrMlMin=? to generate error so we test
-REM -cont- Initalize LstCntsA&B
-
 #DEFSPD
 JgSpd=(InitRate*CntsPMLA)/60
 JgSpdMn=(ReflFmn*CntsPMLA)/60
@@ -1702,7 +1541,8 @@ MLtotA=0;MLtotB=0;TarVol=2000000000;lpDlay=5;MLDispA=0;MLDispB=0
 HiSpdA=0;HiSpdB=0;DSpdA=0;LoSpdA=0;LoSpdB=0;DSpdB=0;RevSpdA=0;RevSpdB=0
 MLlastA=0;MLlastB=0;Kx=1;MaxPerr=500;InVopn=0;SloPXfr=1
 MLcurA=0;MLcurB=0;MLtot=0;TrnsVol=0;PSetPt=0;SPlocal=0
-Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=250;tdla=4;KP 12,12;KD 30,30;KI 0,0
+Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=250;tdla=4
+KP 12,12;KD 30,30;KI 0,0
 Aflow=0;Bflow=0;PfiltA=0;PfiltB=0;PlastA=0;PlastB=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
 OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
@@ -1742,6 +1582,7 @@ JS#DEFSPD
 JS#DEFZKD
 JS#VSCALE
 BV;BN;EN
+
 #VESPRM
 StkeA=304;StkeB=304;VolA=340;VolB=340;StartMLA=280;StartMLB=280;PmpRate=-200
 Amin=25;Bmin=25;Amax=315;Bmax=315;FwdAlrmA=330;FwdAlrmB=330;PMax=5000
@@ -1750,5 +1591,3 @@ ReflPc=500;StrtTol=40;TranStps=500;DecVol=25;FRMax=400;ErrVol=.25*VolA
 InitRate=350;ReflFmn=100;PmpMode=1;PmpStart=280;RcvStart=60;RateCal=300
 RefillRA=350;RefillRB=350;XfrMlMin=.5;PrTrMd=0
 EN
-
-
