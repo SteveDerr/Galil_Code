@@ -33,7 +33,8 @@ MLtotA=0;MLtotB=0;TarVol=2000000000;lpDlay=5;MLDispA=0;MLDispB=0
 HiSpdA=0;HiSpdB=0;DSpdA=0;LoSpdA=0;LoSpdB=0;DSpdB=0;RevSpdA=0;RevSpdB=0
 MLlastA=0;MLlastB=0;Kx=1;MaxPerr=500;InVopn=0;SloPXfr=1
 MLcurA=0;MLcurB=0;MLtot=0;TrnsVol=0;PSetPt=0;SPlocal=0
-Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=250;tdla=4;KP 12,12;KD 30,30;KI 0,0
+Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=250;tdla=4
+KP 12,12;KD 30,30;KI 0,0
 Aflow=0;Bflow=0;PfiltA=0;PfiltB=0;PlastA=0;PlastB=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
 OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
