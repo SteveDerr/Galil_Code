@@ -942,16 +942,18 @@ EN;EN
 ReqStp=1
 IF FState=0;STA;STB;ENDIF
 IF FState=1;STA;tb2a=1;ENDIF
-IF FState=2;HX2;JG 0;STB;XQ#REFILLA,2;FState=3;ENDIF
+IF FState=2;HX2;JG 0;STB;IF _XQ2<0;XQ#REFILLA,2;ENDIF;FState=3;ENDIF
 IF FState=3;STB;ENDIF
 IF FState=4;STB;ta2b=1;ENDIF
-IF FState=5;HX6;JG ,0;STA;XQ#REFILLB,6;FState=6;ENDIF
+IF FState=5;HX6;JG ,0;STA;IF _XQ6<0;XQ#REFILLB,6;ENDIF;FState=6;ENDIF
 IF FState=6;STA;ENDIF
-AM;ZCA=0;ZCB=0;IF _XQ4>0;HX4;ENDIF
+AM;IF(_ZCA<>0)|(_ZCB<>0);ZCA=0;ZCB=0;ENDIF;IF _XQ4>0;HX4;ENDIF
 IF FState=1;HX6;FState=0;HX2;ENDIF
 IF FState=3;HX6;ENDIF
 IF FState=4;HX2;FState=0;HX6;ENDIF
 IF FState=6;HX2;ENDIF
+STA;STB
+EN
 REM Seem to have issue with flow mode stopiing
 REM Even with ZC 0, 0 seems like Galil thinks a cylinder
 REM is still moving. Added STA;STB
