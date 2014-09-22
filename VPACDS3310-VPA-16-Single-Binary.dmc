@@ -600,24 +600,13 @@ JS#ClsAin;JS#ClsBin;EN
 #ClsOut
 JS#ClsAout;JS#ClsBout;EN
 '
-#DEFZKD
-IF _AQ1=1
-  A2DFS=10;ZK 200,200;ZD 300,300;ZI1,1;ZF 0.95,0.95
-ENDIF
-IF _AQ1=3
-  A2DFS=5;ZK 100,100;ZD 150,150;ZI0.5,0.5;ZF 0.95,0.95
-ENDIF
-IF _AQ1=4
-  A2DFS=10;ZK 200,200;ZD 300,300;ZI1,1;ZF 0.95,0.95
-ENDIF
-EN
+'
 #DEFSPD
 JgSpd=(InitRate*CntsPMLA)/60
 JgSpdMn=(ReflFmn*CntsPMLA)/60
 JgSpCal=(RateCal*CntsPMLA)/60
 EN
 #FACTSET
-SD 10000000,10000000
 TestMode=0;DontOpn=0;CfgVer=10
 PmpSpdA=0;PmpSpdB=0;MLzeroA=0;MLzeroB=0;MLaccum=0;Kgain=0
 Emax=100;Igain=0;Dgain=0;MLofstA=0;MLofstB=0
@@ -628,13 +617,18 @@ MLcurA=0;MLcurB=0;MLtot=0;TrnsVol=0;PSetPt=0;SPlocal=0;ZTAave=0;ZTBave=0
 Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=250;tdla=4;KP 4,4;KD 30,30;KI 0,0
 Aflow=0;Bflow=0;PfiltA=0;PfiltB=0;PlastA=0;PlastB=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
-OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
+OEA=0;OEB=0;ER 1000000,1000000;PzeroA=0;PzeroB=0;Burn=0;PcurA=0;PcurB=0
 LstCntsA=0;LstCntsB=0
 JS#VESPRM
 JS#MECHPRM
 JS#TESTCAL
 JS#INITCF,Frstim>0
 JS#FACTCAL,Frstim=0
+IF PRange[Pxdcr]>1000
+  KPP=500000;KDP=30;KIP=10000
+ELSE
+  KPP=500000;KDP=30;KIP=0.3
+ENDIF
 JS#SYSCFG
 EN
 #FACTCAL
@@ -651,7 +645,6 @@ MLPmmAf=MLPmmA;MLPmmBf=MLPmmB
 EN
 #MECHPRM
 RodSize=2;Pxdcr=7
-AQ 1,4;AQ 2,4;AQ 3,4
 BSLead = 5
 ECtsPR = 20000
 MotorRed = 20
@@ -663,7 +656,6 @@ CntsPmm=(ECtsPR*MotorRed)/BSLead
 JgSpdMx=1900000
 JS#SETSCAL
 JS#DEFSPD
-JS#DEFZKD
 JS#VSCALE
 BV;BN
 EN
@@ -675,22 +667,15 @@ ReflPc=100;StrtTol=2;TranStps=500;DecVol=3;FRMax=100;ErrVol=.25*VolA
 InitRate=50;ReflFmn=10;PmpMode=1;PmpStart=18;RcvStart=2;RateCal=40
 RefillRA=100;RefillRB=100;XfrMlMin=.1;PrTrMd=0
 EN
-@@@@@@@-------------@@@@@@
-REM VAP16D-10-20-100 CONFIGURATION - REV 1-23-2013
-REM Config3 Added InVopn=0 to #FACTSET, Added CfgVer
-REM Config4 Added JgSpCal, RateCal
-REM Config8 added #INITCF,#FACTCAL
-REM Config9 Initialize PcurA and PcurB in #FACTSET
-REM Config10 Initialize SloPXfr in #FACTSET and XfrMlMin in #VESPRM init LstCntsA&B
-
-
-
-
-
-
-
-
-
-
-
-
+'
+'
+'
+'
+'
+'
+'
+'
+'
+'
+'
+'
