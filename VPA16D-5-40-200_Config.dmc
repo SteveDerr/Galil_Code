@@ -4,6 +4,7 @@ REM Config4 Added JgSpCal, RateCal
 REM Config8 added #INITCF,#FACTCAL
 REM Config9 Initialize PcurA and PcurB in #FACTSET
 REM Config10 Initialize SloPXfr in #FACTSET and XfrMlMin in #VESPRM init LstCntsA&B
+REM Config11 Added CompLmt variable to allow user to set compressibility limit.
 
 
 #DEFSPD
@@ -78,7 +79,7 @@ EN
 StkeA=200;StkeB=200;VolA=40;VolB=40;StartMLA=36;StartMLB=36;PmpRate=-100
 Amin=3;Bmin=3;Amax=37;Bmax=37;FwdAlrmA=39;FwdAlrmB=39;PMax=5000
 RevAlrmA=2;RevAlrmB=2;Tdec=2;VolpCyl=38;CalStrtA=36;CalStrtB=36
-ReflPc=200;StrtTol=4;TranStps=500;DecVol=6;FRMax=200;ErrVol=.25*VolA
+ReflPc=200;StrtTol=4;TranStps=500;DecVol=6;FRMax=200;CompLmt=.25
 InitRate=100;ReflFmn=10;PmpMode=1;PmpStart=36;RcvStart=4;RateCal=80
-RefillRA=200;RefillRB=200;XfrMlMin=.2;PrTrMd=0
+RefillRA=200;RefillRB=200;XfrMlMin=.2;PrTrMd=0;ErrVol=CompLmt*VolA
 EN

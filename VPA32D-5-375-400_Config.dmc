@@ -6,7 +6,7 @@ REM Config8 added #INITCF,#FACTCAL
 REM Config9 Initilized PcurA and PcurB in #FACTSET
 REM Config10 Initalize SloPXfr in #FACTSET and set XfrMlMin=? to generate error so we test
 REM -cont- Initalize LstCntsA&B
-
+REM Config11 Added CompLmt variable to allow user to set compressibility limit.
 
 #DEFSPD
 JgSpd=(InitRate*CntsPMLA)/60
@@ -79,7 +79,7 @@ BV;BN;EN
 StkeA=304;StkeB=304;VolA=340;VolB=340;StartMLA=280;StartMLB=280;PmpRate=-200
 Amin=25;Bmin=25;Amax=315;Bmax=315;FwdAlrmA=330;FwdAlrmB=330;PMax=5000
 RevAlrmA=15;RevAlrmB=15;Tdec=2;VolpCyl=335;CalStrtA=300;CalStrtB=300
-ReflPc=500;StrtTol=40;TranStps=500;DecVol=25;FRMax=400;ErrVol=.25*VolA
+ReflPc=500;StrtTol=40;TranStps=500;DecVol=25;FRMax=400;CompLmt=.25
 InitRate=350;ReflFmn=100;PmpMode=1;PmpStart=280;RcvStart=60;RateCal=300
-RefillRA=350;RefillRB=350;XfrMlMin=.5;PrTrMd=0
+RefillRA=350;RefillRB=350;XfrMlMin=.5;PrTrMd=0;ErrVol=CompLmt*VolA
 EN
