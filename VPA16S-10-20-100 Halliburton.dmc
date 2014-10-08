@@ -54,9 +54,9 @@ EN
 WT 25
 JP #CHKLMTA,(MLcurA>Amin)&(MLcurA<Amax)
 IF MLcurA<Amin
-  StartMLA=PmpStart
+  StartMLA=PmpStarA
 ELSE
-  StartMLA=RcvStart
+  StartMLA=RcvStarA
 ENDIF
 JP#REFILLA
 EN
@@ -64,9 +64,9 @@ EN
 WT 25
 JP #CHKLMTB,(MLcurB>Bmin)&(MLcurB<Bmax)
 IF MLcurB<Bmin
-  StartMLB=PmpStart
+  StartMLB=PmpStarA
 ELSE
-  StartMLB=RcvStart
+  StartMLB=RcvStarB
 ENDIF
 JP#REFILLB
 EN
@@ -120,7 +120,7 @@ PcurA=((AccumA/IncA)-ZerOffA)/CntpPsiA
 IF PcurA>PMaxA;OvrPresA=OvrPresA+1
   IF OvrPresA>2
     IF PcurA>(1.1*PRange[Pxdcr])
-      IF DontOpn=0;JS#OpnAin;JS#OpnAout;ENDIF
+      IF DontOpnA=0;JS#OpnAin;JS#OpnAout;ENDIF
       'SP 0,0;'STA;'STB;'ZCA=0;'ZCB=0;'HX;'EN
       JS#ESTOPA
     ENDIF
@@ -146,7 +146,7 @@ PcurB=((AccumB/IncB)-ZerOffB)/CntpPsiB
 IF PcurB>PMaxB;OvrPresB=OvrPresB+1
   IF OvrPresB>2
     IF PcurB>(1.1*PRange[Pxdcr])
-      IF DontOpn=0;JS#OpnBin;JS#OpnBout;ENDIF
+      IF DontOpnB=0;JS#OpnBin;JS#OpnBout;ENDIF
       'SP 0,0;'STA;'STB;'ZCA=0;'ZCB=0;'HX;'EN
       JS#ESTOPB
     ENDIF
@@ -196,7 +196,7 @@ MLtotA=0;MLDispA=0;MLofstA=0;OEA=1
 JP #SKIPF2A,_LFA=0
 JG JgSpdA;BGA;AMA
 #SKIPF2A
-IF InVopn=0;JS#ClsAin;JS#OpnAout;ENDIF
+IF InVopnA=0;JS#ClsAin;JS#OpnAout;ENDIF
 MLnewA=StartMLA;Rate=InitRate
 JS #NEWPOSA
 AM A;AStopd=0;StReflA=0;OEA=0
@@ -208,7 +208,7 @@ MLtotB=0;MLDispB=0;MLofstB=0;OEB=1
 JP #SKIPF2B,_LFA=0
 JG ,JgSpdB;BGB;AMB
 #SKIPF2B
-IF InVopn=0;JS#ClsBin;JS#OpnBout;ENDIF
+IF InVopnB=0;JS#ClsBin;JS#OpnBout;ENDIF
 MLnewB=StartMLB;Rate=InitRate
 JS #NEWPOSB
 AM B;BStopd=0;StReflB=0;OEB=0
@@ -301,7 +301,7 @@ SHA;DC 2048000;OEA=1
 JP#SKIPFA,_LFA=0
 JG JgSpdA;BGA;AM A
 #SKIPFA
-IF InVopn=0;JS#ClsAin;JS#OpnAout;ENDIF
+IF InVopnA=0;JS#ClsAin;JS#OpnAout;ENDIF
 FLCntsA = _TPA - CntMarg
 JG -JgSpdA;BGA;AM A
 RLCntsA=_TPA + CntMarg
@@ -332,7 +332,7 @@ SHB;DC 2048000;OEB=1
 JP#SKIPFB,_LFB=0
 JG ,JgSpdB;BGB;AM B
 #SKIPFB
-IF InVopn=0;JS#ClsBin;JS#OpnBout;ENDIF
+IF InVopnB=0;JS#ClsBin;JS#OpnBout;ENDIF
 FLCntsB = _TPB - CntMarg
 JG ,-JgSpdB;BGB;AM B
 RLCntsB=_TPB + CntMarg
@@ -371,7 +371,7 @@ REM Check for matching pressure in pump mode.
 IF PStateA>0
   IF (_LFA=0)
     ZCA=0
-    IF (PmpMode=1)&((PState=4)|(PState=5))
+    IF (PmpModeA=1)&((PState=4)|(PState=5))
         NewErrA=1;Errline=_ED;ErrMsgA=19
     ELSE
       StCylA=0;NewErrA=1;Errline=_ED;ErrMsgA=20;HX2
@@ -384,7 +384,7 @@ REM Case for A reverse
 REM Check for matching pressure in receive mode
   IF (_LRA=0)
     ZCA=0
-    IF (PmpMode=0)&((PState=4)|(PState=5))
+    IF (PmpModeA=0)&((PState=4)|(PState=5))
       NewErrA=1;Errline=_ED;ErrMsgA=19
     ELSE
       StCylA=0;NewErrA=1;Errline=_ED;ErrMsgA=20;HX2
@@ -398,7 +398,7 @@ REM Check for matching pressure in pump mode.
 IF PStateB>0
   IF(_LFB=0)
     ZCB=0
-    IF (PmpMode=1)&((PState=1)|(PState=2))
+    IF (PmpModeB=1)&((PState=1)|(PState=2))
         NewErrB=1;Errline=_ED;ErrMsgB=19
     ELSE
       NewErrB=1;Errline=_ED;ErrMsgB=20;HX6
@@ -410,7 +410,7 @@ REM Case for B reverse
 REM Check for matching pressure in receive mode
   IF(_LRB=0)
     ZCB=0
-    IF (PmpMode=0)&((PState=1)|(PState=2))
+    IF (PmpModeB=0)&((PState=1)|(PState=2))
       NewErrB=1;Errline=_ED;ErrMsgB=19
     ELSE
       NewErrB=1;Errline=_ED;ErrMsgB=20;HX6
@@ -867,17 +867,17 @@ XQ#STARTB,6
 EN
 
 #STRTPOS
-IF PmpMode=1;StartMLA=PmpStart;StartMLB=PmpStart;ENDIF
-IF PmpMode=0;StartMLA=RcvStart;StartMLB=RcvStart;ENDIF
+IF PmpModeA=1;StartMLA=PmpStarA;ELSE;StartMLA=RcvStarA;ENDIF
+IF PmpModeB=1;StartMLB=PmpStarB;ELSE;StartMLB=RcvStarB;ENDIF
 IF Burn>0;Burn=0;BV;ENDIF
 EN
 #STRTPRA
 PreadyA=0
 IF (StReflA=1);JP#STRTPRA;ENDIF
 jststrdA=1;ReflA=0;ReqStpA=0;ReStpPA=0
-RevSpdA=(ReflPc*CntsPMLA)/60
+RevSpdA=(ReflPcA*CntsPMLA)/60
 IF RevSpdA>JgSpdMx;RevSpdA=JgSpdMx;ENDIF
-IF RevSpdA<JgSpdMn;RevSpdA=JgSpdMn;ENDIF
+IF RevSpdA<JgSpdMnA;RevSpdA=JgSpdMnA;ENDIF
 '
 IF (MLcurA>(Amax))|(MLcurA<(Amin));'Ais outside limits
     StReflA=1;CONTA=1
@@ -897,9 +897,9 @@ EN
 PreadyB=0
 IF (StReflB=1);JP#STRTPRB;ENDIF
 jststrdB=1;ReflB=0;ReqStpB=0;ReStpPB=0
-RevSpdB=(ReflPc*CntsPMLB)/60
+RevSpdB=(ReflPcB*CntsPMLB)/60
 IF RevSpdB>JgSpdMx;RevSpdB=JgSpdMx;ENDIF
-IF RevSpdB<JgSpdMn;RevSpdB=JgSpdMn;ENDIF
+IF RevSpdB<JgSpdMnB;RevSpdB=JgSpdMnB;ENDIF
 '
 IF (MLcurB>(Bmax))|(MLcurB<(Bmin));'Ais outside limits
     StReflB=1;CONTB=1
@@ -1094,7 +1094,7 @@ IF TrnsVol <(DecVol+0.5);TrnsVol=DecVol+0.5;ENDIF
 IF TrnsVol>(StartMLA+1.00);TrnsVol=(StartMLA+1.00);ENDIF
 RevSpdA=-PmpSpdA*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
 IF RevSpdA>JgSpdMx;RevSpdA=JgSpdMx;ENDIF
-IF RevSpdA<JgSpdMn;RevSpdA=JgSpdMn;ENDIF;EN
+IF RevSpdA<JgSpdMnA;RevSpdA=JgSpdMnA;ENDIF;EN
 '
 #VRECALA
 JS#CALCNTA
@@ -1110,7 +1110,7 @@ IF TrnsVol <(DecVol+0.5);TrnsVol=DecVol+0.5;ENDIF
 IF TrnsVol>(StartMLA+1.00);TrnsVol=(StartMLA+1.00);ENDIF
 RevSpdB=-PmpSpdB*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
 IF RevSpdB>JgSpdMx;RevSpdB=JgSpdMx;ENDIF
-IF RevSpdB<JgSpdMn;RevSpdB=JgSpdMn;ENDIF;EN
+IF RevSpdB<JgSpdMnB;RevSpdB=JgSpdMnB;ENDIF;EN
 '
 #VRECALB
 JS#CALCNTB
@@ -1196,12 +1196,13 @@ JS #ClsAout;JS #ClsBout;EN
 #DEFSPD
 JgSpdA=(InitRate*CntsPMLA)/60
 JgSpdB=(InitRate*CntsPMLB)/60
-JgSpdMn=(ReflFmn*CntsPMLA)/60
+JgSpdMnA=(ReflFmnA*CntsPMLA)/60
+JgSpdMnB=(ReflFmnB*CntsPMLB)/60
 JgSpCal=(RateCal*CntsPMLA)/60
 EN
 #FACTSET
 SD 10000000,10000000
-TestMode=0;DontOpn=0;CfgVer=7
+TestMode=0;DontOpnA=0;DontOpnB=0;CfgVer=7
 PmpSpdA=0;MLzeroA=0;MLaccumA=0;Kgain=0
 PmpSpdB=0;MLzeroB=0;MLaccumB=0
 Emax=100;Igain=0;Dgain=0;MLofstA=0;MLofstB=0
@@ -1209,7 +1210,7 @@ MLtotA=0;MLtotAT=0;TarVolA=2000000000;lpDlay=5;MLDispA=0
 MLtotB=0;MLtotBT=0;TarVolB=2000000000;MLDispB=0
 HiSpdA=0;DSpdA=0;LoSpdA=0;RevSpdA=0
 HiSpdB=0;DSpdB=0;LoSpdB=0;RevSpdB=0
-MLlastA=0;Kx=1;MaxPerr=500;InVopn=1;MLlastB=0
+MLlastA=0;Kx=1;MaxPerr=500;InVopnA=1;InVopnB=1;MLlastB=0
 MLcurA=0;TrnsVol=0;PSetPtA=0;SPlocal=0
 MLcurB=0;PSetPtB=0
 Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=100;KP 4,4;KD 30,30;KI 0,0
@@ -1254,9 +1255,10 @@ BV;BN;EN
 #VESPRM
 StkeA=200;VolA=19.5;StartMLA=16.5;PmpRateA=-50
 Amin=1.5;Amax=17.0;FwdAlrmA=19.5;PMaxA=10000
-RevAlrmA=2;Tdec=2;VolpCyl=18.5;CalStrtA=18
-ReflPc=100;StrtTol=2;TranStps=500;DecVol=3;FRMax=100;ErrVol=.25*VolA
-InitRate=50;ReflFmn=10;PmpMode=1;PmpStart=16.5;RcvStart=2;RateCal=40
+RevAlrmA=2;Tdec=2;VolpCyl=18.5;CalStrtA=18;ReflpcA=100
+ReflPcB=100;StrtTol=2;TranStps=500;DecVol=3;FRMax=100;ErrVol=.25*VolA
+InitRate=50;ReflFmnA=10;ReflFmnB=10;PmpModeA=1;PmpModeB=1;RateCal=40
+PmpStarA=16.5;RcvStarA=2;PmpStarB=16.5;RcvStarB=2
 
 StkeB=200;VolB=19.5;StartMLB=16.5;PmpRateB=-50
 Bmin=1.5;Bmax=17.0;FwdAlrmB=19.5;PMaxB=10000
