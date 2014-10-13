@@ -310,7 +310,11 @@ StkeA=DeltCtsA/CntsPmm
 VolA=DeltCtsA/CntsPMLA
 PR CntMarg;BGA;AM A
 DP 0;AStopd=0
-MLtotA=0;MLDispA=0;MLofstA=0;OEA=0;EN
+MLtotA=0;MLDispA=0;MLofstA=0;OEA=0
+FindingA=0;FStateA=0;PowerUp=0;InitDonA=1
+JS#ClsAin;JS#ClsAout
+TLA=9.5;TKA=9.8
+EN
 '
 #LIMSWIA
 IF (FindingA=1)|(CycleA=1)
@@ -318,9 +322,6 @@ IF (FindingA=1)|(CycleA=1)
 ELSE
   IF (_LFA=0)|(_LRA=0);DC 100000000;STA;AMA;DC 2048000;ENDIF
 ENDIF
-FindingA=0;FStateA=0;PowerUpA=0;InitDonA=1
-JS#ClsAin;JS#ClsAout
-TLA=9.5;TKA=9.8
 EN
 
 #FNDB
@@ -341,7 +342,11 @@ StkeB=DeltCtsB/CntsPmm
 VolB=DeltCtsB/CntsPMLB
 PR ,CntMarg;BGB;AM B
 DP ,0;BStopd=0
-MLtotB=0;MLDispB=0;MLofstB=0;OEB=0;EN
+MLtotB=0;MLDispB=0;MLofstB=0;OEB=0
+FindingB=0;FStateB=0;PowerUp=0;InitDonB=1
+JS#ClsBin;JS#ClsBout
+TLB=9.5;TKB=9.8
+EN
 '
 #LIMSWIB
 IF (FindingB=1)|(CycleB=1)
@@ -349,9 +354,7 @@ IF (FindingB=1)|(CycleB=1)
 ELSE
   IF (_LFB=0)|(_LRB=0);DC 100000000;STB;AMB;DC 2048000;ENDIF
 ENDIF
-FindingB=0;FStateB=0;PowerUpB=0;InitDonB=1
-JS#ClsBin;JS#ClsBout
-TLB=9.5;TKB=9.8
+
 EN
 
 #LOSPPA
@@ -570,7 +573,7 @@ JS#SETZRA
 JS#SETFFBA
 XQ#CHKLMTA,2
 JS#OpnAout
-Pready=1
+PreadyA=1
 EN
 '
 #PCNTRLB
@@ -605,7 +608,7 @@ SP RevSpdA;TarPosA =StartMLA*CntsPMLA
 PA TarPosA;BGA;AMA
 JS#ClsAin;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA
 IF CONTA=1;CONTA=0;StReflA=0;FStateA=0;EN;ENDIF;'Stop here if called by STRTPRS
-IF CompErr=1;ReStpPA=1;ENDIF ;'We need to stop pressure loop after this refill
+IF CompErrA=1;ReStpPA=1;ENDIF ;'We need to stop pressure loop after this refill
 IF (ReStpPA=1) | (ReqStpA=1);'we will not continue
   StReflA=0;FjststrA=0;FStateA=0;PStateA=0;StCylA=0
   EN
@@ -645,7 +648,7 @@ SP ,RevSpdB;TarPosB =StartMLB*CntsPMLB
 PA ,TarPosB;BGB;AMB
 JS#ClsBin;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB
 IF CONTB=1;CONTB=0;StReflB=0;FStateB=0;EN;ENDIF;'Stop here if called by STRTPRS
-IF CompErr=1;ReStpPB=1;ENDIF ;'We need to stop pressure loop after this refill
+IF CompErrB=1;ReStpPB=1;ENDIF ;'We need to stop pressure loop after this refill
 IF (ReStpPB=1) | (ReqStpB=1);'we will not continue
   StReflB=0;FjststrB=0;FStateB=0;PStateB=0;StCylB=0
   EN
@@ -935,7 +938,7 @@ EN
 
 #SYNCA
 JP#SYNCA,StReflA>0
-StCylA=2;CompErr=0
+StCylA=2;CompErrA=0
 JS#ClsAout;JS#ClsAin;JS#SETFFBA;JS#SETPSTA
 MLlimA=MLcurA-ErrVol
 SPtmpA=_ZTA;DelSPA=SPcntsA-SPtmpA;RampA=0
@@ -961,13 +964,13 @@ ELSE
   ENDIF
 ENDIF
 IF (MLcurA<0)|(MLcurA>VolA); 'Cylinder is out of limits-chng to Pos FB
-  ZCA=0;CompErr=1
+  ZCA=0;CompErrA=1
   IF MLcurA<0;ErrMsgA=1;ENDIF
   IF MLcurA>VolA;ErrMsgA=2;ENDIF
   NewErrA=1
   RampA=0
 ENDIF
-IF MLcurA<MLlimA;ZCA=0;ErrMsgA=8;NewErrA=1;CompErr=1;RampA=0;ENDIF;'Comp > 25%
+IF MLcurA<MLlimA;ZCA=0;ErrMsgA=8;NewErrA=1;CompErrA=1;RampA=0;ENDIF;'Comp > 25%
 ZR SPtmpA
 WT 5
 JP#RMPA,RampA=1
@@ -976,18 +979,18 @@ JP#RMPA,RampA=1
 #ATPRESA
 IF (MLcurA<0)|(MLcurA>VolA); 'Cylinder is out of limits-chng to Pos FB
   IF _ZCA>0
-    ZCA=0;CompErr=1
+    ZCA=0;CompErrA=1
     IF MLcurA<0;ErrMsgA=1;ENDIF
     IF MLcurA>VolA;ErrMsgA=2;ENDIF
-    NewErrA=1;CompErr=1
+    NewErrA=1;CompErrA=1
   ENDIF
 ENDIF
 IF MLcurA<MLlimA;'Comp > 25% cyl vol
-  IF CompErr=1;SPtmpA=_ZTA;ENDIF;'Exit this loop if err in prev loop
-  IF _ZCA>0;ZCA=0;ErrMsgA=8;NewErrA=1;CompErr=1;SPtmpA=_ZTA;ENDIF
+  IF CompErrA=1;SPtmpA=_ZTA;ENDIF;'Exit this loop if err in prev loop
+  IF _ZCA>0;ZCA=0;ErrMsgA=8;NewErrA=1;CompErrA=1;SPtmpA=_ZTA;ENDIF
 ENDIF
 JP #ATPRESA,(@ABS[SPtmpA-_ZTA]>500)
-IF CompErr=1
+IF CompErrA=1
   StCylA=0;HX3
 ELSE
   StCylA=3
@@ -999,7 +1002,7 @@ EN
 '
 #SYNCB
 JP#SYNCB,StReflB>0
-StCylB=2;CompErr=0
+StCylB=2;CompErrB=0
 JS#ClsBout;JS#ClsBin;JS#SETFFBB;JS#SETPSTB
 MLlimB=MLcurB-ErrVol
 SPtmpB=_ZTB;DelSPB=SPcntsB-SPtmpB;RampB=0
@@ -1025,13 +1028,13 @@ ELSE
   ENDIF
 ENDIF
 IF (MLcurB<0)|(MLcurB>VolB); 'Cylinder is out of limits-chng to Pos FB
-  ZCB=0;CompErr=1
+  ZCB=0;CompErrB=1
   IF MLcurB<0;ErrMsgB=1;ENDIF
   IF MLcurB>VolB;ErrMsgB=2;ENDIF
   NewErrB=1
   RampB=0
 ENDIF
-IF MLcurB<MLlimB;ZCB=0;ErrMsgB=8;NewErrB=1;CompErr=1;RampB=0;ENDIF;'Comp > 25%
+IF MLcurB<MLlimB;ZCB=0;ErrMsgB=8;NewErrB=1;CompErrB=1;RampB=0;ENDIF;'Comp > 25%
 ZR ,SPtmpB
 WT 5
 JP#RMPB,RampB=1
@@ -1040,18 +1043,18 @@ JP#RMPB,RampB=1
 #ATPRESB
 IF (MLcurB<0)|(MLcurB>VolB); 'Cylinder is out of limits-chng to Pos FB
   IF _ZCB>0
-    ZCB=0;CompErr=1
+    ZCB=0;CompErrB=1
     IF MLcurB<0;ErrMsgB=1;ENDIF
     IF MLcurB>VolB;ErrMsgB=2;ENDIF
-    NewErrB=1;CompErr=1
+    NewErrB=1;CompErrB=1
   ENDIF
 ENDIF
 IF MLcurB<MLlimB;'Comp > 25% cyl vol
-  IF CompErr=1;SPtmpB=_ZTB;ENDIF;'Exit this loop if err in prev loop
-  IF _ZCB>0;ZCB=0;ErrMsgB=8;NewErrB=1;CompErr=1;SPtmpB=_ZTB;ENDIF
+  IF CompErrB=1;SPtmpB=_ZTB;ENDIF;'Exit this loop if err in prev loop
+  IF _ZCB>0;ZCB=0;ErrMsgB=8;NewErrB=1;CompErrB=1;SPtmpB=_ZTB;ENDIF
 ENDIF
 JP #ATPRESB,(@ABS[SPtmpB-_ZTB]>500)
-IF CompErr=1
+IF CompErrB=1
   StCylB=0;HX3
 ELSE
   StCylB=3
