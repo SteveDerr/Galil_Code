@@ -9,7 +9,7 @@ PmodeA=0;DecrK=1;Occur=0;Tchng=0;PSetPtA=0;DelaydA=0
 AC 10000000,10000000;DC 2048000,2048000;AG 1,1;SP 1000000.1000000
 SH;FStateA=0;PmodeA=0;JogDir=0;ChngDir=0;JogDirL=0;OutLmtA=0;
 PStateA=0;XdcrCur=1;jststrdA=1;FjststrA=1;PreadyA=0;ReqStpA=0;StCylA=0
-StReflA=0;TlastA=TIME;ErrMsgA=0;CylNum=1
+StReflA=0;TlastA=TIME;ErrMsgA=0;CylNum=2;CylCfg=3
 InitDonA=0;CyclDonA=0;Transit=0;PTempA=0;NewErrA=0;ResetMLA=0;CycleA=0
 SPlowA=0;SPhighA=0;FracLoA=0;FracHiA=0;LowFlowA=0;CompErrA=0;FindingA=0
 ReStpPA=0;RateChnA=0;PowerUp=1;Local=0;Remote=0
@@ -21,7 +21,7 @@ CONTB=0
 PmodeB=0;DecrK=1;Occur=0;Tchng=0;PSetPtB=0;DelaydB=0
 SH;FStateB=0;Pmode=0;JogDir=0;ChngDir=0;JogDirL=0;OutLmtB=0;
 PStateB=0;XdcrCur=1;jststrdB=1;FjststrB=1;PreadyB=0;ReqStpB=0;StCylB=0
-StReflB=0;TlastB=TIME;ErrMsgB=0;CylNum=1
+StReflB=0;TlastB=TIME;ErrMsgB=0;CylNum=2
 InitDonB=0;CyclDonB=0;Transit=0;PTempb=0;NewErrB=0;ResetMLB=0;CycleB=0
 SPlowB=0;SPhighB=0;FracLoB=0;FracHiB=0;LowFlowB=0;CompErrB=0;FindingB=0
 ReStpPB=0;RateChnB=0;WT10000;JS#STRTDAQ;JS#ZEROOF;EN
@@ -64,7 +64,7 @@ EN
 WT 25
 JP #CHKLMTB,(MLcurB>Bmin)&(MLcurB<Bmax)
 IF MLcurB<Bmin
-  StartMLB=PmpStarA
+  StartMLB=PmpStarB
 ELSE
   StartMLB=RcvStarB
 ENDIF
@@ -1255,7 +1255,7 @@ BV;BN;EN
 #VESPRM
 StkeA=200;VolA=19.5;StartMLA=16.5;PmpRateA=-50
 Amin=1.5;Amax=17.0;FwdAlrmA=19.5;PMaxA=10000
-RevAlrmA=2;Tdec=2;VolpCyl=18.5;CalStrtA=18;ReflpcA=100
+RevAlrmA=2;Tdec=2;VolpCyl=18.5;CalStrtA=18;ReflPcA=100
 ReflPcB=100;StrtTol=2;TranStps=500;DecVol=3;FRMax=100;ErrVol=.25*VolA
 InitRate=50;ReflFmnA=10;ReflFmnB=10;PmpModeA=1;PmpModeB=1;RateCal=40
 PmpStarA=16.5;RcvStarA=2;PmpStarB=16.5;RcvStarB=2
