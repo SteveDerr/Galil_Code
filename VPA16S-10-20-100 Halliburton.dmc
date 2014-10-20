@@ -245,13 +245,21 @@ JS #CURMLA
 JS #CURMLB
 JS #SPEEDA
 JS #SPEEDB
-JS #CURPA
-JS #CURPB
+'JS #CURPA
+'JS #CURPB
 IF XdcrCur=1;Pcur=PcurA;ENDIF
 IF XdcrCur=0;Pcur=0;ENDIF
 WT 200
 JP #DAQLOOP,DAQmode>0
 EN
+
+#PDAQ
+JS#CURPA
+JS#CURPB
+WT 200
+JP#PDAQ,DAQmode>0
+EN
+
 #ESTOPA
 STA;FStateA=0;HX2;HX3;HX5
 AM;ZCA=0;PStateA=0;
@@ -379,7 +387,6 @@ IF PStateA>0
     ELSE
       StCylA=0;NewErrA=1;Errline=_ED;ErrMsgA=20;HX2
       JS#ClsAout;JS#OpnAin;JS#SETPSTA
-      IF StCylB=3;JS#OpnBout;ENDIF
     ENDIF
   ENDIF
 
@@ -392,7 +399,6 @@ REM Check for matching pressure in receive mode
     ELSE
       StCylA=0;NewErrA=1;Errline=_ED;ErrMsgA=20;HX2
       JS#ClsAout;JS#OpnAin;JS#SETPSTA
-      IF StCylB=3;JS#OpnBout;ENDIF
     ENDIF
   ENDIF
 ENDIF
@@ -406,7 +412,6 @@ IF PStateB>0
     ELSE
       NewErrB=1;Errline=_ED;ErrMsgB=20;HX6
       JS#ClsBout;JS#OpnBin;JS#SETPSTB
-      IF StCylA=3;JS#OpnAout;ENDIF
     ENDIF
   ENDIF
 REM Case for B reverse
@@ -418,7 +423,6 @@ REM Check for matching pressure in receive mode
     ELSE
       NewErrB=1;Errline=_ED;ErrMsgB=20;HX6
       JS#ClsBout;JS#OpnBin;JS#SETPSTB
-      IF StCylA=3;JS#OpnAout;ENDIF
     ENDIF
   ENDIF
 ENDIF
@@ -514,7 +518,7 @@ EN
 
 #NEWSPA
 IF TarPresA<PSetPtA
-  RampRatA=-RampRatA
+  RampRatA=-@ABS[RampRatA]
 ENDIF
 PincA=RampRatA/10
 IF PincA=0
@@ -849,6 +853,7 @@ EN
 
 #STRTDAQ
 WT 5
+XQ#PDAQ,7
 DAQmode=1;JP#DAQLOOP;EN
 
 #STRTMPA
