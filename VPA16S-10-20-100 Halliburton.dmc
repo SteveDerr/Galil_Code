@@ -871,6 +871,7 @@ IF PmpModeB=1;StartMLB=PmpStarB;ELSE;StartMLB=RcvStarB;ENDIF
 IF Burn>0;Burn=0;BV;ENDIF
 EN
 #STRTPRA
+PSetPtA=PcurA+5
 PreadyA=0
 IF (StReflA=1);JP#STRTPRA;ENDIF
 jststrdA=1;ReflA=0;ReqStpA=0;ReStpPA=0
@@ -893,6 +894,7 @@ JP#PCNTRLA
 EN
 '
 #STRTPRB
+PSetPtB=PcurB+5
 PreadyB=0
 IF (StReflB=1);JP#STRTPRB;ENDIF
 jststrdB=1;ReflB=0;ReqStpB=0;ReStpPB=0

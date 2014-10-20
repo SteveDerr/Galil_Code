@@ -1,6 +1,6 @@
 #AUTO
 TLA=9.5;TKA=9.8;TM 1000
-Rev=2.214;Version=3.0;CylNum=1;Frstim=0
+Rev=2.216;Version=3.0;CylNum=1;Frstim=0
 RampA=0;StT2A=0;OvrPresA=0;RstPosA=0;
 MO;CE 2;CN 1;MT -1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0
 KP 4;KD 30;KI 0;OverLim=0;ZCA=0;CONTA=0;lpD=10
@@ -624,7 +624,7 @@ JS#TESTCAL
 IF PRange[Pxdcr]>1000
   KPP=500000;KDP=30;KIP=10000
 ELSE
-  KPP=500000;KDP=30;KIP=0.3
+  KPP=300000;KDP=30;KIP=0.3
 ENDIF
 JS#SYSCFG
 EN
