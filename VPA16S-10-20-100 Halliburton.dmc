@@ -117,24 +117,19 @@ AccumA=0;IncA=0
 #REPEATA;AccumA=AccumA+_ZTA;IncA=IncA+1;WT 4;JP #REPEATA,IncA<AveNo
 IF AccumA=0;ZerOffA=0;ELSE; ZerOffA=PzerCntA;ENDIF
 PcurA=((AccumA/IncA)-ZerOffA)/CntpPsiA
-IF PcurA>PMaxA;OvrPresA=OvrPresA+1
-  IF OvrPresA>2
-    IF PcurA>(1.1*PRange[Pxdcr])
-      IF DontOpnA=0;JS#OpnAin;JS#OpnAout;ENDIF
-      'SP 0,0;'STA;'STB;'ZCA=0;'ZCB=0;'HX;'EN
-      JS#ESTOPA
+IF PcurA>(1.1*PRange[Pxdcr])
+	IF DontOpnA=0
+		JS#OpnAin;JS#OpnAout
+		JS#ESTOPA
+	ENDIF
+ENDIF
+IF PcurA>PMaxA
+	ErrMsgA=12;NewErrA=1
+    IF PStateA=0
+		JS#STPA
     ENDIF
-    ErrMsgA=12;NewErrA=1
-    IF PStateA>0
-      ReStpPA=1
-    ELSE
-'      JS#STPBOTH
-      JS#ESTOPA
-    ENDIF
-  ENDIF
-ELSE
-  OvrPresA=0
-ENDIF;EN
+ENDIF
+EN
 '
 #CMDERRB
 ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErrA=1;ErrMsgB=100+ErrCode;HX;EN
@@ -143,24 +138,19 @@ AccumB=0;IncB=0
 #REPEATB;AccumB=AccumB+_ZTB;IncB=IncB+1;WT 4;JP #REPEATB,IncB<AveNo
 IF AccumB=0;ZerOffB=0;ELSE; ZerOffB=PzerCntB;ENDIF
 PcurB=((AccumB/IncB)-ZerOffB)/CntpPsiB
-IF PcurB>PMaxB;OvrPresB=OvrPresB+1
-  IF OvrPresB>2
-    IF PcurB>(1.1*PRange[Pxdcr])
-      IF DontOpnB=0;JS#OpnBin;JS#OpnBout;ENDIF
-      'SP 0,0;'STA;'STB;'ZCA=0;'ZCB=0;'HX;'EN
-      JS#ESTOPB
+IF PcurB>(1.1*PRange[Pxdcr])
+	IF DontOpnB=0
+		JS#OpnBin;JS#OpnBout
+		JS#ESTOPB
+	ENDIF
+ENDIF
+IF PcurB>PMaxB
+	ErrMsgB=13;NewErrA=1
+    IF PStateB=0
+		JS#STPB
     ENDIF
-    ErrMsgB=12;NewErrB=1
-    IF PStateB>0
-      ReStpPB=1
-    ELSE
-'      JS#STPBOTH
-      JS#ESTOPB
-    ENDIF
-  ENDIF
-ELSE
-  OvrPresB=0
-ENDIF;EN
+ENDIF
+EN
 '
 #CURMLA
 MLcurA=_TPA/CntsPMLA;TcurA=TIME
@@ -526,6 +516,9 @@ IF PincA=0
 ENDIF
 AT 0
 #RAMPA
+IF ReStpPA=1
+	RampingA=0
+ENDIF
 AT-100
 PSetPtA=PSetPtA + PincA
 IF PincA>0
@@ -545,7 +538,7 @@ EN
 '
 #NEWSPB
 IF TarPresB<PSetPtB
-  RampRatB=-RampRatB
+  RampRatB=-@ABS[RampRatB]
 ENDIF
 PincB=RampRatB/10
 IF PincB=0
@@ -553,6 +546,9 @@ IF PincB=0
 ENDIF
 AT 0
 #RAMPB
+IF ReStpPB=1
+	RampingB=0
+ENDIF
 AT-100
 PSetPtB=PSetPtB + PincB
 IF PincB>0
