@@ -2,7 +2,7 @@ NO
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
 Rev=2.100;Version=3.0
-RampA=0;StT2A=0;OvrPresA=0;RstPosA=0;
+RampA=0;StT2A=0;RstPosA=0;
 MO;CE 2,2;CN -1;MT 1,1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0
 KP 12,12;KD 30,30;KI 0,0;OverLim=0;ZC 0,0;CONTA=0
 PmodeA=0;DecrK=1;Occur=0;Tchng=0;PSetPtA=0;DelaydA=0
@@ -12,10 +12,10 @@ PStateA=0;XdcrCur=1;jststrdA=1;FjststrA=1;PreadyA=0;ReqStpA=0;StCylA=0
 StReflA=0;TlastA=TIME;ErrMsgA=0;CylNum=2;CylCfg=3
 InitDonA=0;CyclDonA=0;Transit=0;PTempA=0;NewErrA=0;ResetMLA=0;CycleA=0
 SPlowA=0;SPhighA=0;FracLoA=0;FracHiA=0;LowFlowA=0;CompErrA=0;FindingA=0
-ReStpPA=0;RateChnA=0;PowerUp=1;Local=0;Remote=0
+ReStpPA=0;RateChnA=0;PowerUp=1;Local=0;Remote=0;FlowingA=0;FlowingB=0
 
 
-RampB=0;StT2B=0;OvrPresB=0;RstPosB=0;
+RampB=0;StT2B=0;RstPosB=0;
 FlowRB=0;FloVolB=0
 CONTB=0
 PmodeB=0;DecrK=1;Occur=0;Tchng=0;PSetPtB=0;DelaydB=0
@@ -96,7 +96,7 @@ JS#VCALCSA
 '
 PmpSpdA=(PmpRateA*CntsPMLA)/60
 JG PmpSpdA
-IF LowFlow=1;HX5;JS#LOSPPA;XQ#ADJSPA,5;ENDIF
+IF LowFlowA=1;HX5;JS#LOSPPA;XQ#ADJSPA,5;ENDIF
 EN
 '
 #CHGRATB
@@ -107,7 +107,7 @@ JS#VCALCSB
 '
 PmpSpdB=(PmpRateB*CntsPMLB)/60
 JG ,PmpSpdB
-IF LowFlow=1;HX5;JS#LOSPPB;XQ#ADJSPB,4;ENDIF
+IF LowFlowB=1;HX5;JS#LOSPPB;XQ#ADJSPB,4;ENDIF
 EN
 '
 #CMDERRA
@@ -918,7 +918,7 @@ JP#PCNTRLB
 EN
 '
 #STPCYCA
-STA;CycleA=0;JS#ClsAin;JS#ClsAout;HX1;HX2;HX5;EN
+STA;CycleA=0;JS#ClsAin;JS#ClsAout;HX2;HX5;EN
 
 #STPCYCB
 STB;CycleB=0;JS#ClsBin;JS#ClsBout;HX6;HX4;HX6;EN
@@ -1214,7 +1214,7 @@ HiSpdA=0;DSpdA=0;LoSpdA=0;RevSpdA=0
 HiSpdB=0;DSpdB=0;LoSpdB=0;RevSpdB=0
 MLlastA=0;Kx=1;MaxPerr=500;InVopnA=1;InVopnB=1;MLlastB=0
 MLcurA=0;TrnsVol=0;PSetPtA=0;SPlocal=0
-MLcurB=0;PSetPtB=0
+MLcurB=0;PSetPtB=0;PcurA=0,PcurB=0
 Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=100;KP 4,4;KD 30,30;KI 0,0
 Tzero=0;RLCntsB=0;FLCntsA=0;DeltCtsB=0
 Aflow=0;Bflow=0;PfiltA=0;PlastA=0;RampRatA=0;TarPresA=0
