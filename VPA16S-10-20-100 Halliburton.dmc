@@ -1,7 +1,7 @@
 NO
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
-Rev=2.100;Version=3.0
+Rev=2.11;Version=3.0
 RampA=0;StT2A=0;RstPosA=0;
 MO;CE 2,2;CN -1;MT 1,1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0
 KP 12,12;KD 30,30;KI 0,0;OverLim=0;ZC 0,0;CONTA=0
@@ -698,6 +698,7 @@ EN
 
 #RESETA
 RstPosA=ResetMLA*CntsPMLA
+InitDonA=1;CyclDonA=1
 DP RstPosA
 EN
 #SAVEMLA
@@ -708,6 +709,7 @@ EN
 '
 #RESETB
 RstPosB=ResetMLB*CntsPMLB
+InitDonA=1;CyclDonA=1
 DP ,RstPosB
 EN
 #SAVEMLB
