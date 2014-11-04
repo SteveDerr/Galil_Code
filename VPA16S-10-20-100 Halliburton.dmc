@@ -709,7 +709,7 @@ EN
 '
 #RESETB
 RstPosB=ResetMLB*CntsPMLB
-InitDonA=1;CyclDonA=1
+InitDonB=1;CyclDonB=1
 DP ,RstPosB
 EN
 #SAVEMLB
