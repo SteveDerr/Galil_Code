@@ -93,7 +93,7 @@ REM 2.212 - Fixed bug with pressure mode starting/stopping too quickly
 REM 2.213 - OverPressure now triggers on first read. Initialize some variables,
 REM -cont- CMDERR ends with EN instead of RE. Set PState to 7 when first run
 REM 2.214 - Make sure MLlimA is not less than AMin, added PmpCfg (1 single, 2 dual, 3 twin)
-REM 2.215 - Changed PmpCfg to CylCfg
+REM 2.215 - Changed PmpCfg to CylCfg, initialize FlowingA and FlowingB in #AUTO
 
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
@@ -110,6 +110,7 @@ InitDone=0;CyclDone=0;Transit=0;PTempA=0;PTempB=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;FracLo=0;LowFlow=0;CompErr=0;Finding=0
 ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0;ErrCode=0
 DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0;LineNum=0
+FlowingA=0;FlowingB=0
 JS#STRTDAQ;JS#ZEROOF;
 EN
 
