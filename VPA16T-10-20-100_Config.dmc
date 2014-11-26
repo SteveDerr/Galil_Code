@@ -1,0 +1,73 @@
+#DEFSPD
+JgSpdA=(InitRate*CntsPMLA)/60
+JgSpdB=(InitRate*CntsPMLB)/60
+JgSpdMnA=(ReflFmnA*CntsPMLA)/60
+JgSpdMnB=(ReflFmnB*CntsPMLB)/60
+JgSpCal=(RateCal*CntsPMLA)/60
+EN
+#FACTSET
+SD 10000000,10000000
+TestMode=0;DontOpnA=0;DontOpnB=0;CfgVer=8
+PmpSpdA=0;MLzeroA=0;MLaccumA=0;Kgain=0
+PmpSpdB=0;MLzeroB=0;MLaccumB=0
+Emax=100;Igain=0;Dgain=0;MLofstA=0;MLofstB=0
+MLtotA=0;MLtotAT=0;TarVolA=2000000000;lpDlay=5;MLDispA=0
+MLtotB=0;MLtotBT=0;TarVolB=2000000000;MLDispB=0
+HiSpdA=0;DSpdA=0;LoSpdA=0;RevSpdA=0
+HiSpdB=0;DSpdB=0;LoSpdB=0;RevSpdB=0
+MLlastA=0;Kx=1;MaxPerr=500;InVopnA=1;InVopnB=1;MLlastB=0
+MLcurA=0;TrnsVol=0;PSetPtA=0;SPlocal=0
+MLcurB=0;PSetPtB=0;PcurA=0,PcurB=0
+Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=100;KP 4,4;KD 30,30;KI 0,0
+Tzero=0;RLCntsB=0;FLCntsA=0;DeltCtsB=0
+Aflow=0;Bflow=0;PfiltA=0;PlastA=0;RampRatA=0;TarPresA=0
+PfiltB=0;PlastB=0;RampRatB=0;TarPresB=0
+MLnewA=0;DeltaMLA=0;DeltaMLB=0;RampingA=0;RampingB=0
+OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0
+JS#VESPRM
+JS#MECHPRM
+JS#TESTCAL
+JS#SYSCFG
+EN
+#MECHPRM
+RodSize=2;Pxdcr=7;AQ 1,4;AQ 2,4;AQ 3,4
+PfsVA=5.000
+PfsVB=5.000
+BSLead = 5
+ECtsPR = 20000
+MotorRed = 20
+TotStke = 200
+Margin = 5
+EN
+'
+#SYSCFG
+CntsPmm=(ECtsPR*MotorRed)/BSLead
+JgSpdMx=1900000
+JS#SETSCAL
+JS#DEFSPD
+IF _AQ1=1
+  A2DFS=10;ZK 200;ZD 300;ZI1;ZF 0.95
+ENDIF
+IF _AQ1=3
+  A2DFS=5;ZK 100;ZD 150;ZI0.5;ZF 0.95
+ENDIF
+IF _AQ1=4
+  A2DFS=10;ZK 200;ZD 300;ZI1;ZF 0.95
+ENDIF
+JS#VSCALE
+BV;BN;EN
+'
+#VESPRM
+StkeA=200;VolA=19.5;StartMLA=16.5;PmpRateA=-50
+Amin=1.5;Amax=17.0;FwdAlrmA=19.5;PMaxA=10000
+RevAlrmA=2;Tdec=2;VolpCyl=18.5;CalStrtA=18;ReflPcA=100
+ReflPcB=100;StrtTol=2;TranStps=500;DecVol=3;FRMax=100;ErrVol=.25*VolA
+InitRate=50;ReflFmnA=10;ReflFmnB=10;PmpModeA=1;PmpModeB=1;RateCal=40
+PmpStarA=16.5;RcvStarA=2;PmpStarB=16.5;RcvStarB=2
+
+StkeB=200;VolB=19.5;StartMLB=16.5;PmpRateB=-50
+Bmin=1.5;Bmax=17.0;FwdAlrmB=19.5;PMaxB=10000
+RevAlrmB=2;CalStrtB=18
+ErrVol=.25*VolB
+
+EN

@@ -1,7 +1,7 @@
 NO
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
-Rev=2.12;Version=3.0
+Rev=2.13;Version=3.0;EO 0
 RampA=0;StT2A=0;RstPosA=0;
 MO;CE 2,2;CN -1;MT 1,1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0
 KP 12,12;KD 30,30;KI 0,0;OverLim=0;ZC 0,0;CONTA=0
@@ -108,8 +108,11 @@ JG ,PmpSpdB
 IF LowFlowB=1;HX5;JS#LOSPPB;XQ#ADJSPB,4;ENDIF
 EN;EN
 '
-#CMDERRA
-ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErrA=1;ErrMsgA=100+ErrCode;HX;EN
+#CMDERR
+ZC 0,0;ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErr=1;ErrMsg=100+ErrCode;HX
+Errline=_ED
+EN
+
 #CURPA
 AccumA=0;IncA=0
 #REPEATA;AccumA=AccumA+_ZTA;IncA=IncA+1;WT 4;JP#REPEATA,IncA<AveNo
@@ -130,14 +133,12 @@ IF PcurA>PMaxA
 ENDIF
 EN;EN
 '
-#CMDERRB
-ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErrA=1;ErrMsgB=100+ErrCode;HX;EN
 #CURPB
 AccumB=0;IncB=0
 #REPEATB;AccumB=AccumB+_ZTB;IncB=IncB+1;WT 4;JP#REPEATB,IncB<AveNo
 IF AccumB=0;ZerOffB=0;ELSE; ZerOffB=PzerCntB;ENDIF
 PcurB=((AccumB/IncB)-ZerOffB)/CntpPsiB
-REM Changed max pressure for Halliburotn. Fix when 15ksi code is done.
+
 IF PcurB>(1.1*PRange[Pxdcr])
 	IF DontOpnB=0
 		JS#OpnBin;JS#OpnBout
@@ -145,7 +146,7 @@ IF PcurB>(1.1*PRange[Pxdcr])
 	ENDIF
 ENDIF
 IF PcurB>PMaxB
-	ErrMsgB=13;NewErrA=1
+	ErrMsgB=13;NewErrB=1
     IF PStateB=0
 		JS#STPB
     ENDIF
@@ -314,13 +315,47 @@ JS#ClsAin;JS#ClsAout
 TLA=9.5;TKA=9.8
 EN;EN
 '
-#LIMSWIA
-IF (FindingA=1)|(CycleA=1)
-  IF (_LFA=0)|(_LRA=0);STA;ENDIF
-ELSE
-  IF (_LFA=0)|(_LRA=0);DC 100000000;STA;AMA;DC 2048000;ENDIF
+#LIMSWI
+REM Wait for motion to stop before doing anything
+WT100
+REM Finding limits, return.
+IF (Finding<>1)
+REM Case for A forward----------
+REM Check for cycle, and matching pressure in pump mode.
+  IF (_LFA=0)
+    IF (Cycle<>1)
+      IF (FState=4)|(FState=5)
+        NewErrA=1;Errline=_ED;ErrMsgA=19
+      ELSE
+        NewErrA=1;Errline=_ED;ErrMsgA=20
+      ENDIF
+    ENDIF
+  ENDIF
+REM Case for A reverse-----------
+REM Check for matching pressure in receive mode.
+REM We cycle the other way in volume calibration, 
+REM need to ignore reverse flag as well if Cycle=1
+  IF (_LRA=0)
+    IF Cycle<>1;NewErrA=1;Errline=_ED;ErrMsgA=20;ENDIF
+  ENDIF
+REM Case for B forward---------
+REM Check for cycle and matching pressure in pump mode.
+  IF (_LFB=0)
+    IF (Cycle<>1)
+      IF (FState=1)|(FState=2)
+        NewErrB=1;Errline=_ED;ErrMsgB=19
+      ELSE
+        NewErrB=1;Errline=_ED;ErrMsgB=20
+      ENDIF
+    ENDIF
+  ENDIF
+REM Case for B reverse----------
+REM Check for matching pressure in receive mode.
+  IF (_LRB=0)
+    IF Cycle<>1;NewErrB=1;Errline=_ED;ErrMsgB=20;ENDIF
+  ENDIF
 ENDIF
-EN
+RE
 
 #FNDB
 TLB=2.5;TKB=2.8
@@ -346,14 +381,6 @@ JS#ClsBin;JS#ClsBout
 TLB=9.5;TKB=9.8
 EN;EN
 '
-#LIMSWIB
-IF (FindingB=1)|(CycleB=1)
-  IF (_LFB=0)|(_LRB=0);STB;ENDIF
-ELSE
-  IF (_LFB=0)|(_LRB=0);DC 100000000;STB;AMB;DC 2048000;ENDIF
-ENDIF
-EN
-
 #LOSPPA
 SPlowA=_SPA;SPhighA=SPlowA+2;FracLoA=(@ABS[PmpSpdA]-_SPA)*1000
 FracHiA=2000-FracLoA
