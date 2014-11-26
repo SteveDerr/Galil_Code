@@ -636,7 +636,7 @@ JS#ClsAin;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA
 IF CONTA=1;CONTA=0;StReflA=0;FStateA=0
 'Stop here if called by STRTPRS
 ELSE
-	IF CompErrA=1;ReStpPA=1;ENDIF;'We need to stop pressure loop after this refill
+	IF CompErrA=1;ReStpPA=1;ENDIF
 	IF (ReStpPA=1) | (ReqStpA=1);'we will not continue
 		StReflA=0;FjststrA=0;FStateA=0;PStateA=0;StCylA=0
 	ELSE
@@ -678,7 +678,7 @@ JS#ClsBin;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB
 IF CONTB=1;CONTB=0;StReflB=0;FStateB=0
 'Stop here if called by STRTPRS
 ELSE
-	IF CompErrB=1;ReStpPB=1;ENDIF;'We need to stop pressure loop after this refill
+	IF CompErrB=1;ReStpPB=1;ENDIF
 	IF (ReStpPB=1) | (ReqStpB=1);'we will not continue
 		StReflB=0;FjststrB=0;FStateB=0;PStateB=0;StCylB=0
 	ELSE
