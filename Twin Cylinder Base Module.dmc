@@ -109,7 +109,8 @@ IF LowFlowB=1;HX5;JS#LOSPPB;XQ#ADJSPB,4;ENDIF
 EN;EN
 '
 #CMDERR
-ZC 0,0;ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErr=1;ErrMsg=100+ErrCode;HX
+ZC 0,0;ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErrA=1;ErrMsgA=100+ErrCode
+NewErrB=1;ErrMsgB=100+ErrCode;HX
 Errline=_ED
 EN
 
@@ -319,7 +320,7 @@ EN;EN
 REM Wait for motion to stop before doing anything
 WT100
 REM Finding limits, return.
-IF (Finding<>1)
+IF (FindingA<>1)|(FindingB<>1)
 REM Case for A forward----------
 REM Check for cycle, and matching pressure in pump mode.
   IF (_LFA=0)
