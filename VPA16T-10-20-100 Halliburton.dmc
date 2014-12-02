@@ -109,9 +109,10 @@ IF LowFlowB=1;HX5;JS#LOSPPB;XQ#ADJSPB,4;ENDIF
 EN;EN
 '
 #CMDERR
-ZC 0,0;ST;AM;MO;LineNum=_ED;ErrCode=_TC;NewErrA=1;ErrMsgA=100+ErrCode
-NewErrB=1;ErrMsgB=100+ErrCode;HX
-Errline=_ED
+PStateA=0;PStateB=0;FStateA=0;FStateB=0
+ZC 0,0;AM;MO;LineNum=_ED;ErrCode=_TC;NewErrA=1;ErrMsgA=100+ErrCode
+NewErrB=1;ErrMsgB=100+ErrCode
+Errline=_ED;ST
 EN
 
 #CURPA
@@ -614,6 +615,7 @@ PreadyB=1
 EN
 
 #POSERR
+PStateA=0;PStateB=0;FStateA=0;FStateB=0
 NewErrA=1;NewErrB=1;ErrMsgA=11;ErrMsgB=11;ST;AM;MO;SH;ZS;HX;RE
 '
 #REFILLA
