@@ -101,7 +101,7 @@ REM 2.217 - Test version for now.
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8
 RampA=0;RampB=0;StT2A=0;StT2B=0;RstPosA=0;RstPosB=0
 FlowRA=0;FloVolA=0;ResetMLA=0;ResetMLB=0;PmpSpdA=0;PmpSpdB=0
-ZC 0,0;CONTA=0;CONTB=0;FlowRB=0;FloVolB=0;MLTotA=0;MLtotB=0;MLtot=0
+ZC 0,0;CONTA=0;CONTB=0;FlowRB=0;FloVolB=0;MLtotA=0;MLtotB=0;MLtot=0
 PmodeA=0;PmodeB=0;PSetPt=0;MLcurA=0;MLcurB=0;MLtot=0;MLDispA=0;MLDispB=0
 AC 10000000,10000000;DC 2048000,2048000;SP 1000000,1000000;TarVol=2000000000
 SH;FState=0;Pmode=0;Ramping=0;OEA=0;OEB=0;PcurA=0;PcurB=0;Pcur=0
@@ -1767,13 +1767,13 @@ Aflow=0;Bflow=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0
 PzerCntA=0;PzerCntB=0;Burn=0
 LstCntsA=0;LstCntsB=0
+JS#CONTCFG
 JS#VESPRM
 JS#MECHPRM
 JS#TESTCAL
 JS#INITCF,Frstim>0
 JS#FACTCAL,Frstim=0
 JS#SYSCFG
-JS#CONTCFG
 EN
 #MECHPRM
 RodSize=2;Pxdcr=7
@@ -1810,4 +1810,3 @@ ReflPc=100;StrtTol=2;TranStps=500;DecVol=3;FRMax=100;CompLmt=.25
 InitRate=50;ReflFmn=10;PmpMode=1;PmpStart=18;RcvStart=2;RateCal=40
 RefillRA=100;RefillRB=100;XfrMlMin=.1;PrTrMd=0;ErrVol=CompLmt*VolA
 EN
-

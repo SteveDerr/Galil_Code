@@ -27,13 +27,13 @@ Aflow=0;Bflow=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0
 PzerCntA=0;PzerCntB=0;Burn=0
 LstCntsA=0;LstCntsB=0
+JS#CONTCFG
 JS#VESPRM
 JS#MECHPRM
 JS#TESTCAL
 JS#INITCF,Frstim>0
 JS#FACTCAL,Frstim=0
 JS#SYSCFG
-JS#CONTCFG
 EN
 #MECHPRM
 RodSize=2;Pxdcr=7
