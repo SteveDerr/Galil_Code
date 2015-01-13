@@ -1,0 +1,72 @@
+REM VAP16D-10-20-100 CONFIGURATION - REV 1-23-2013
+REM Config3 Added InVopn=0 to #FACTSET, Added CfgVer
+REM Config4 Added JgSpCal, RateCal
+REM Config8 added #INITCF,#FACTCAL
+REM Config9 Initialize PcurA and PcurB in #FACTSET
+REM Config10 Initialize SloPXfr in #FACTSET and XfrMlMin in #VESPRM init LstCntsA&B
+REM Config11 Added CompLmt variable to allow user to set compressibility limit.
+
+
+#DEFSPD
+JgSpd=(InitRate*CntsPMLA)/60
+JgSpdMn=(ReflFmn*CntsPMLA)/60
+JgSpCal=(RateCal*CntsPMLA)/60
+EN
+
+#FACTSET
+SD 10000000,10000000
+DontOpn=0;CfgVer=11
+MLzeroA=0;MLzeroB=0;MLaccum=0
+MLofstA=0;MLofstB=0
+lpDlay=5
+HiSpdA=0;HiSpdB=0;DSpdA=0;LoSpdA=0;LoSpdB=0;DSpdB=0;RevSpdA=0;RevSpdB=0
+MLlastA=0;MLlastB=0;InVopn=0
+TrnsVol=0;PSetPt=0;ZTAave=0;ZTBave=0
+RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=250;tdla=4
+Aflow=0;Bflow=0;RampRate=0;TarPres=0
+RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0
+PzerCntA=0;PzerCntB=0;Burn=0
+LstCntsA=0;LstCntsB=0
+JS#VESPRM
+JS#MECHPRM
+JS#TESTCAL
+JS#INITCF,Frstim>0
+JS#FACTCAL,Frstim=0
+JS#SYSCFG
+JS#CONTCFG
+EN
+#MECHPRM
+RodSize=2;Pxdcr=7
+AQ 1,4;AQ 2,4
+BSLead = 5
+ECtsPR = 20000
+MotorRed = 20
+TotStke = 200
+Margin = 5
+EN
+#FACTCAL
+MLPmmA=MLPmmAf;MLPmmB=MLPmmBf;PfsVA=PfsVAf;PfsVB=PfsVBf
+EN
+#INITCF
+PfsVA=5.000;PfsVB=5.000;PfsVAf=5.000;PfsVBf=5.000
+MLPmmA=(3.14159*RodDia[RodSize]*RodDia[RodSize])/4000
+MLPmmB=(3.14159*RodDia[RodSize]*RodDia[RodSize])/4000
+MLPmmAf=MLPmmA;MLPmmBf=MLPmmB
+EN
+#SYSCFG
+CntsPmm=(ECtsPR*MotorRed)/BSLead
+JgSpdMx=1900000
+JS#SETSCAL
+JS#DEFSPD
+JS#VSCALE
+BV;BN
+EN
+
+#VESPRM
+StkeA=200;StkeB=200;VolA=19.5;VolB=19.5;StartMLA=18;StartMLB=18;PmpRate=-50
+Amin=1.5;Bmin=1.5;Amax=18.5;Bmax=18.5;FwdAlrmA=19.5;FwdAlrmB=19.5;PMax=10000
+RevAlrmA=2;RevAlrmB=2;Tdec=2;VolpCyl=18.5;CalStrtA=18;CalStrtB=18
+ReflPc=100;StrtTol=2;TranStps=500;DecVol=3;FRMax=100;CompLmt=.25
+InitRate=50;ReflFmn=10;PmpMode=1;PmpStart=18;RcvStart=2;RateCal=40
+RefillRA=100;RefillRB=100;XfrMlMin=.1;PrTrMd=0;ErrVol=CompLmt*VolA
+EN
