@@ -204,7 +204,11 @@ EN
 WT 25
 JP#STPBOTH,MLtot>=TarVol
 JS#CHGRATE,RateChng>0
-JP#LOOP1,MLcurA>TrnsVol
+IF (PmpRate<0)
+	JP#LOOP1,MLcurA>TrnsVol
+ELSE
+	JP#LOOP1,MLcurA<(VolpCyl-TrnsVol)
+ENDIF
 JS#TrAtoB,ReqStp=0
 EN;EN
 
@@ -213,7 +217,11 @@ EN;EN
 WT 25
 JP#STPBOTH,MLtot>=TarVol
 JS#CHGRATE,RateChng>0
-JP#LOOP3,MLcurB>TrnsVol
+IF (PmpRate<0)
+	JP#LOOP3,MLcurB>TrnsVol
+ELSE
+	JP#LOOP3,MLcurB<(VolpCyl-TrnsVol)
+ENDIF
 JS#TrBtoA,ReqStp=0
 EN;EN
 
@@ -223,18 +231,26 @@ JP#CHGRATE,(FState=2)
 JP#CHGRATE,(FState=5)
 IF FState=1
   JS#VCALCSA
-  IF MLcurA<TrnsVol;RateChng=1;JP#NOCHNG;ENDIF
+  IF (PmpRate<0)
+	IF MLcurA<TrnsVol;RateChng=1;JP#NOCHNG;ENDIF
+  ELSE
+	IF MLcurA>(VolpCyl-TrnsVol);RateChng=1;JP#NOCHNG;ENDIF
+  ENDIF
   PmpSpdA=(PmpRate*CntsPMLA)/60
   JG PmpSpdA
   IF LowFlow=1;HX4;JS#LOSPPA;XQ#ADJSPA,4;ENDIF
 ENDIF
 IF FState=3
   JS#VCALCSB
-  IF MLcurB<TrnsVol;RateChng=1;JP#NOCHNG;ENDIF
+  IF (PmpRate<0)
+	IF MLcurA<TrnsVol;RateChng=1;JP#NOCHNG;ENDIF
+  ELSE
+	IF MLcurA>(VolpCyl-TrnsVol);RateChng=1;JP#NOCHNG;ENDIF
+  ENDIF
   PmpSpdB=(PmpRate*CntsPMLB)/60;PmpSpdA=(PmpRate*CntsPMLA)/60
   JG ,PmpSpdB
   IF LowFlow=1;HX4;JS#LOSPPB;XQ#ADJSPB,4;ENDIF
-  RevSpdA=-PmpSpdA*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
+  RevSpdA=@ABS[PmpSpdA]*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
   IF RevSpdA>JgSpdMx;RevSpdA=JgSpdMx;ENDIF
   IF RevSpdA<JgSpdMn;RevSpdA=JgSpdMn;ENDIF
   IF Transit>0;JP#NOCHNG;ENDIF
@@ -242,18 +258,26 @@ IF FState=3
 ENDIF
 IF FState=4
   JS#VCALCSB
-  IF MLcurB<TrnsVol;RateChng=1;JP#NOCHNG;ENDIF
+  IF (PmpRate<0)
+	IF MLcurA<TrnsVol;RateChng=1;JP#NOCHNG;ENDIF
+  ELSE
+	IF MLcurA>(VolpCyl-TrnsVol);RateChng=1;JP#NOCHNG;ENDIF
+  ENDIF
   PmpSpdB=(PmpRate*CntsPMLB)/60
   JG ,PmpSpdB
   IF LowFlow=1;HX4;JS#LOSPPB;XQ#ADJSPB,4;ENDIF
 ENDIF
 IF FState=6
   JS#VCALCSA
-  IF MLcurA<TrnsVol;RateChng=1;JP#NOCHNG;ENDIF
+  IF (PmpRate<0)
+	IF MLcurA<TrnsVol;RateChng=1;JP#NOCHNG;ENDIF
+  ELSE
+	IF MLcurA>(VolpCyl-TrnsVol);RateChng=1;JP#NOCHNG;ENDIF
+  ENDIF
   PmpSpdB=(PmpRate*CntsPMLB)/60;PmpSpdA=(PmpRate*CntsPMLA)/60
   JG PmpSpdA
   IF LowFlow=1;HX4;JS#LOSPPA;XQ#ADJSPA,4;ENDIF
-  RevSpdB=-PmpSpdB*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
+  RevSpdB=@ABS[PmpSpdB]*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
   IF RevSpdB>JgSpdMx;RevSpdB=JgSpdMx;ENDIF
   IF RevSpdB<JgSpdMn;RevSpdB=JgSpdMn;ENDIF
   IF Transit>0;JP#NOCHNG;ENDIF
@@ -864,9 +888,11 @@ OEB=0;ZRB=ZTBave+30;ZCB=1;PmodeB=1
 EN
 
 #SETPFBA
-ZCA=0;PmodeA=0;'OEA=3;EN
+ZCA=0;PmodeA=0;'OEA=3;
+EN
 #SETPFBB
-ZCB=0;PmodeB=0;'OEB=3;EN
+ZCB=0;PmodeB=0;'OEB=3;
+EN
 #SETPST
 IF (StCylA=3)&(Aflow=1)
   IF StCylB=2
@@ -896,7 +922,7 @@ ENDIF
 IF (Aflow<>1) & (Bflow<>1)
   PState=7
 ENDIF
-EN;EN;EN
+EN
 
 #SETZR
 SPcntsA=(PSetPt*CntpPsiA)+PzerCntA;SPcntsB=(PSetPt*CntpPsiB)+PzerCntB
@@ -980,11 +1006,11 @@ PState=7;XQ#MASTPLP,4;EN
 Transit=0
 IF (StReflA=1)|(StReflB=1);JP#STRTFLO;ENDIF
 ReqStp=0;Fjststrd=1;Paused=0;PState=0;ReStpP=0;ta2b=0;tb2a=0;CompErr=0
-IF ((StartMLB-MLcurB) < StrtTol)
+IF ((@ABS[StartMLB-MLcurB]) < StrtTol)
   StReflB=0;Fjststrd=0
   JP#STARTA
 ELSE
-  IF ((StartMLA-MLcurA) <StrtTol)
+  IF ((@ABS[StartMLA-MLcurA]) <StrtTol)
     StReflA=0;Fjststrd=0
     JP#STARTB
   ELSE
@@ -1285,8 +1311,14 @@ JG ,0;BGB;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;JS#OpnBout
 AT -lpDlay
 HiSpdA=HiSpdA-DSpdA
 LoSpdB=LoSpdB+DSpdB
-IF (HiSpdA>0)
-HiSpdA=0;LoSpdB=PmpSpdB;Done=1
+IF (PmpRate<0)
+	IF (HiSpdA>0)
+		HiSpdA=0;LoSpdB=PmpSpdB;Done=1
+	ENDIF
+ELSE
+	IF (HiSpdA<0)
+		HiSpdA=0;LoSpdB=PmpSpdB;Done=1
+	ENDIF
 ENDIF
 JG HiSpdA,LoSpdB
 IF Bready=1;Bready=0;SB 4;ENDIF
@@ -1318,8 +1350,14 @@ JG 0;BGA;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;JS#OpnAout
 AT -lpDlay
 HiSpdB=HiSpdB-DSpdB
 LoSpdA=LoSpdA+DSpdA
-IF (HiSpdB>0)
-HiSpdB=0;LoSpdA=PmpSpdA;DoneB=1
+IF (PmpRate<0)
+	IF (HiSpdB>0)
+		HiSpdB=0;LoSpdA=PmpSpdA;DoneB=1
+	ENDIF
+ELSE	
+	IF (HiSpdB<0)
+		HiSpdB=0;LoSpdA=PmpSpdA;DoneB=1
+	ENDIF
 ENDIF
 JG LoSpdA,HiSpdB
 IF Aready=1;Aready=0;SB 2;ENDIF
@@ -1616,9 +1654,7 @@ EN
 'DecVol=(-PmpRate/120)*Tdec
 PmpSpdA=(PmpRate*CntsPMLA)/60
 IF @ABS[PmpSpdA]<2000;LowFlow=1;ELSE;LowFlow=0;IF _XQ4>0;HX4;ENDIF;ENDIF
-TrnsVol= StartMLA-VolpCyl+DecVol
-IF TrnsVol <(DecVol+0.5);TrnsVol=DecVol+0.5;ENDIF
-IF TrnsVol>(StartMLA+1.00);TrnsVol=(StartMLA+1.00);ENDIF
+TrnsVol=3.5
 RevSpdA=-PmpSpdA*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
 IF RevSpdA>JgSpdMx;RevSpdA=JgSpdMx;ENDIF
 IF RevSpdA<JgSpdMn;RevSpdA=JgSpdMn;ENDIF
@@ -1629,9 +1665,7 @@ EN
 'DecVol=(-PmpRate/120)*Tdec
 PmpSpdB=(PmpRate*CntsPMLB)/60
 IF @ABS[PmpSpdB]<2000;LowFlow=1;ELSE;LowFlow=0;IF _XQ4>0;HX4;ENDIF;ENDIF
-TrnsVol= StartMLB-VolpCyl+DecVol
-IF TrnsVol <(DecVol+0.5);TrnsVol=DecVol+0.5;ENDIF
-IF TrnsVol>(StartMLB+1.00);TrnsVol=(StartMLB+1.00);ENDIF
+TrnsVol=3.5
 RevSpdB=-PmpSpdB*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
 IF RevSpdB>JgSpdMx;RevSpdB=JgSpdMx;ENDIF
 IF RevSpdB<JgSpdMn;RevSpdB=JgSpdMn;ENDIF
