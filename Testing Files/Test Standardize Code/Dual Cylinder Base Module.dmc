@@ -1655,7 +1655,7 @@ EN
 PmpSpdA=(PmpRate*CntsPMLA)/60
 IF @ABS[PmpSpdA]<2000;LowFlow=1;ELSE;LowFlow=0;IF _XQ4>0;HX4;ENDIF;ENDIF
 TrnsVol=3.5
-RevSpdA=-PmpSpdA*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
+RevSpdA=@ABS[PmpSpdA]*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
 IF RevSpdA>JgSpdMx;RevSpdA=JgSpdMx;ENDIF
 IF RevSpdA<JgSpdMn;RevSpdA=JgSpdMn;ENDIF
 EN
@@ -1666,7 +1666,7 @@ EN
 PmpSpdB=(PmpRate*CntsPMLB)/60
 IF @ABS[PmpSpdB]<2000;LowFlow=1;ELSE;LowFlow=0;IF _XQ4>0;HX4;ENDIF;ENDIF
 TrnsVol=3.5
-RevSpdB=-PmpSpdB*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
+RevSpdB=@ABS[PmpSpdB]*(VolpCyl/(.75*(VolpCyl-(2*DecVol))))
 IF RevSpdB>JgSpdMx;RevSpdB=JgSpdMx;ENDIF
 IF RevSpdB<JgSpdMn;RevSpdB=JgSpdMn;ENDIF
 EN
