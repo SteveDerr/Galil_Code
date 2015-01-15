@@ -202,7 +202,11 @@ EN
 #CHKMLA
 #LOOP1
 WT 25
-JP#STPBOTH,MLtot>=TarVol
+IF PmpMode=1
+	JP#STPBOTH,MLtot>=TarVol
+ELSE
+	JP#STPBOTH,MLtot<=TarVol
+ENDIF
 JS#CHGRATE,RateChng>0
 IF (PmpRate<0)
 	JP#LOOP1,MLcurA>TrnsVol
@@ -215,7 +219,11 @@ EN;EN
 #CHKMLB
 #LOOP3
 WT 25
-JP#STPBOTH,MLtot>=TarVol
+IF PmpMode=1
+	JP#STPBOTH,MLtot>=TarVol
+ELSE
+	JP#STPBOTH,MLtot<=TarVol
+ENDIF
 JS#CHGRATE,RateChng>0
 IF (PmpRate<0)
 	JP#LOOP3,MLcurB>TrnsVol
@@ -1322,9 +1330,16 @@ ELSE
 ENDIF
 JG HiSpdA,LoSpdB
 IF Bready=1;Bready=0;SB 4;ENDIF
-IF (MLtot>=TarVol)|(Paused=1)
-  JG 0,0;Done=1;XdcrCur=2;Paused=1;ta2b=1;ReqStp=1;HX6;HX4
-  JP#REFILLA
+IF PmpMode=1
+	IF (MLtot>=TarVol)|(Paused=1)
+		JG 0,0;Done=1;XdcrCur=2;Paused=1;ta2b=1;ReqStp=1;HX6;HX4
+		JP#REFILLA
+	ENDIF
+ELSE
+	IF (MLtot<=TarVol)|(Paused=1)
+		JG 0,0;Done=1;XdcrCur=2;Paused=1;ta2b=1;ReqStp=1;HX6;HX4
+		JP#REFILLA
+	ENDIF
 ENDIF
 JP#Loop2,Done=0
 FState=3;XdcrCur=2
@@ -1361,10 +1376,18 @@ ELSE
 ENDIF
 JG LoSpdA,HiSpdB
 IF Aready=1;Aready=0;SB 2;ENDIF
-IF (MLtot>=TarVol)|(Paused=1)
-  JG 0,0;Done=1;XdcrCur=1;Paused=1;tb2a=1;ReqStp=1;HX2;HX4
-  JP#REFILLB
+IF PmpMode=1
+	IF (MLtot>=TarVol)|(Paused=1)
+		JG 0,0;Done=1;XdcrCur=1;Paused=1;tb2a=1;ReqStp=1;HX2;HX4
+		JP#REFILLB
+	ENDIF
+ELSE
+	IF (MLtot<=TarVol)|(Paused=1)
+		JG 0,0;Done=1;XdcrCur=1;Paused=1;tb2a=1;ReqStp=1;HX2;HX4
+		JP#REFILLB
+	ENDIF
 ENDIF
+
 JP#Loop4,DoneB=0
 FState=6;XdcrCur=1
 IF LowFlow=1;JS#LOSPPA;XQ#ADJSPA,4;ENDIF
