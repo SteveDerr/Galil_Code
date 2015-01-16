@@ -1013,14 +1013,29 @@ JP#DAQLOOP;EN
 'Pmode=1
 PState=7;XQ#MASTPLP,4;EN
 #STRTFLO
-Transit=0
+Transit=0;AInStrt=0;BInStrt=0
 IF (StReflA=1)|(StReflB=1);JP#STRTFLO;ENDIF
 ReqStp=0;Fjststrd=1;Paused=0;PState=0;ReStpP=0;ta2b=0;tb2a=0;CompErr=0
-IF ((@ABS[StartMLB-MLcurB]) < StrtTol)
+IF (PmpMode=1)
+	IF (StartMLB-MLcurB) < StrtTol
+		BInStrt=1
+	ENDIF
+	IF (StartMLA-MLcurA) < StrtTol
+		AInStrt=1
+	ENDIF
+ELSE
+	IF (StartMLB-MLcurB) > StrtTol
+		BInStrt=1
+	ENDIF
+	IF (StartMLA-MLcurA) > StrtTol
+		AInStrt=1
+	ENDIF
+ENDIF
+IF (BInStrt=1)
   StReflB=0;Fjststrd=0
   JP#STARTA
 ELSE
-  IF ((@ABS[StartMLA-MLcurA]) <StrtTol)
+  IF (AInStrt=1)
     StReflA=0;Fjststrd=0
     JP#STARTB
   ELSE
