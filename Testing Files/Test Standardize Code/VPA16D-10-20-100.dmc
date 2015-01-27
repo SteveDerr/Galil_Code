@@ -344,13 +344,13 @@ REM Add if statement to avoid div by zero
 IF TcurA-TlastA<>0;SPcurA=((LstCntsA-CurCntsA)/(TcurA-TlastA))/SpdFacA;ENDIF
 LstCntsA=CurCntsA;TlastA=TcurA;
 IF ((FState<>3)&(PState<>3))
-IF Aflow= 1;MLDispA=MLzeroA-MLcurA;ENDIF
-MLtot=MLDispA+MLDispB+MLtotA+MLtotB-MLofstA-MLofstB
+	IF ((Aflow=1) & (Cycle=0) & (Finding=0));MLDispA=MLzeroA-MLcurA;ENDIF
+	MLtot=MLDispA+MLDispB+MLtotA+MLtotB-MLofstA-MLofstB
 ENDIF
 IF (Finding=0)&(Cycle=0)  
- IF (MLcurA<(.03*VolA))|(MLcurA>(.97*VolA));TLA=2.5;TKA=2.8
- ELSE;TLA=9.5;TKA=9.8
- ENDIF
+	IF (MLcurA<(.03*VolA))|(MLcurA>(.97*VolA));TLA=2.5;TKA=2.8
+	ELSE;TLA=9.5;TKA=9.8
+	ENDIF
 ENDIF
 REM Check to see if we are in range of slow transfer limits
 IF ((MLcurA>XfrMlMin) & (MLcurA<(VolA-XfrMlMin)))
@@ -367,13 +367,13 @@ REM Add if statement to avoid div by zero
 IF TcurB-TlastB<>0;SPcurB=((LstCntsB-CurCntsB)/(TcurB-TlastB))/SpdFacB;ENDIF
 LstCntsB=CurCntsB;TlastB=TcurB
 IF ((FState<>6)&(PState<>6))
-IF Bflow=1;MLDispB=MLzeroB-MLcurB;ENDIF
-MLtot=MLDispA+MLDispB+MLtotA+MLtotB-MLofstA-MLofstB
+	IF ((Bflow=1) & (Cycle=0) & (Finding=0));MLDispB=MLzeroB-MLcurB;ENDIF
+	MLtot=MLDispA+MLDispB+MLtotA+MLtotB-MLofstA-MLofstB
 ENDIF
 IF (Finding=0)&(Cycle=0)  
- IF (MLcurB<(.03*VolB))|(MLcurB>(.97*VolB));TLB=2.5;TKB=2.8
- ELSE;TLB=9.5;TKB=9.8
- ENDIF
+	IF (MLcurB<(.03*VolB))|(MLcurB>(.97*VolB));TLB=2.5;TKB=2.8
+	ELSE;TLB=9.5;TKB=9.8
+	ENDIF
 ENDIF
 REM Check to see if we are in range of slow transfer limits
 IF ((MLcurB>XfrMlMin) & (MLcurB<(VolB-XfrMlMin)))

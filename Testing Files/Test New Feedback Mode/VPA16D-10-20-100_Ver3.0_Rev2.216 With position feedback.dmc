@@ -207,18 +207,18 @@ JS#TrBtoA,ReqStp=0
 EN;EN
 
 #ECHKMLA
-#LOOP1
+#LOOP4
 WT 25
 JS#CHGRATE,RateChng>0
-JP#LOOP1,(MLcurA>Amin)&(MLcurA<Amax)
+JP#LOOP4,(MLcurA>Amin)&(MLcurA<Amax)
 JS#ETrAtoB,ReqStp=0
 EN;EN
 
 #ECHKMLB
-#LOOP3
+#LOOP5
 WT 25
 JS#CHGRATE,RateChng>0
-JP#LOOP3,(MLcurB>Bmin)&(MLcurB<Bmax)
+JP#LOOP5,(MLcurB>Bmin)&(MLcurB<Bmax)
 JS#ETrBtoA,ReqStp=0
 EN;EN
 
@@ -987,9 +987,9 @@ JS#AACTIV
 JS#VCALCSA
 WT 200
 JG PmpSpdA;BGA
-#FINA
-JP#FINA,_XQ2>0
-JP#FINA,_XQ6>0
+#FINA2
+JP#FINA2,_XQ2>0
+JP#FINA2,_XQ6>0
 XQ#ECHKMLA,2;XQ#TRKB2A,6
 EN;EN
 
@@ -999,13 +999,13 @@ JS#BACTIV
 JS#VCALCSB
 WT 200
 JG ,PmpSpdB;BGB
-#FINB
-JP#FINB,_XQ2>0
-JP#FINB,_XQ6>0
+#FINB2
+JP#FINB2,_XQ2>0
+JP#FINB2,_XQ6>0
 XQ#ECHKMLB,6;XQ#TRKA2B,2
 EN;EN
 
-#EXTPIDLP
+#EXTPIDL
 AT 0
 REM $$$ PID loop for external signal.
 #PIDLP
@@ -1014,9 +1014,16 @@ Iterm=Iterm+Pterm
 PmpRate=((Pterm*ExtP)+((Iterm*ExtI))/10)
 IF PmpRate<-100;PmpRate=-100;ENDIF
 IF PmpRate>100;PmpRate=100;ENDIF
-JG PmpRate
+IF (EState=1) | (EState=6)
+	PmpSpdA=(PmpRate*CntsPMLA)/60
+	JG PmpSpdA
+ENDIF
+IF (EState=3) | (EState=4)
+	PmpSpdB=(PmpRate*CntsPMLB)/60
+	JG ,PmpSpdB	
+ENDIF
 AT -10
-JP#PIDLP, Emode>1
+JP#PIDLP, Emode>0
 STA;STB
 REM $$$ KIP values need to be set back here.
 EN;EN
@@ -1091,14 +1098,15 @@ ELSE
 ENDIF
 EN;EN;EN
 
-#STRTECTL
+#STRTECT
 REM $$$ This is the new start function.
 Transit=0
-IF (StReflA=1)|(StReflB=1);JP#STRTECTL;ENDIF
+IF (StReflA=1)|(StReflB=1);JP#STRTECT;ENDIF
 ReqStp=0;Paused=0;PState=0;ReStpP=0;ta2b=0;tb2a=0;CompErr=0
 REM 1/22 Use pressure mode start logic to determine if 
 REM cylinders are in range.
 REM B is at Start 
+RevSpdA=(ReflPc*CntsPMLA)/60;RevSpdB=(ReflPc*CntsPMLB)/60
 IF ((@ABS[StartMLB-MLcurB]) <StrtTol)
   StReflB=0 
 REM A is at Start
@@ -1135,10 +1143,10 @@ IF ReflB=1
     StReflB=1
     XQ#REFILLB,6;StCylB=1
 ENDIF
-#WT4AB
-JP#WT4AB,StReflA>0  
-JP#WT4AB,StReflB>0 
-Emode=1;XQ#EXTPIDLP,3
+#WT4AB2
+JP#WT4AB2,StReflA>0  
+JP#WT4AB2,StReflB>0 
+Emode=1;XQ#EXTPIDL,3
 ReStpP=0
 IF Afirst=1
 	JP#STARTEA
@@ -1490,8 +1498,8 @@ JG 0, PmpSpdB
 IF Bready=1;Bready=0;SB 4;ENDIF
 EState=3;XdcrCur=2
 IF LowFlow=1;JS#LOSPPB;XQ#ADJSPB,4;ENDIF
-#WAIT4B
-JP#WAIT4B,(_XQ6>0)
+#WAIT4B2
+JP#WAIT4B2,(_XQ6>0)
 XQ#ECHKMLB,6
 JS#REFILLA
 EN;EN
@@ -1507,8 +1515,8 @@ JG PmpSpdA,0
 IF Aready=1;Aready=0;SB 2;ENDIF
 EState=6;XdcrCur=1
 IF LowFlow=1;JS#LOSPPA;XQ#ADJSPA,4;ENDIF
-#WAIT4A
-JP#WAIT4A,(_XQ2>0)
+#WAIT4A2
+JP#WAIT4A2,(_XQ2>0)
 XQ#ECHKMLA,2
 JS#REFILLB
 EN;EN
