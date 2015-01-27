@@ -112,7 +112,7 @@ InitDone=0;CyclDone=0;Transit=0;PTempA=0;PTempB=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;FracLo=0;LowFlow=0;CompErr=0;Finding=0
 ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0;ErrCode=0
 DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0;LineNum=0
-FlowingA=0;FlowingB=0;Emode=0
+FlowingA=0;FlowingB=0;Emode=0;KPstor=_KPA, KIstor=_KIA, KDstor=_KDA
 JS#STRTDAQ;JS#ZEROOF;
 EN
 
@@ -210,7 +210,6 @@ EN;EN
 #ECHKMLA
 #LOOP4
 WT 25
-JS#CHGRATE,RateChng>0
 JP#LOOP4,(MLcurA>Amin)&(MLcurA<Amax)
 JS#ETrAtoB,ReqStp=0
 EN;EN
@@ -218,7 +217,6 @@ EN;EN
 #ECHKMLB
 #LOOP5
 WT 25
-JS#CHGRATE,RateChng>0
 JP#LOOP5,(MLcurB>Bmin)&(MLcurB<Bmax)
 JS#ETrBtoA,ReqStp=0
 EN;EN
@@ -985,48 +983,44 @@ EN;EN
 #STARTEA
 EState=1;XdcrCur=1
 JS#AACTIV
-JS#VCALCSA
-WT 200
-JG PmpSpdA;BGA
 #FINA2
 JP#FINA2,_XQ2>0
 JP#FINA2,_XQ6>0
+KD 0;KI 0;KD 0;OEA=0;OFready=1
 XQ#ECHKMLA,2;XQ#TRKB2A,6
 EN;EN
 
 #STARTEB
 EState=4;XdcrCur=2
 JS#BACTIV
-JS#VCALCSB
-WT 200
-JG ,PmpSpdB;BGB
 #FINB2
 JP#FINB2,_XQ2>0
 JP#FINB2,_XQ6>0
+KD ,0;KI ,0;KD ,0;OEA=,0;OFready=1
 XQ#ECHKMLB,6;XQ#TRKA2B,2
 EN;EN
 
 #EXTPIDL
 AT 0
+JP#EXTPIDL,OFready=0
+REM Wait until OFready flag is set.
 REM $$$ PID loop for external signal.
 #PIDLP
 Pterm=Ydes-Ysig
 Iterm=Iterm+Pterm
-PmpRate=((Pterm*ExtP)+((Iterm*ExtI))/10)
-IF PmpRate<-100;PmpRate=-100;ENDIF
-IF PmpRate>100;PmpRate=100;ENDIF
+OFSetPt=((Pterm*ExtP)+((Iterm*ExtI))/10)
+IF OFSetPt<-10;OFSetPt=-10;ENDIF
+IF OFSetPt>10;OFSetPt=10;ENDIF
 IF (EState=1) | (EState=6)
-	PmpSpdA=(PmpRate*CntsPMLA)/60
-	JG PmpSpdA
+	OF OFSetPt
 ENDIF
 IF (EState=3) | (EState=4)
-	PmpSpdB=(PmpRate*CntsPMLB)/60
-	JG ,PmpSpdB	
+	OF ,OFSetPt
 ENDIF
 AT -10
 JP#PIDLP, Emode>0
-STA;STB
-REM $$$ KIP values need to be set back here.
+OF 0,0;KP KPstor, KPstor;KI KIstor, KIstor;KD KDstor, KDstor
+OE 1, 1;STA;STB
 EN;EN
 #STPBOTH
 ReqStp=1;Emode=0
@@ -1101,7 +1095,7 @@ EN;EN;EN
 
 #STRTECT
 REM $$$ This is the new start function.
-Transit=0
+Transit=0;OFready=0
 IF (StReflA=1)|(StReflB=1);JP#STRTECT;ENDIF
 ReqStp=0;Paused=0;PState=0;ReStpP=0;ta2b=0;tb2a=0;CompErr=0
 REM 1/22 Use pressure mode start logic to determine if 
@@ -1493,14 +1487,15 @@ Transit=1;HX4
 IF StReflB>0;JG 0;ENDIF
 JP#ETrAtoB,StReflB>0
 EState=2;IF _XQ6>0;tb2a=1;ENDIF
-Bready=1;JS#VCALCSB
+OF 0;KP KPstor;KI KIstor;KD KDstor;OEB=1
 JG ,0;BGB;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;JS#OpnBout
-JG 0, PmpSpdB
-IF Bready=1;Bready=0;SB 4;ENDIF
-EState=3;XdcrCur=2
-IF LowFlow=1;JS#LOSPPB;XQ#ADJSPB,4;ENDIF
+JG 0
+SB 4
+XdcrCur=2
 #WAIT4B2
 JP#WAIT4B2,(_XQ6>0)
+KP ,0;KI ,0;KD ,0;OEB=0
+EState=3
 XQ#ECHKMLB,6
 JS#REFILLA
 EN;EN
@@ -1510,14 +1505,15 @@ Transit=1;HX4
 IF StReflA>0;JG ,0;ENDIF
 JP#ETrBtoA,StReflA>0
 EState=5;IF _XQ2>0;ta2b=1;ENDIF
-Aready=1;JS#VCALCSA
+OF,0;KP,KPstor;KI,KIstor;KD,KDstor;OEB=1
 JG 0;BGA;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;JS#OpnAout
-JG PmpSpdA,0
-IF Aready=1;Aready=0;SB 2;ENDIF
-EState=6;XdcrCur=1
-IF LowFlow=1;JS#LOSPPA;XQ#ADJSPA,4;ENDIF
+JG ,0
+SB 2
+XdcrCur=1
 #WAIT4A2
 JP#WAIT4A2,(_XQ2>0)
+KP 0;KI 0;KD 0;OEA=0
+EState=6
 XQ#ECHKMLA,2
 JS#REFILLB
 EN;EN
@@ -1962,7 +1958,7 @@ Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=250;tdla=4;KP 4,4;KD 30,30;KI 0,0
 Aflow=0;Bflow=0;PfiltA=0;PfiltB=0;PlastA=0;PlastB=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
 OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
-LstCntsA=0;LstCntsB=0;ExtP=5;ExtI=.01;ExtD=0;Ydes=5;Ysig=0
+LstCntsA=0;LstCntsB=0;ExtP=1;ExtI=.01;ExtD=0;Ydes=5;Ysig=0
 JS#VESPRM
 JS#MECHPRM
 JS#TESTCAL
