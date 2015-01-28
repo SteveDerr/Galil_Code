@@ -112,7 +112,7 @@ InitDone=0;CyclDone=0;Transit=0;PTempA=0;PTempB=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;FracLo=0;LowFlow=0;CompErr=0;Finding=0
 ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0;ErrCode=0
 DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0;LineNum=0
-FlowingA=0;FlowingB=0;Emode=0;KPstor=_KPA, KIstor=_KIA, KDstor=_KDA
+FlowingA=0;FlowingB=0;Emode=0;KPstor=_KPA;KIstor=_KIA;KDstor=_KDA
 JS#STRTDAQ;JS#ZEROOF;
 EN
 
@@ -546,7 +546,7 @@ REM Custom limit switch loop for pressure mode
 REM Case for A forward
 REM Check for matching pressure in pump mode.
 IF (_LFA=0)
-  ZCA=0
+  ZCA=0;JS#SETFBMD(0,0)
   IF (PmpMode=1)&((PState=4)|(PState=5))
       NewErr=1;Errline=_ED;ErrMsg=19
   ELSE
@@ -558,7 +558,7 @@ ENDIF
 REM Case for A reverse
 REM Check for matching pressure in receive mode
 IF (_LRA=0)
-  ZCA=0
+  ZCA=0;JS#SETFBMD(0,0)
   IF (PmpMode=0)&((PState=4)|(PState=5))
     NewErr=1;Errline=_ED;ErrMsg=19
   ELSE
@@ -570,7 +570,7 @@ ENDIF
 REM Case for B forward
 REM Check for matching pressure in pump mode.
 IF(_LFB=0)
-  ZCB=0
+  ZCB=0:JS#SETFBMD(1,0)
   IF (PmpMode=1)&((PState=1)|(PState=2))
       NewErr=1;Errline=_ED;ErrMsg=19
   ELSE
@@ -582,7 +582,7 @@ ENDIF
 REM Case for B reverse
 REM Check for matching pressure in receive mode
 IF(_LRB=0)
-  ZCB=0
+  ZCB=0;JS#SETFBMD(1,0)
   IF (PmpMode=0)&((PState=1)|(PState=2))
     NewErr=1;Errline=_ED;ErrMsg=19
   ELSE
@@ -722,8 +722,10 @@ Pready=1
 EN
 
 #POSERR
-PState=0;FState=0;EState=0
-NewErr=1;Errline=_ED;ErrMsg=11;ST;AM;MO;SH;ZS;HX
+IF EState=0
+	PState=0;FState=0
+	NewErr=1;Errline=_ED;ErrMsg=11;ST;AM;MO;SH;ZS;HX
+ENDIF
 RE
 
 #REFILLA
@@ -753,7 +755,7 @@ REM We need to stop pressure loop after this refill
 	IF CompErr=1;ReStpP=1;ENDIF 
 REM we will not continue
 	IF (ReStpP=1) | (ReqStp=1)
-		StReflA=0;Fjststrd=0;FState=0;PState=0;StCylA=0;EState=0
+		StReflA=0;Fjststrd=0;FState=0;PState=0;StCylA=0;EState=0;Ejststrd=0
 	ELSE
 		IF PState>0
 			StReflA=0
@@ -770,12 +772,11 @@ REM we will not continue
 				ENDIF
 			ELSE
 				EState=4
-				IF (Paused=0) & (ReqStp=0)&(Fjststrd=0)
+				IF (Paused=0) & (ReqStp=0)&(Ejststrd=0)
 					StReflA=0
 					JP#TRKA2B
 				ELSE
 					StReflA=0
-					Fjststrd=0
 				ENDIF
 			ENDIF				
 		ENDIF
@@ -807,7 +808,7 @@ REM We need to stop pressure loop after this refill
 	IF CompErr=1;ReStpP=1;ENDIF 
 REM we will not continue
 	IF (ReStpP=1) | (ReqStp=1)
-		StReflB=0;Fjststrd=0;FState=0;PState=0;EState=0;StCylB=0
+		StReflB=0;Fjststrd=0;FState=0;PState=0;EState=0;StCylB=0;Ejststrd=0
 	ELSE
 		IF PState>0
 			StReflB=0
@@ -824,12 +825,11 @@ REM we will not continue
 				ENDIF
 			ELSE
 				EState=1
-				IF (Paused=0) & (ReqStp=0)&(Fjststrd=0)
+				IF (Paused=0) & (ReqStp=0)&(Ejststrd=0)
 					StReflB=0
 					JP#TRKB2A
 				ELSE
 					StReflB=0
-					Fjststrd=0
 				ENDIF
 			ENDIF
 		ENDIF
@@ -986,7 +986,8 @@ JS#AACTIV
 #FINA2
 JP#FINA2,_XQ2>0
 JP#FINA2,_XQ6>0
-KD 0;KI 0;KD 0;OEA=0;OFready=1
+JS#SETFBMD(0,1)
+OFready=1
 XQ#ECHKMLA,2;XQ#TRKB2A,6
 EN;EN
 
@@ -996,7 +997,8 @@ JS#BACTIV
 #FINB2
 JP#FINB2,_XQ2>0
 JP#FINB2,_XQ6>0
-KD ,0;KI ,0;KD ,0;OEA=,0;OFready=1
+JS#SETFBMD(1,1)
+OFready=1
 XQ#ECHKMLB,6;XQ#TRKA2B,2
 EN;EN
 
@@ -1019,8 +1021,10 @@ IF (EState=3) | (EState=4)
 ENDIF
 AT -10
 JP#PIDLP, Emode>0
-OF 0,0;KP KPstor, KPstor;KI KIstor, KIstor;KD KDstor, KDstor
-OE 1, 1;STA;STB
+JS#SETFBMD(0,0)
+JS#SETFBMD(1,0)
+STA;STB
+EState=0;HX3
 EN;EN
 #STPBOTH
 ReqStp=1;Emode=0
@@ -1045,9 +1049,9 @@ IF FState=3;HX6;ENDIF
 IF FState=4;HX2;FState=0;HX6;ENDIF
 IF FState=6;HX2;ENDIF
 
-IF EState=1;HX6;EState=0;HX2;ENDIF
+IF EState=1;HX6;HX2;ENDIF
 IF EState=3;HX6;ENDIF
-IF EState=4;HX2;EState=0;HX6;ENDIF
+IF EState=4;HX2;HX6;ENDIF
 IF EState=6;HX2;ENDIF
 
 STA;STB
@@ -1095,7 +1099,7 @@ EN;EN;EN
 
 #STRTECT
 REM $$$ This is the new start function.
-Transit=0;OFready=0
+Transit=0;OFready=0;ReflA=0;ReflB=0;Ejststrd=1
 IF (StReflA=1)|(StReflB=1);JP#STRTECT;ENDIF
 ReqStp=0;Paused=0;PState=0;ReStpP=0;ta2b=0;tb2a=0;CompErr=0
 REM 1/22 Use pressure mode start logic to determine if 
@@ -1140,8 +1144,9 @@ IF ReflB=1
 ENDIF
 #WT4AB2
 JP#WT4AB2,StReflA>0  
-JP#WT4AB2,StReflB>0 
-Emode=1;XQ#EXTPIDL,3
+JP#WT4AB2,StReflB>0
+Ejststrd=0 
+Emode=1;XQ#EXTPIDL,5;XQ#LSLOOP,3
 ReStpP=0
 IF Afirst=1
 	JP#STARTEA
@@ -1482,19 +1487,47 @@ XQ#CHKMLA,2
 JS#REFILLB
 EN;EN;EN
 
+#SETFBMD
+REM ^a is cylinder index 0 for A, 1 for B
+REM ^b is for mode 0 for position 1 for OF 
+IF ^a=0
+	STA;AMA
+	MO A;OF 0
+	IF ^b=0
+		OEA=1
+		KP KPstor;KI KIstor;KD KDstor
+	ELSE
+		OEA=0
+		KP 0;KI 0;KD 0
+	ENDIF
+	SH A
+ELSE
+	STB;AMB
+	MO B;OF ,0
+	IF ^b=0
+		OEB=1
+		KP ,KPstor;KI ,KIstor;KD ,KDstor
+	ELSE
+		OEB=0
+		KP ,0;KI ,0;KD ,0
+	ENDIF
+	SH B
+ENDIF
+EN
+		
 #ETrAtoB
 Transit=1;HX4
 IF StReflB>0;JG 0;ENDIF
 JP#ETrAtoB,StReflB>0
 EState=2;IF _XQ6>0;tb2a=1;ENDIF
-OF 0;KP KPstor;KI KIstor;KD KDstor;OEB=1
+JS#SETFBMD(0,0)
 JG ,0;BGB;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;JS#OpnBout
 JG 0
 SB 4
 XdcrCur=2
 #WAIT4B2
 JP#WAIT4B2,(_XQ6>0)
-KP ,0;KI ,0;KD ,0;OEB=0
+JS#SETFBMD(1,1)
 EState=3
 XQ#ECHKMLB,6
 JS#REFILLA
@@ -1505,14 +1538,14 @@ Transit=1;HX4
 IF StReflA>0;JG ,0;ENDIF
 JP#ETrBtoA,StReflA>0
 EState=5;IF _XQ2>0;ta2b=1;ENDIF
-OF,0;KP,KPstor;KI,KIstor;KD,KDstor;OEB=1
+JS#SETFBMD(1,0)
 JG 0;BGA;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;JS#OpnAout
 JG ,0
 SB 2
 XdcrCur=1
 #WAIT4A2
 JP#WAIT4A2,(_XQ2>0)
-KP 0;KI 0;KD 0;OEA=0
+JS#SETFBMD(0,1)
 EState=6
 XQ#ECHKMLA,2
 JS#REFILLB
