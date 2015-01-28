@@ -546,7 +546,7 @@ REM Custom limit switch loop for pressure mode
 REM Case for A forward
 REM Check for matching pressure in pump mode.
 IF (_LFA=0)
-  ZCA=0;JS#SETFBMD(0,0)
+  ZCA=0
   IF (PmpMode=1)&((PState=4)|(PState=5))
       NewErr=1;Errline=_ED;ErrMsg=19
   ELSE
@@ -558,7 +558,7 @@ ENDIF
 REM Case for A reverse
 REM Check for matching pressure in receive mode
 IF (_LRA=0)
-  ZCA=0;JS#SETFBMD(0,0)
+  ZCA=0
   IF (PmpMode=0)&((PState=4)|(PState=5))
     NewErr=1;Errline=_ED;ErrMsg=19
   ELSE
@@ -570,7 +570,7 @@ ENDIF
 REM Case for B forward
 REM Check for matching pressure in pump mode.
 IF(_LFB=0)
-  ZCB=0:JS#SETFBMD(1,0)
+  ZCB=0
   IF (PmpMode=1)&((PState=1)|(PState=2))
       NewErr=1;Errline=_ED;ErrMsg=19
   ELSE
@@ -582,7 +582,7 @@ ENDIF
 REM Case for B reverse
 REM Check for matching pressure in receive mode
 IF(_LRB=0)
-  ZCB=0;JS#SETFBMD(1,0)
+  ZCB=0
   IF (PmpMode=0)&((PState=1)|(PState=2))
     NewErr=1;Errline=_ED;ErrMsg=19
   ELSE
@@ -592,6 +592,90 @@ IF(_LRB=0)
   ENDIF
 ENDIF
 JP#LSLOOP
+EN
+
+#LSLOOP2
+REM Custom limit switch loop for external FB mode
+REM Case for A forward
+REM Check for matching pressure.
+IF (_LFA=0)
+	IF Transit=1
+REM We have run out of room waiting for refill
+		JS#SETFBMD(0,0)
+	ELSE
+		IF EState=4
+REM Hit LS when matching pressure.
+			ZCA=0;ta2b=1
+			NewErr=1;Errline=_ED;ErrMsg=19
+		ELSE
+REM Unkown why we hit ls, stop control. 
+			NewErr=1;Errline=_ED;ErrMsg=20;HX2
+			JS#ClsAout;JS#OpnAin
+			JS#STPBOTH,1
+		ENDIF
+	ENDIF	
+ENDIF
+REM Case for A reverse
+REM Check for matching pressure.
+IF (_LRA=0)
+	IF Transit=1
+REM We have run out of room waiting for refill
+		JS#SETFBMD(0,0)
+	ELSE
+		IF EState=4
+REM Hit LS when matching pressure.
+			ZCA=0;ta2b=1
+			NewErr=1;Errline=_ED;ErrMsg=19
+		ELSE
+REM Unkown why we hit ls, stop control. 
+			NewErr=1;Errline=_ED;ErrMsg=20;HX2
+			JS#ClsAout;JS#OpnAin
+			JS#STPBOTH,1
+		ENDIF
+	ENDIF	
+ENDIF
+REM Case for B forward
+REM Check for matching pressure.
+IF(_LFB=0)
+IF Transit=1
+REM We have run out of room waiting for refill
+		JS#SETFBMD(1,0)
+	ELSE
+		IF EState=1
+REM Hit LS when matching pressure.
+			ZCB=0;tb2a=1
+			NewErr=1;Errline=_ED;ErrMsg=19
+		ELSE
+REM Unkown why we hit ls, stop control. 
+			NewErr=1;Errline=_ED;ErrMsg=20;HX6
+			JS#ClsBout;JS#OpnBin
+			JS#STPBOTH,1
+		ENDIF
+	ENDIF	  
+ENDIF
+REM Case for B reverse
+REM Check for matching pressure.
+IF(_LRB=0)
+IF Transit=1
+REM We have run out of room waiting for refill
+		JS#SETFBMD(1,0)
+	ELSE
+		IF EState=1
+REM Hit LS when matching pressure.
+			ZCB=0;tb2a=1
+			NewErr=1;Errline=_ED;ErrMsg=19
+		ELSE
+REM Unkown why we hit ls, stop control. 
+			NewErr=1;Errline=_ED;ErrMsg=20;HX6
+			JS#ClsBout;JS#OpnBin
+			JS#STPBOTH,1
+		ENDIF
+	ENDIF	  
+ENDIF
+ 
+ENDIF
+WT 100
+JP#LSLOOP2
 EN
 
 #MASTPLP
@@ -1146,7 +1230,7 @@ ENDIF
 JP#WT4AB2,StReflA>0  
 JP#WT4AB2,StReflB>0
 Ejststrd=0 
-Emode=1;XQ#EXTPIDL,5;XQ#LSLOOP,3
+Emode=1;XQ#EXTPIDL,5;XQ#LSLOOP2,3
 ReStpP=0
 IF Afirst=1
 	JP#STARTEA
