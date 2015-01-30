@@ -416,7 +416,7 @@ EN
 
 #ESTOP
 STA;STB;FState=0;HX2;HX6;HX3;HX5;HX4
-AM;ZCA=0;ZCB=0;PState=0;EState=0
+AM;ZCA=0;ZCB=0;OF 0,0;PState=0;EState=0
 FlowingA=0;FlowingB=0
 StReflA=0;StReflB=0
 CONTA=0;CONTB=0
@@ -1088,7 +1088,7 @@ JP#PIDLP, Emode>0
 JS#SETFBMD(0,0)
 JS#SETFBMD(1,0)
 STA;STB
-EState=0;HX3
+EState=0
 EN;EN
 #STPBOTH
 ReqStp=1;Emode=0
