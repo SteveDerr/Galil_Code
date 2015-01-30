@@ -599,79 +599,59 @@ REM Custom limit switch loop for external FB mode
 REM Case for A forward
 REM Check for matching pressure.
 IF (_LFA=0)
-	IF Transit=1
-REM We have run out of room waiting for refill
-		JS#SETFBMD(0,0)
-	ELSE
-		IF EState=4
+	IF EState=4
 REM Hit LS when matching pressure.
-			ZCA=0;ta2b=1
-			NewErr=1;Errline=_ED;ErrMsg=19
-		ELSE
+		ZCA=0;ta2b=1
+		NewErr=1;Errline=_ED;ErrMsg=19
+	ELSE
 REM Unkown why we hit ls, stop control. 
-			NewErr=1;Errline=_ED;ErrMsg=20;HX2
-			JS#ClsAout;JS#OpnAin
-			JS#STPBOTH,1
-		ENDIF
-	ENDIF	
+		NewErr=1;Errline=_ED;ErrMsg=20;HX2
+		JS#ClsAout;JS#OpnAin
+		JS#STPBOTH,1
+	ENDIF
 ENDIF
 REM Case for A reverse
 REM Check for matching pressure.
 IF (_LRA=0)
-	IF Transit=1
-REM We have run out of room waiting for refill
-		JS#SETFBMD(0,0)
-	ELSE
-		IF EState=4
+	IF EState=4
 REM Hit LS when matching pressure.
-			ZCA=0;ta2b=1
-			NewErr=1;Errline=_ED;ErrMsg=19
-		ELSE
+		ZCA=0;ta2b=1
+		NewErr=1;Errline=_ED;ErrMsg=19
+	ELSE
 REM Unkown why we hit ls, stop control. 
-			NewErr=1;Errline=_ED;ErrMsg=20;HX2
-			JS#ClsAout;JS#OpnAin
-			JS#STPBOTH,1
-		ENDIF
-	ENDIF	
-ENDIF
+		NewErr=1;Errline=_ED;ErrMsg=20;HX2
+		JS#ClsAout;JS#OpnAin
+		JS#STPBOTH,1
+	ENDIF
+ENDIF	
 REM Case for B forward
 REM Check for matching pressure.
 IF(_LFB=0)
-IF Transit=1
-REM We have run out of room waiting for refill
-		JS#SETFBMD(1,0)
-	ELSE
-		IF EState=1
+	IF EState=1
 REM Hit LS when matching pressure.
-			ZCB=0;tb2a=1
-			NewErr=1;Errline=_ED;ErrMsg=19
-		ELSE
+		ZCB=0;tb2a=1
+		NewErr=1;Errline=_ED;ErrMsg=19
+	ELSE
 REM Unkown why we hit ls, stop control. 
-			NewErr=1;Errline=_ED;ErrMsg=20;HX6
-			JS#ClsBout;JS#OpnBin
-			JS#STPBOTH,1
-		ENDIF
-	ENDIF	  
-ENDIF
+		NewErr=1;Errline=_ED;ErrMsg=20;HX6
+		JS#ClsBout;JS#OpnBin
+		JS#STPBOTH,1
+	ENDIF
+ENDIF	  
 REM Case for B reverse
 REM Check for matching pressure.
 IF(_LRB=0)
-IF Transit=1
-REM We have run out of room waiting for refill
-		JS#SETFBMD(1,0)
-	ELSE
-		IF EState=1
+	IF EState=1
 REM Hit LS when matching pressure.
-			ZCB=0;tb2a=1
-			NewErr=1;Errline=_ED;ErrMsg=19
-		ELSE
+		ZCB=0;tb2a=1
+		NewErr=1;Errline=_ED;ErrMsg=19
+	ELSE
 REM Unkown why we hit ls, stop control. 
-			NewErr=1;Errline=_ED;ErrMsg=20;HX6
-			JS#ClsBout;JS#OpnBin
-			JS#STPBOTH,1
-		ENDIF
-	ENDIF	  
-ENDIF
+		NewErr=1;Errline=_ED;ErrMsg=20;HX6
+		JS#ClsBout;JS#OpnBin
+		JS#STPBOTH,1
+	ENDIF
+ENDIF	  
  
 ENDIF
 WT 100
@@ -1600,11 +1580,11 @@ ENDIF
 EN
 		
 #ETrAtoB
-Transit=1;HX4
-IF StReflB>0;JG 0;ENDIF
-JP#ETrAtoB,StReflB>0
+Transit=1;JS#SETFBMD(0,0)
+IF StReflB>0
+	JP#ETrAtoB;NewErr=1;ErrMsg=15;Errline=_ED
+ENDIF
 EState=2;IF _XQ6>0;tb2a=1;ENDIF
-JS#SETFBMD(0,0)
 JG ,0;BGB;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;JS#OpnBout
 JG 0
 SB 4
@@ -1618,11 +1598,11 @@ JS#REFILLA
 EN;EN
 
 #ETrBtoA
-Transit=1;HX4
-IF StReflA>0;JG ,0;ENDIF
-JP#ETrBtoA,StReflA>0
+Transit=1;JS#SETFBMD(1,0)
+IF StReflA>0
+	JP#ETrBtoA;NewErr=1;ErrMsg=16;Errline=_ED
+ENDIF
 EState=5;IF _XQ2>0;ta2b=1;ENDIF
-JS#SETFBMD(1,0)
 JG 0;BGA;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;JS#OpnAout
 JG ,0
 SB 2
