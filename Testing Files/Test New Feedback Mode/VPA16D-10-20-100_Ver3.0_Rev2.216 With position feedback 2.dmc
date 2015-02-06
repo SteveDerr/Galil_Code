@@ -1030,13 +1030,12 @@ IF (EState=3) | (EState=4)
 ENDIF
 AT -50
 JP#PIDLP, Emode>0
-STA;STB
 REM Return PmpMode to previous setting
 PmpMode=PmpMdSt;JS#STRTPOS
 EN;EN
 #STPBOTH
 ReqStp=1;Emode=0
-IF FState=0;STA;STB;ENDIF
+IF (FState=0) & (EState=0);STA;STB;ENDIF
 IF FState=1;STA;tb2a=1;ENDIF
 IF FState=2;HX2;JG 0;STB;IF _XQ2<0;XQ#REFILLA,2;ENDIF;FState=3;ENDIF
 IF FState=3;STB;ENDIF
