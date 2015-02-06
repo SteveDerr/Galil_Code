@@ -1074,9 +1074,9 @@ REM $$$ PID loop for external signal.
 #PIDLP
 Pterm=Ydes-Ysig
 Iterm=Iterm+Pterm
-OFSetPt=((Pterm*ExtP)+((Iterm*ExtI))/10)
-IF OFSetPt<-10;OFSetPt=-10;ENDIF
-IF OFSetPt>10;OFSetPt=10;ENDIF
+OFSetPt=(Pterm*ExtP)
+IF OFSetPt<-9.9;OFSetPt=-9.9;ENDIF
+IF OFSetPt>9.9;OFSetPt=9.9;ENDIF
 IF (EState=1) | (EState=6)
 	OF OFSetPt
 ENDIF
@@ -1088,7 +1088,7 @@ JP#PIDLP, Emode>0
 JS#SETFBMD(0,0)
 JS#SETFBMD(1,0)
 STA;STB
-EState=0
+EState=0;HX3
 EN;EN
 #STPBOTH
 ReqStp=1;Emode=0
