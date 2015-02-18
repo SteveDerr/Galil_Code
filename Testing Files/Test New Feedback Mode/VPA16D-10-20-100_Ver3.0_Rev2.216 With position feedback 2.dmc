@@ -1041,14 +1041,14 @@ EN;EN
 REM We have just started external control,
 REM or have received an update use limited target
 IF ExtRatV>0
-	IF ExtTarV2>ExtTarV
+	IF ExtTarV2>=ExtTarV
 		ExtTarV2=ExtTarV
 		ExtRamp=0
 	ELSE
 		ExtTarV2=ExtTarV2+ExtRatV
 	ENDIF
 ELSE
-	IF ExtTarV2<ExtTarV
+	IF ExtTarV2<=ExtTarV
 		ExtTarV2=ExtTarV
 		ExtRamp=0
 	ELSE
@@ -1998,8 +1998,8 @@ Aflow=0;Bflow=0;PfiltA=0;PfiltB=0;PlastA=0;PlastB=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
 OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
 LstCntsA=0;LstCntsB=0;ExtMaxEU=100;ExtMinEU=0;ExtMaxR=2;ExtTarEU=50
-ExtTarV=5;ExtTarV2=0;ExtRatEU=1;ExtRatV=.005;ExtCurEU=0;ExtCurV;ExtScale=10
-ExtMaxV;ExtMinV=0;ExtP=-60000000;ExtI=0;ExtD=0;ExtUnit=0
+ExtTarV=5;ExtTarV2=0;ExtRatEU=1;ExtRatV=.005;ExtCurEU=0;ExtCurV=0;ExtScale=10
+ExtMaxV=10;ExtMinV=0;ExtP=-60000000;ExtI=0;ExtD=0;ExtUnit=0
 
 JS#VESPRM
 JS#MECHPRM
