@@ -111,9 +111,9 @@ StReflA=0;StReflB=0;Paused=0;ta2b=0;tb2a=0;TlastA=TIME;TlastB=TIME;ErrMsg=0
 InitDone=0;CyclDone=0;Transit=0;PTempA=0;PTempB=0;NewErr=0;ResetMLA=0;Cycle=0
 SPlow=0;SPhigh=0;FracLo=0;FracHi=0;FracLo=0;LowFlow=0;CompErr=0;Finding=0
 ReStpP=0;RateChng=0;PowerUp=1;Local=0;Remote=0;ErrCode=0
-DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0;LineNum=0
+DM AveSpAr[10];AveSpTm=TIME;Speedi=0;Debug=0;LineNum=0;ExtRamp=0
 FlowingA=0;FlowingB=0;Emode=0;KPstor=_KPA;KIstor=_KIA;KDstor=_KDA
-JS#STRTDAQ;JS#ZEROOF;
+JS#STRTDAQ;JS#ZEROOF
 EN
 
 #SPEED
@@ -1016,10 +1016,15 @@ EN;EN
 AT 0
 JP#EXTPIDL,JGready=0
 REM Wait until JGready flag is set.
-REM $$$ PID loop for external signal.
+REM PID loop for external signal.
 #PIDLP
-Pterm=Ydes-Ysig
-JGSetPt=(Pterm*ExtP)
+IF ExtRamp=1
+	JS#EXRAMP
+	ExtErr=ExtTarV2-ExtCurV
+ELSE
+	ExtErr=ExtTarV-ExtCurV
+ENDIF
+JGSetPt=(ExtErr*ExtP)
 IF JGSetPt<-1375000;JGSetPt=-1375000;ENDIF
 IF JGSetPt>1375000;JGSetPt=1375000;ENDIF
 IF (EState=1) | (EState=6)
@@ -1030,9 +1035,28 @@ IF (EState=3) | (EState=4)
 ENDIF
 AT -50
 JP#PIDLP, Emode>0
-REM Return PmpMode to previous setting
-PmpMode=PmpMdSt;JS#STRTPOS
 EN;EN
+
+#EXRAMP
+REM We have just started external control,
+REM or have received an update use limited target
+IF ExtRatV>0
+	IF ExtTarV2>ExtTarV
+		ExtTarV2=ExtTarV
+		ExtRamp=0
+	ELSE
+		ExtTarV2=ExtTarV2+ExtRatV
+	ENDIF
+ELSE
+	IF ExtTarV2<ExtTarV
+		ExtTarV2=ExtTarV
+		ExtRamp=0
+	ELSE
+		ExtTarV2=ExtTarV2+ExtRatV
+	ENDIF
+ENDIF
+EN		
+
 #STPBOTH
 ReqStp=1;Emode=0
 IF (FState=0) & (EState=0);STA;STB;ENDIF
@@ -1107,9 +1131,8 @@ EN;EN;EN
 #STRTECT
 REM External control start
 REM Keep track of PmpMode so we can return starting positon
-PmpMdSt=PmpMode
-PmpMode=2
-JS#STRTPOS
+REM ExtTarV2 is used as the setpoint when ramping
+ExtTarV2=ExtCurV;ExtRamp=1
 Transit=0;JGready=0;ReflA=0;ReflB=0;Ejststrd=1
 IF (StReflA=1)|(StReflB=1);JP#STRTECT;ENDIF
 ReqStp=0;Paused=0;PState=0;ReStpP=0;ta2b=0;tb2a=0;CompErr=0
@@ -1169,7 +1192,6 @@ EN;EN
 #STRTPOS
 IF PmpMode=1;StartMLA=PmpStart;StartMLB=PmpStart;ENDIF
 IF PmpMode=0;StartMLA=RcvStart;StartMLB=RcvStart;ENDIF
-IF PmpMode=2;StartMLA=ECStart;StartMLB=ECStart;ENDIF
 IF Burn>0;Burn=0;BV;ENDIF
 EN
 
@@ -1975,7 +1997,10 @@ Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=250;tdla=4;KP 4,4;KD 30,30;KI 0,0
 Aflow=0;Bflow=0;PfiltA=0;PfiltB=0;PlastA=0;PlastB=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
 OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
-LstCntsA=0;LstCntsB=0;ExtP=-60000000;ExtI=0;ExtD=0;Ydes=5;Ysig=0
+LstCntsA=0;LstCntsB=0;ExtMaxEU=100;ExtMinEU=0;ExtMaxR=2;ExtTarEU=50
+ExtTarV=5;ExtTarV2=0;ExtRatEU=1;ExtRatV=.005;ExtCurEU=0;ExtCurV;ExtScale=10
+ExtMaxV;ExtMinV=0;ExtP=-60000000;ExtI=0;ExtD=0;ExtUnit=0
+
 JS#VESPRM
 JS#MECHPRM
 JS#TESTCAL
@@ -2019,6 +2044,6 @@ StkeA=200;StkeB=200;VolA=19.5;VolB=19.5;StartMLA=18;StartMLB=18;PmpRate=-50
 Amin=1.5;Bmin=1.5;Amax=18.5;Bmax=18.5;FwdAlrmA=19.5;FwdAlrmB=19.5;PMax=10000
 RevAlrmA=2;RevAlrmB=2;Tdec=2;VolpCyl=18.5;CalStrtA=18;CalStrtB=18
 ReflPc=100;StrtTol=2;TranStps=500;DecVol=3;FRMax=100;CompLmt=.25
-InitRate=50;ReflFmn=10;PmpMode=1;PmpStart=18;RcvStart=2;ECStart=9;RateCal=40
+InitRate=50;ReflFmn=10;PmpMode=1;PmpStart=18;RcvStart=2;RateCal=40
 RefillRA=100;RefillRB=100;XfrMlMin=.1;PrTrMd=0;ErrVol=CompLmt*VolA;ReflEmn=100
 EN
