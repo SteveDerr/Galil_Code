@@ -1015,25 +1015,32 @@ EN;EN
 #EXTPIDL
 AT 0
 JP#EXTPIDL,JGready=0
+Yfilt=Ysig;YerrLas=0'Set the filter and Last Error
 REM Wait until JGready flag is set.
 REM PID loop for external signal.
 #PIDLP
-IF ExtRamp=1
-	JS#EXRAMP
-	ExtErr=ExtTarV2-ExtCurV
+Yfilt=(.75*Yfilt)+(.25*Ysig)
+Yerror=Ydes-Yfilt
+Z=Lambda*Yerror+((Yerror-YerrLas)/SampTime)
+YerrLas=Yerror
+IF Z/Epsilon>1
+	JGSetPt=rho
 ELSE
-	ExtErr=ExtTarV-ExtCurV
+	IF Z/Epsilon<-1
+		JGSetPt=-rho
+	ELSE
+		JGSetPt=rho*Z/Epsilon
+	ENDIF
 ENDIF
-JGSetPt=(ExtErr*ExtP)
-IF JGSetPt<-1375000;JGSetPt=-1375000;ENDIF
-IF JGSetPt>1375000;JGSetPt=1375000;ENDIF
+
 IF (EState=1) | (EState=6)
 	JG JGSetPt
 ENDIF
 IF (EState=3) | (EState=4)
 	JG ,JGSetPt
 ENDIF
-AT -50
+AT -(SampTime*1000)
+
 JP#PIDLP, Emode>0
 EN;EN
 
@@ -2000,6 +2007,8 @@ OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
 LstCntsA=0;LstCntsB=0;ExtMaxEU=100;ExtMinEU=0;ExtMaxR=2;ExtTarEU=50
 ExtTarV=5;ExtTarV2=0;ExtRatEU=1;ExtRatV=.005;ExtCurEU=0;ExtCurV=0;ExtScale=10
 ExtMaxV=10;ExtMinV=0;ExtP=-60000000;ExtI=0;ExtD=0;ExtUnit=0;ExtZOf=0
+REM Sliding PID Values
+SampTime=.02;Lambda=1/(SampTime*10);Epsilon=1.5;rho=1375000
 
 JS#VESPRM
 JS#MECHPRM
