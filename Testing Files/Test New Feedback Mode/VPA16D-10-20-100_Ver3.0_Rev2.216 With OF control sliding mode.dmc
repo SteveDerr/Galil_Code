@@ -1069,19 +1069,19 @@ EN;EN
 #EXTPIDL
 AT 0
 JP#EXTPIDL,OFready=0
-Yfilt=Ysig;YerrLas=0'Set the filter and Last Error
+Yfilt=Ysig;YerrLas=0;'Set the filter and Last Error
 REM Wait until OFready flag is set.
 REM $$$ PID loop for external signal.
 #PIDLP
 
 Yfilt=(.75*Yfilt)+(.25*Ysig)
-Yerror=Ydes-Yfilt
+Yerror=-(Ydes-Yfilt)
 Z=Lambda*Yerror+((Yerror-YerrLas)/SampTime)
 YerrLas=Yerror
-IF Z/Epsilon>1
+IF Z/Epsilon>=1
 	OFSetPt=rho
 ELSE
-	IF Z/Epsilon<-1
+	IF Z/Epsilon<=-1
 		OFSetPt=-rho
 	ELSE
 		OFSetPt=rho*Z/Epsilon
@@ -2068,7 +2068,7 @@ RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
 OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
 LstCntsA=0;LstCntsB=0;ExtP=-50;ExtI=0;ExtD=0;Ydes=5;Ysig=0
 REM Sliding PID Values
-SampTime=.01;Lambda=1/(SampTime*10);Epsilon=.01;rho=10
+SampTime=.02;Lambda=1/(SampTime*10);Epsilon=.01;rho=9.98
 JS#VESPRM
 JS#MECHPRM
 JS#TESTCAL

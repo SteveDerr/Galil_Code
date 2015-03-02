@@ -1015,12 +1015,12 @@ EN;EN
 #EXTPIDL
 AT 0
 JP#EXTPIDL,JGready=0
-Yfilt=Ysig;YerrLas=0'Set the filter and Last Error
+Yfilt=Ysig;YerrLas=0;'Set the filter and Last Error
 REM Wait until JGready flag is set.
 REM PID loop for external signal.
 #PIDLP
 Yfilt=(.75*Yfilt)+(.25*Ysig)
-Yerror=Ydes-Yfilt
+Yerror=-(Ydes-Yfilt)
 Z=Lambda*Yerror+((Yerror-YerrLas)/SampTime)
 YerrLas=Yerror
 IF Z/Epsilon>1
