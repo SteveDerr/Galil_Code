@@ -1024,7 +1024,7 @@ IF ExtRamp=1
 ELSE
 	ExtErr=ExtTarV-ExtCurV
 ENDIF
-JGSetPt=(ExtErr*ExtP)
+JGSetPt=-(ExtErr*ExtP)
 IF JGSetPt<-1375000;JGSetPt=-1375000;ENDIF
 IF JGSetPt>1375000;JGSetPt=1375000;ENDIF
 IF (EState=1) | (EState=6)
@@ -1040,7 +1040,7 @@ EN;EN
 #EXRAMP
 REM We have just started external control,
 REM or have received an update use limited target
-IF ExtRatV>0
+IF RampDir=1
 	IF ExtTarV2>=ExtTarV
 		ExtTarV2=ExtTarV
 		ExtRamp=0
@@ -1052,7 +1052,7 @@ ELSE
 		ExtTarV2=ExtTarV
 		ExtRamp=0
 	ELSE
-		ExtTarV2=ExtTarV2+ExtRatV
+		ExtTarV2=ExtTarV2-ExtRatV
 	ENDIF
 ENDIF
 EN		
@@ -1133,6 +1133,7 @@ REM External control start
 REM Keep track of PmpMode so we can return starting positon
 REM ExtTarV2 is used as the setpoint when ramping
 ExtTarV2=ExtCurV;ExtRamp=1
+IF ExtTarV>ExtCurV;RampDir=1;ELSE;RampDir=0;ENDIF
 Transit=0;JGready=0;ReflA=0;ReflB=0;Ejststrd=1
 IF (StReflA=1)|(StReflB=1);JP#STRTECT;ENDIF
 ReqStp=0;Paused=0;PState=0;ReStpP=0;ta2b=0;tb2a=0;CompErr=0
@@ -1999,7 +2000,7 @@ RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
 OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
 LstCntsA=0;LstCntsB=0;ExtMaxEU=100;ExtMinEU=0;ExtMaxR=2;ExtTarEU=50
 ExtTarV=5;ExtTarV2=0;ExtRatEU=1;ExtRatV=.005;ExtCurEU=0;ExtCurV=0;ExtScale=10
-ExtMaxV=10;ExtMinV=0;ExtP=-60000000;ExtI=0;ExtD=0;ExtUnit=0;ExtZOf=0
+ExtMaxV=10;ExtMinV=0;ExtP=60000000;ExtI=0;ExtD=0;ExtUnit=0;ExtZOf=0
 
 JS#VESPRM
 JS#MECHPRM
