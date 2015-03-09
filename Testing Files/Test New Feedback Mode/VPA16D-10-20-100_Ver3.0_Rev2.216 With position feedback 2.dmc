@@ -410,8 +410,13 @@ JP#DAQLOOP,DAQmode>0
 EN
 
 #CUREU
+ExtTmpV=0;ExtTmpI=0
+#AVEEXTV
+ExtTmpV=ExtTmpV+@AN[5];ExtTmpI=ExtTmpI+1
+JP#AVEEXTV,ExtTmpI<ExtSamp
+ExtCurV=ExtTmpV/ExtSamp
 ExtCurEU=(ExtCurV-ExtZOf)*ExtScale
-EN
+EN;EN
 
 #PDAQ
 JS#CURPA
@@ -2005,7 +2010,7 @@ RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
 OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
 LstCntsA=0;LstCntsB=0;ExtMaxEU=100;ExtMinEU=0;ExtMaxR=2;ExtTarEU=50
 ExtTarV=5;ExtTarV2=0;ExtRatEU=1;ExtRatV=.005;ExtCurEU=0;ExtCurV=0;ExtScale=10
-ExtMaxV=10;ExtMinV=0;ExtP=60000000;ExtI=0;ExtD=0;ExtUnit=0;ExtZOf=0
+ExtMaxV=10;ExtMinV=0;ExtP=60000000;ExtI=0;ExtD=0;ExtUnit=0;ExtZOf=0;ExtSamp=50
 
 JS#VESPRM
 JS#MECHPRM
