@@ -396,20 +396,24 @@ TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8
 EN;EN;EN
 
 #DAQLOOP
-JS#CURMLA
-JS#CURMLB
-JS#CUREU
-JS#SPEED
-'JS #CURPA
-'JS #CURPB
-IF XdcrCur=1;Pcur=PcurA;ENDIF
-IF XdcrCur=2;Pcur=PcurB;ENDIF
-IF XdcrCur=0;Pcur=0;ENDIF
-WT 200
+SlowDAQ[0]=TIME
+REM Add loop for slower DAQ elements
+IF (SlowDAQ[0]-SlowDAQ[1])>200
+	JS#CURMLA
+	JS#CURMLB
+	JS#SPEED
+	'JS #CURPA
+	'JS #CURPB
+	IF XdcrCur=1;Pcur=PcurA;ENDIF
+	IF XdcrCur=2;Pcur=PcurB;ENDIF
+	IF XdcrCur=0;Pcur=0;ENDIF
+	SlowDAQ[1]=TIME
+ENDIF
+JS#CUREXT
 JP#DAQLOOP,DAQmode>0
 EN
 
-#CUREU
+#CUREXT
 ExtTmpV=0;ExtTmpI=0
 #AVEEXTV
 ExtTmpV=ExtTmpV+@AN[5];ExtTmpI=ExtTmpI+1
@@ -752,7 +756,7 @@ RE
 StReflA=1;StCylA=1
 IF PState>0;JS#SETPST;ENDIF
 IF FState>0;FState=3;ENDIF
-IF EState>0;EState=3;ENDIF
+IF EState>0;EState=3;ExtPos[0]=_TPB;ExtPos[1]=_TPB;ENDIF
 ENDIF
 
 JS#ClsAout
@@ -791,7 +795,7 @@ REM we will not continue
 					Fjststrd=0
 				ENDIF
 			ELSE
-				EState=4
+				EState=4;ExtPos[0]=_TPB;ExtPos[1]=_TPB
 				IF (Paused=0) & (ReqStp=0)&(Ejststrd=0)
 					StReflA=0
 					JP#TRKA2B
@@ -808,7 +812,7 @@ EN
 StReflB=1;StCylB=1
 IF PState>0;JS#SETPST;ENDIF
 IF FState>0;FState=6;ENDIF
-IF EState>0;EState=6;ENDIF
+IF EState>0;EState=6;ExtPos[0]=_TPA;ExtPos[1]=_TPA;ENDIF
 ENDIF
 JS#ClsBout
 WT 500
@@ -844,7 +848,7 @@ REM we will not continue
 					Fjststrd=0
 				ENDIF
 			ELSE
-				EState=1
+				EState=1;ExtPos[0]=_TPA;ExtPos[1]=_TPA
 				IF (Paused=0) & (ReqStp=0)&(Ejststrd=0)
 					StReflB=0
 					JP#TRKB2A
@@ -988,7 +992,7 @@ XQ#CHKMLA,2;XQ#TRKB2A,6
 EN;EN
 
 #STARTB
-FState=4;XdcrCur=2
+FState=4;XdcrCur=2;ExtPos[0]=_TPB;ExtPos[1]=_TPB
 JS#BACTIV
 JS#VCALCSB
 WT 200
@@ -1001,7 +1005,7 @@ XQ#CHKMLB,6;XQ#TRKA2B,2
 EN;EN
 
 #STARTEA
-EState=1;XdcrCur=1
+EState=1;XdcrCur=1;ExtPos[0]=_TPA;ExtPos[1]=_TPA
 JS#AACTIV
 JG 0;BG A
 #FINA2
@@ -1012,7 +1016,7 @@ XQ#ECHKMLA,2;XQ#TRKB2A,6
 EN;EN
 
 #STARTEB
-EState=4;XdcrCur=2
+EState=4;XdcrCur=2;ExtPos[0]=_TPB;ExtPos[1]=_TPB
 JS#BACTIV
 BG ,0;BGB
 #FINB2
@@ -1025,6 +1029,7 @@ EN;EN
 #EXTPIDL
 AT 0
 JP#EXTPIDL,JGready=0
+ExtIAcum=0
 REM Wait until JGready flag is set.
 REM PID loop for external signal.
 #PIDLP
@@ -1034,35 +1039,58 @@ IF ExtRamp=1
 ELSE
 	ExtErr=ExtTarV-ExtCurV
 ENDIF
-JGSetPt=-(ExtErr*ExtP)
+ExtIAcum=ExtIAcum+(.1*ExtErr);ExtDSpd=(ExtPos[1]-ExtPos[0])
+JGSetPt=-((ExtErr*ExtP)+(ExtIAcum*ExtI)-(ExtDSpd*ExtD))
 IF JGSetPt<-1375000;JGSetPt=-1375000;ENDIF
 IF JGSetPt>1375000;JGSetPt=1375000;ENDIF
 IF (EState=1) | (EState=6)
-	JG JGSetPt
+	IF Paused=1
+		JG 0
+	ELSE
+		JG JGSetPt;ExtPos[1]=ExtPos[0]
+		ExtPos[0]=_TPA
+	ENDIF
 ENDIF
 IF (EState=3) | (EState=4)
-	JG ,JGSetPt
+	IF Paused=1
+		JG ,0
+	ELSE
+		JG ,JGSetPt;ExtPos[1]=ExtPos[0]
+		ExtPos[0]=_TPB
+	ENDIF
 ENDIF
 AT -20
 JP#PIDLP, Emode>0
 EN;EN
 
+#CONVEU2V
+REM Converts EU to V for external control mode
+ExtTarV=ExtTarEU/ExtScale+ExtZOf
+ExtRatV=ExtRatEU/ExtScale
+EN
+
 #EXRAMP
 REM We have just started external control,
 REM or have received an update use limited target
-IF RampDir=1
-	IF ExtTarV2>=ExtTarV
-		ExtTarV2=ExtTarV
-		ExtRamp=0
-	ELSE
-		ExtTarV2=ExtTarV2+ExtRatV
-	ENDIF
+IF Paused=1
+REM We need to stop motion and keep our ramp to within
+REM the current voltage even if the voltage changes
+	ExtTarV2=ExtCurV;IF ExtTarV>ExtCurV;RampDir=1;ELSE;RampDir=0;ENDIF
 ELSE
-	IF ExtTarV2<=ExtTarV
-		ExtTarV2=ExtTarV
-		ExtRamp=0
+	IF RampDir=1
+		IF ExtTarV2>=ExtTarV
+			ExtTarV2=ExtTarV
+			ExtRamp=0
+		ELSE
+			ExtTarV2=ExtTarV2+ExtRatV
+		ENDIF
 	ELSE
-		ExtTarV2=ExtTarV2-ExtRatV
+		IF ExtTarV2<=ExtTarV
+			ExtTarV2=ExtTarV
+			ExtRamp=0
+		ELSE
+			ExtTarV2=ExtTarV2-ExtRatV
+		ENDIF
 	ENDIF
 ENDIF
 EN		
@@ -1103,6 +1131,7 @@ EN
 
 #STRTDAQ
 WT 5
+SlowDAQ[0]=TIME;SlowDAQ[1]=TIME
 DAQmode=1
 XQ#PDAQ,7
 JP#DAQLOOP;EN
@@ -1142,6 +1171,8 @@ EN;EN;EN
 REM External control start
 REM Keep track of PmpMode so we can return starting positon
 REM ExtTarV2 is used as the setpoint when ramping
+JS#CONVEU2V
+WT100'We need to wait for a reading of the input
 ExtTarV2=ExtCurV;ExtRamp=1
 IF ExtTarV>ExtCurV;RampDir=1;ELSE;RampDir=0;ENDIF
 Transit=0;JGready=0;ReflA=0;ReflB=0;Ejststrd=1
@@ -1199,6 +1230,12 @@ ELSE
 	JP#STARTEB
 ENDIF
 EN;EN
+
+#EXTUPD
+JS#CONVEU2V
+ExtRamp=1
+IF ExtTarV>ExtCurV;RampDir=1;ELSE;RampDir=0;ENDIF
+EN
 
 #STRTPOS
 IF PmpMode=1;StartMLA=PmpStart;StartMLB=PmpStart;ENDIF
@@ -1543,7 +1580,7 @@ SB 4
 XdcrCur=2
 #WAIT4B2
 JP#WAIT4B2,(_XQ6>0)
-EState=3
+EState=3;ExtPos[0]=_TPB;ExtPos[1]=_TPB
 XQ#ECHKMLB,6
 AM A
 JS#REFILLA
@@ -1562,7 +1599,7 @@ SB 2
 XdcrCur=1
 #WAIT4A2
 JP#WAIT4A2,(_XQ2>0)
-EState=6
+EState=6;ExtPos[0]=_TPA;ExtPos[1]=_TPA
 XQ#ECHKMLA,2
 AM B
 JS#REFILLB
@@ -2011,6 +2048,7 @@ OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
 LstCntsA=0;LstCntsB=0;ExtMaxEU=100;ExtMinEU=0;ExtMaxR=2;ExtTarEU=50
 ExtTarV=5;ExtTarV2=0;ExtRatEU=1;ExtRatV=.005;ExtCurEU=0;ExtCurV=0;ExtScale=10
 ExtMaxV=10;ExtMinV=0;ExtP=60000000;ExtI=0;ExtD=0;ExtUnit=0;ExtZOf=0;ExtSamp=50
+DM ExtPos[2];DM SlowDAQ[2]
 
 JS#VESPRM
 JS#MECHPRM
