@@ -1040,6 +1040,8 @@ ELSE
 	ExtErr=ExtTarV-ExtCurV
 ENDIF
 ExtIAcum=ExtIAcum+(.1*ExtErr);ExtDSpd=(ExtPos[1]-ExtPos[0])
+REM This should reset the I term once we hit our target.
+IF (ExtErr*ExtIAcum)<0;ExtIAcum=0;ENDIF
 JGSetPt=-((ExtErr*ExtP)+(ExtIAcum*ExtI)-(ExtDSpd*ExtD))
 IF JGSetPt<-1375000;JGSetPt=-1375000;ENDIF
 IF JGSetPt>1375000;JGSetPt=1375000;ENDIF
@@ -1063,7 +1065,7 @@ AT -20
 JP#PIDLP, Emode>0
 EN;EN
 
-#CONVEU2V
+#CONVEU2
 REM Converts EU to V for external control mode
 ExtTarV=ExtTarEU/ExtScale+ExtZOf
 ExtRatV=ExtRatEU/ExtScale
@@ -1082,21 +1084,21 @@ ELSE
 			ExtTarV2=ExtTarV
 			ExtRamp=0
 		ELSE
-			ExtTarV2=ExtTarV2+ExtRatV
+			ExtTarV2=ExtTarV2+(ExtRatV*.02)
 		ENDIF
 	ELSE
 		IF ExtTarV2<=ExtTarV
 			ExtTarV2=ExtTarV
 			ExtRamp=0
 		ELSE
-			ExtTarV2=ExtTarV2-ExtRatV
+			ExtTarV2=ExtTarV2-(ExtRatV*.02)
 		ENDIF
 	ENDIF
 ENDIF
 EN		
 
 #STPBOTH
-ReqStp=1;Emode=0
+ReqStp=1;Emode=0;ExtRamp=0
 IF (FState=0) & (EState=0);STA;STB;ENDIF
 IF FState=1;STA;tb2a=1;ENDIF
 IF FState=2;HX2;JG 0;STB;IF _XQ2<0;XQ#REFILLA,2;ENDIF;FState=3;ENDIF
@@ -1171,8 +1173,7 @@ EN;EN;EN
 REM External control start
 REM Keep track of PmpMode so we can return starting positon
 REM ExtTarV2 is used as the setpoint when ramping
-JS#CONVEU2V
-WT100'We need to wait for a reading of the input
+JS#CONVEU2
 ExtTarV2=ExtCurV;ExtRamp=1
 IF ExtTarV>ExtCurV;RampDir=1;ELSE;RampDir=0;ENDIF
 Transit=0;JGready=0;ReflA=0;ReflB=0;Ejststrd=1
@@ -1232,7 +1233,7 @@ ENDIF
 EN;EN
 
 #EXTUPD
-JS#CONVEU2V
+JS#CONVEU2
 ExtRamp=1
 IF ExtTarV>ExtCurV;RampDir=1;ELSE;RampDir=0;ENDIF
 EN
