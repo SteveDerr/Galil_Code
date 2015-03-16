@@ -513,7 +513,7 @@ IF (Finding<>1)
 REM Case for A forward----------
 REM Check for cycle, and matching pressure in pump mode.
   IF (_LFA=0)
-    IF (Cycle<>1)
+	IF (Cycle<>1)
       IF (FState=4)|(FState=5)|(EState=4)
         NewErr=1;Errline=_ED;ErrMsg=19
       ELSE
@@ -1046,21 +1046,31 @@ JGSetPt=-((ExtErr*ExtP)+(ExtIAcum*ExtI)-(ExtDSpd*ExtD))
 IF JGSetPt<-1375000;JGSetPt=-1375000;ENDIF
 IF JGSetPt>1375000;JGSetPt=1375000;ENDIF
 IF (EState=1) | (EState=6)
-	IF Paused=1
-		JG 0
-	ELSE
-		JG JGSetPt;ExtPos[1]=ExtPos[0]
-		ExtPos[0]=_TPA
-	ENDIF
+	JG JGSetPt;ExtPos[1]=ExtPos[0]
+	ExtPos[0]=_TPA
 ENDIF
+IF EState=2
+	IF ExtPct>0
+		ExtPct=ExtPct-.01
+		JG JGSetPt*(ExtPct), JGSetPt*(1-ExtPct)
+	ELSE
+		JG ,JGSetPt
+		ExtTrans=0
+	ENDIF
+ENDIF		
 IF (EState=3) | (EState=4)
-	IF Paused=1
-		JG ,0
-	ELSE
-		JG ,JGSetPt;ExtPos[1]=ExtPos[0]
-		ExtPos[0]=_TPB
-	ENDIF
+	JG ,JGSetPt;ExtPos[1]=ExtPos[0]
+	ExtPos[0]=_TPB
 ENDIF
+IF EState=5
+	IF ExtPct>0
+		ExtPct=ExtPct-.01
+		JG JGSetPt*(1-ExtPct), JGSetPt*(ExtPct)
+	ELSE
+		JG JGSetPt
+		ExtTrans=0
+	ENDIF
+ENDIF		
 AT -20
 JP#PIDLP, Emode>0
 EN;EN
@@ -1084,14 +1094,33 @@ ELSE
 			ExtTarV2=ExtTarV
 			ExtRamp=0
 		ELSE
-			ExtTarV2=ExtTarV2+(ExtRatV*.02)
+			IF ExtSloR=1
+REM Code for slow ramps to avoid rounding to 0
+				IF ExtSloI>=50
+					ExtSloI=0
+					ExtTarV2=ExtTarV2+ExtRatV
+				ELSE
+					ExtSloI=ExtSloI+1
+				ENDIF
+			ELSE
+				ExtTarV2=ExtTarV2+(ExtRatV*.02)
+			ENDIF
 		ENDIF
 	ELSE
 		IF ExtTarV2<=ExtTarV
 			ExtTarV2=ExtTarV
 			ExtRamp=0
 		ELSE
-			ExtTarV2=ExtTarV2-(ExtRatV*.02)
+			IF ExtSloR=1
+				IF ExtSloI>=50
+					ExtSloI=0
+					ExtTarV2=ExtTarV2-ExtRatV
+				ELSE
+					ExtSloI=ExtSloI+1
+				ENDIF
+			ELSE
+				ExtTarV2=ExtTarV2-(ExtRatV*.02)
+			ENDIF
 		ENDIF
 	ENDIF
 ENDIF
@@ -1175,6 +1204,7 @@ REM Keep track of PmpMode so we can return starting positon
 REM ExtTarV2 is used as the setpoint when ramping
 JS#CONVEU2
 ExtTarV2=ExtCurV;ExtRamp=1
+IF ExtRatV<.005;ExtSloR=1;ExtSloI=0;ELSE;ExtSloR=0;ENDIF
 IF ExtTarV>ExtCurV;RampDir=1;ELSE;RampDir=0;ENDIF
 Transit=0;JGready=0;ReflA=0;ReflB=0;Ejststrd=1
 IF (StReflA=1)|(StReflB=1);JP#STRTECT;ENDIF
@@ -1236,6 +1266,7 @@ EN;EN
 JS#CONVEU2
 ExtRamp=1
 IF ExtTarV>ExtCurV;RampDir=1;ELSE;RampDir=0;ENDIF
+IF ExtRatV<.005;ExtSloR=1;ExtSloI=0;ELSE;ExtSloR=0;ENDIF
 EN
 
 #STRTPOS
@@ -1568,15 +1599,23 @@ JP#WAIT4A,(_XQ2>0)
 XQ#CHKMLA,2
 JS#REFILLB
 EN;EN;EN
+
+#EXTTXDL
+REM Hold here in transfer while the PID loop
+REM transfers control speed
+WT10
+JP#EXTTXDL,ExtTrans=1
+EN
 		
 #ETrAtoB
-Transit=1
+ExtTrans=1
 IF StReflB>0
-	JP#ETrAtoB;NewErr=1;ErrMsg=15;Errline=_ED
+	NewErr=1;ErrMsg=15;Errline=_ED;JP#ETrAtoB
 ENDIF
-EState=2;IF _XQ6>0;tb2a=1;ENDIF
-ST A
+EState=2;ExtPct=1;IF _XQ6>0;tb2a=1;ENDIF
 JG ,0;BGB;MLcurB=_TPB/CntsPMLB;MLzeroB=MLcurB;JS#OpnBout
+JS#EXTTXDL
+ST A
 SB 4
 XdcrCur=2
 #WAIT4B2
@@ -1588,14 +1627,14 @@ JS#REFILLA
 EN;EN
 
 #ETrBtoA
-Transit=1
+ExtTrans=1
 IF StReflA>0
-	JP#ETrBtoA;NewErr=1;ErrMsg=16;Errline=_ED
+	NewErr=1;ErrMsg=16;Errline=_ED;JP#ETrBtoA
 ENDIF
-EState=5;IF _XQ2>0;ta2b=1;ENDIF
-ST B
-WT 20
+EState=5;ExtPct=1;IF _XQ2>0;ta2b=1;ENDIF
 JG 0;BGA;MLcurA=_TPA/CntsPMLA;MLzeroA=MLcurA;JS#OpnAout
+JS#EXTTXDL
+ST B
 SB 2
 XdcrCur=1
 #WAIT4A2
@@ -2049,7 +2088,7 @@ OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
 LstCntsA=0;LstCntsB=0;ExtMaxEU=100;ExtMinEU=0;ExtMaxR=2;ExtTarEU=50
 ExtTarV=5;ExtTarV2=0;ExtRatEU=1;ExtRatV=.005;ExtCurEU=0;ExtCurV=0;ExtScale=10
 ExtMaxV=10;ExtMinV=0;ExtP=60000000;ExtI=0;ExtD=0;ExtUnit=0;ExtZOf=0;ExtSamp=50
-DM ExtPos[2];DM SlowDAQ[2]
+DM ExtPos[2];DM SlowDAQ[2];ExtSloI=0
 
 JS#VESPRM
 JS#MECHPRM
