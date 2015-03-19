@@ -2085,7 +2085,7 @@ Tzero=0;RLCntsA=0;FLCntsA=0;DeltCtsA=0;AveNo=250;tdla=4;KP 4,4;KD 30,30;KI 0,0
 Aflow=0;Bflow=0;PfiltA=0;PfiltB=0;PlastA=0;PlastB=0;RampRate=0;TarPres=0
 RLCntsB=0;FLCntsB=0;DeltCtsB=0;MLnewA=0;MLnewB=0;DeltaML=0;Ramping=0
 OEA=0;OEB=0;ER 1000000,1000000;PzerCntA=0;PzerCntB=0;Burn=0;PcurA=0;PcurB=0
-LstCntsA=0;LstCntsB=0;ExtMaxEU=100;ExtMinEU=0;ExtMaxR=2;ExtMinR=.003
+LstCntsA=0;LstCntsB=0;ExtMaxEU=100;ExtMinEU=0;ExtMaxR=10;ExtMinR=.003
 ExtTarV=5;ExtTarV2=0;ExtRatEU=1;ExtRatV=.005;ExtCurEU=0;ExtCurV=0;ExtScale=10
 ExtMaxV=10;ExtMinV=0;ExtP=60000000;ExtI=0;ExtD=0;ExtZOf=0;ExtSamp=50
 DM ExtPos[2];DM SlowDAQ[2];ExtSloI=0;ExtTarEU=50
