@@ -1,7 +1,7 @@
 NO
 #AUTO
 TLA=9.5;TLB=9.5;TKA=9.8;TKB=9.8;TM 1000
-Rev=2.13;Version=3.0;EO 0
+Rev=2.14;Version=3.0;EO 0
 RampA=0;StT2A=0;RstPosA=0;
 MO;CE 2,2;CN -1;MT 1,1;KPvel=4;KDvel=30;KIvel=0;FlowRA=0;FloVolA=0
 KP 12,12;KD 30,30;KI 0,0;OverLim=0;ZC 0,0;CONTA=0
@@ -320,42 +320,39 @@ EN;EN
 #LIMSWI
 REM Wait for motion to stop before doing anything
 WT100
-REM Finding limits, return.
-IF (FindingA<>1)|(FindingB<>1)
 REM Case for A forward----------
 REM Check for cycle, and matching pressure in pump mode.
-  IF (_LFA=0)
-    IF (Cycle<>1)
-      IF (FState=4)|(FState=5)
-        NewErrA=1;Errline=_ED;ErrMsgA=19
-      ELSE
-        NewErrA=1;Errline=_ED;ErrMsgA=20
-      ENDIF
+IF (_LFA=0)
+  IF (CycleA=0)&(FindingA=0)
+    IF (FState=4)|(FState=5)
+      NewErrA=1;Errline=_ED;ErrMsgA=19
+    ELSE
+      NewErrA=1;Errline=_ED;ErrMsgA=20
     ENDIF
   ENDIF
+ENDIF
 REM Case for A reverse-----------
 REM Check for matching pressure in receive mode.
 REM We cycle the other way in volume calibration, 
 REM need to ignore reverse flag as well if Cycle=1
-  IF (_LRA=0)
-    IF Cycle<>1;NewErrA=1;Errline=_ED;ErrMsgA=20;ENDIF
-  ENDIF
+IF (_LRA=0)
+  IF (CycleA=0)&(FindingA=0);NewErrA=1;Errline=_ED;ErrMsgA=20;ENDIF
+ENDIF
 REM Case for B forward---------
 REM Check for cycle and matching pressure in pump mode.
-  IF (_LFB=0)
-    IF (Cycle<>1)
-      IF (FState=1)|(FState=2)
-        NewErrB=1;Errline=_ED;ErrMsgB=19
-      ELSE
-        NewErrB=1;Errline=_ED;ErrMsgB=20
-      ENDIF
+IF (_LFB=0)
+  IF (CycleB=0)&(FindingB=0)
+    IF (FState=1)|(FState=2)
+      NewErrB=1;Errline=_ED;ErrMsgB=19
+    ELSE
+      NewErrB=1;Errline=_ED;ErrMsgB=20
     ENDIF
   ENDIF
+ENDIF
 REM Case for B reverse----------
 REM Check for matching pressure in receive mode.
-  IF (_LRB=0)
-    IF Cycle<>1;NewErrB=1;Errline=_ED;ErrMsgB=20;ENDIF
-  ENDIF
+IF (_LRB=0)
+  IF (CycleB=0)&(FindingA=0);NewErrB=1;Errline=_ED;ErrMsgB=20;ENDIF
 ENDIF
 RE
 
