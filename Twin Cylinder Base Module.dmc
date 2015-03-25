@@ -352,7 +352,7 @@ ENDIF
 REM Case for B reverse----------
 REM Check for matching pressure in receive mode.
 IF (_LRB=0)
-  IF (CycleB=0)&(FindingA=0);NewErrB=1;Errline=_ED;ErrMsgB=20;ENDIF
+  IF (CycleB=0)&(FindingB=0);NewErrB=1;Errline=_ED;ErrMsgB=20;ENDIF
 ENDIF
 RE
 
